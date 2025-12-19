@@ -1,0 +1,13 @@
+/Times-Roman	[ (adobe-cache/agfa-timR) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Times-Italic	[ (adobe-cache/agfa-timI) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Times-Bold	[ (adobe-cache/agfa-timB) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Times-BoldItalic	[ (adobe-cache/agfa-timBI) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Helvetica	[ (adobe-cache/agfa-helvR) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Helvetica-Oblique	[ (adobe-cache/agfa-helvO) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Helvetica-Bold	[ (adobe-cache/agfa-helvB) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Helvetica-BoldOblique	[ (adobe-cache/agfa-helvBO) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Courier	[ (adobe-cache/courR) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Courier-Oblique	[ (adobe-cache/courO) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Courier-Bold	[ (adobe-cache/courB) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Courier-BoldOblique	[ (adobe-cache/courBO) lib (.snf) find-sizes 1.4 /loadxcache ] def
+/Symbol	[ (adobe-cache/symb) lib (.snf) find-sizes 1.4 /loadxcache ] def

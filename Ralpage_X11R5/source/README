@@ -1,0 +1,19 @@
+This is a virtually complete implementation of PostScript.
+
+Drivers are provided for a selection of machines.
+
+Writing your own driver involves merely hacking pixrect.c
+until it will drive your display.
+There are only 11 routines to write, and they're all quite short.
+
+Some of the other drivers may provide inspiration, though
+the rigmarole you have to go through
+to deal with most window systems is likely to be unedifying.
+
+Have fun!
+
+- Crispin Goswell
+
+caag@uk.ac.rl.inf
+caag@inf.rl.ac.uk
+...!seismo!mcvax!ukc!rlvd!caag

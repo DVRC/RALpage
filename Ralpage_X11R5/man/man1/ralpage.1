@@ -1,0 +1,232 @@
+.ds Ps P\s-2OST\s+2S\s-2CRIPT\0\s+2
+.na
+.TH RALpage 1 Rutherford
+.SH NAME
+RALpage \- Interpreter for a subset of the
+.Ps
+.R
+page description language
+.SH SYNOPSIS
+ralpage [ -isc - ] files . . .
+.br
+ralview [ -isc - ] files . . .
+.br
+viewer
+.SH DESCRIPTION
+.I RALpage
+is an interpreter for a subset of the
+.Ps
+page description language.
+The parts which are missing are an implementation of
+.B save
+and
+.B restore,
+the effect of
+.B readonly
+and
+.B executeonly
+and the rotation argument of
+.B setscreen.
+None of these will prevent nearly all documents from previewing correctly.
+.PP
+The language is intended for driving laser printers, but this
+implementation is for previewing graphics on a suitable device or
+for more general programming.
+.PP
+The implementation conforms to the
+.Ps
+Language Reference Manual as
+closely as possible.
+.PP
+.I ralpage
+is the version which most people will use.
+.I ralview
+is a version of the interpreter which will talk through a pair of pipes to a
+.I viewer
+program, possibly running on a different machine.
+.PP
+.I ralview
+looks for the environment variable
+.I RALVIEWDEVICE,
+which may contain the name of
+a two-way device or a command with a vertical bar at the front.
+This is ``|viewer'' by default, and may be something like ``|rsh workstation viewer''.
+.I ralview
+may be run on a compute server with no display, and
+.I viewer
+on a workstation.
+.PP
+To create a window of A4 size, the A4 command may be used.
+If this is specified on the command line (e.g. ``ralpage -c A4''),
+.I RALpage
+will not bother to read its standard input unless told to do so with ``-''.
+.SH INVOCATION
+.PP
+A sample command to preview a file is:
+.br
+$ ralpage -c A4 filename
+.br
+Type RETURN at the end of each page.
+.PP
+When
+.I RALpage
+starts up it performs the following actions:
+.PP
+It reads a number of definitions from a standard library file.
+This file is
+.I psrc
+in the directory given as the environment variable
+.I RALPAGELIB
+(defaults to
+.IR /usr/lib/ralpage ).
+This contains various definitions which complete the implementation.
+In particular, it contains a procedure called
+.B executive
+which is the top level interpreter used when
+.I RALpage
+is running interactively.
+.PP
+Next it reads a file called
+.I .ralpage
+from the users
+.I HOME
+directory.
+This may contain any useful startup routines that are always wanted.
+.PP
+Next any arguments are processed off the command line.
+These can be a mixture of options and files, and are executed in order.
+The options are as follows:
+.IP -c
+Causes the next argument to be treated as an executable string.
+.IP -i
+Causes
+.I RALpage
+to behave as if its standard input is a terminal,
+even if it isn't.
+This involves executing the
+.B executive
+definition from the library.
+If this is absent and the standard input is not a terminal and there are
+no files or
+-c options on the command line, the standard input will be treated as an
+ordinary file.
+.IP -s
+Causes the standard input to be read, even if there are files or commands
+on the command line.
+.IP -
+Same as -s.
+.SH CACHING
+.PP
+This implementation does caching of fonts on disk.
+Once a font has been selected and used,
+.B savecurrentfont
+may be used (without any arguments) to save the current font into the
+disk cache.
+It saves only those glyphs which have been cached so far, and will fail
+if the
+.I cache
+directory does not contain sub-directories matching the relevant
+files in the
+.I font
+directory.
+.PP
+Loading from the disk cache is automatic - the system is tolerant about
+absent cached fonts, and simply reads the whole font specification instead.
+The intention is that the system should be lazy, so that it doesn't do work
+unnecessarily.
+.SH FONT MAPPING
+.PP
+Most installations will have a number of fonts which they may wish to use.
+Most files will contain standard font names.
+.I RALpage
+thus contains a dictionary in which name pairs can be placed.
+This dictionary called
+.B FontMap
+is searched when a font is chosen and the font name is replaced by the value
+associated with its dictionary entry if one is present;
+otherwise the name is not changed.
+This is useful if the standard fonts are not available.
+.PP
+Also, during startup, a file called
+.I font-map
+in the
+.I ralpage
+library is
+.B run.
+This is assumed to contain default mappings, and may typically be empty.
+.SH NEW OPERATORS
+.PP
+A number of non-standard operators have been added to this version of
+.IR RALpage .
+.PP
+.B savecurrentfont
+has been described already.
+.PP
+.B setstrokemethod
+and
+.B currentstrokemethod
+allow thin strokes to be done with line drawing rather than the area fill used for
+other lines.
+The option is an integer.
+.B 0
+turns off this feature,
+.B 1
+turns it on and is the default.
+.PP
+.B A4
+and
+.B A5
+generate new windows of the suggested sizes.
+The old window is deleted unless it is being held in a gsave context.
+.SH FILES
+\&~/.ralpage \- customising command source
+.PP
+$RALPAGELIB/psrc \- library of initialisation material.
+.PP
+$RALPAGELIB/font-map \- mappings from standard font names to supplied ones.
+.PP
+The
+.I RALPAGELIB
+directory may contain:
+.IP psrc
+The initialisation library.
+.IP font
+a directory containing font headers, which describe how to load fonts.
+.IP fonts
+a directory containing font descriptions.
+.IP font-map
+a file containing standard font name mappings.
+.IP cache
+a directory containing a corresponding set of cached fonts.
+.SH SEE ALSO
+The
+.Ps
+Language Reference Manual,
+.I Adobe Systems Incorporated, 1984.
+.LP
+``Experiences in Implementing
+.Ps
+'',
+.I Crispin A. A. Goswell,
+Eurographics, 1987, North Holland.
+.LP
+``An Implementation of
+.Ps
+'',
+.I Crispin A. A. Goswell,
+BCS Conference on Workstations and Publication Systems,
+1987, Springer Verlag.
+.SH AUTHOR
+Crispin Goswell.
+Tony Williams provided important guidance.
+.SH BUGS
+No ``virtual memory'' \- dummy operators which do almost nothing are provided.
+.PP
+No access protection, the operators are there, but they don't protect anything.
+.PP
+.B setscreen
+cannot rotate half-tones.
+A 45 degree half-tone has been designed specially.
+.SH TRADEMARKS
+.Ps
+is a registered trademark of Adobe Systems Incorporated.

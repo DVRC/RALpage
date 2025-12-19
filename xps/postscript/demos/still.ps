@@ -1,0 +1,1852 @@
+%!PS-Adobe-2.0
+%%Title: still.ps
+%%Creator: Glenn Reid, Adobe Systems <adobe!greid@decwrl.dec.com>
+%%CreationDate:	greid Wed Jul  6 18:02:53 1988 EDIT: Fri Feb 10 19:06:24 1989
+%%VMUsage: 40696
+%%EndComments
+ 
+% Notice: Copyright 1988 1989 Adobe Systems Incorporated.  All Rights Reserved.
+
+
+/adobe_distill 155 200 add dict def	% 155 required by still.ps
+/adobe_still_version ((V 1.0d release 8 edit 07)) def
+
+% options:
+/debug false def
+/messages false def
+/trace false  def		% print tracing messages like "page: 3"
+/substitutefonts true def	% substitute fonts if guess_font fails....
+/includeuserfonts false def	% copy imbedded user-defined fonts to output?;
+
+% 
+% HOW TO USE: [see section below]
+%
+% OVERVIEW:
+%	This is a meta-utility program that "distills" any PostScript
+%	language program into a simpler one.  The resulting program
+%	will print exactly the same page as the original, but all
+%	unnecessary execution overhead is eliminated and the file is
+%	clean, uniform, and fast.
+%
+% RELEASE NOTES: [recent changes and details]
+%	First public release: 2/10/89
+%
+% MANY USES:
+%	* If you archive documents in PostScript format, they can be
+%	  made as compact and efficient as possible by distilling them.
+%	* As a development tool, you can see what your program is
+%	  really doing, and how simple and fast the driver could be.
+%	* Distilled files can be used as an interchange format,
+%	  since arbitrary PostScript files can be converted to this
+%	  uniform representation.
+%	* If your program can parse these files, then any arbitrary
+%	  PostScript program can be used as input after distilling.
+%	* Many others.
+%
+% FEATURES:
+%	* correctly distills arbitrarily complex PostScript programs
+%	* output is universal, simple, and in default user coordinates
+%	* handles "charpath", "image", "imagemask", "clip", etc.
+%	* correctly follows "save", "restore", "gsave", "grestore"
+%	* re-encodes fonts automatically to match application encoding
+%	* reduces prologue size to only about 25-30 lines
+%	* output files are almost always SMALLER than original files
+% 	* output files are almost always FASTER than original files
+%	* optimizes "show" to use "widthshow" whenever possible.
+%	* uses save/restore at page boundaries
+%	* observes structuring conventions and page independence
+%	* caches font dictionaries instead of repeating "findfonts"
+%	* output is VERY, VERY fast.
+%
+% HOW TO USE:
+%	This program redefines a bunch of operators, and is invoked
+%	with the word "distill".  This file has to precede the job it is
+%	distilling, and you have to invoke it by calling "distill".
+%
+%	PRINTERS:
+%	    In general, start with this file (still.ps), add the word
+%	    "distill" at the end (to invoke the procedure), and tack
+%	    any PostScript language file onto the end.  Send this to
+%	    your favorite PostScript printer with an appropriate
+%	    end-of-file indication at the end.  Results will
+%	    be returned across communication channel.
+%
+%	INTERPRETERS: if you have an interpreter with a file system
+%	    handy, first type "(still.ps) run" to load this file, then
+%	    distill your file like this: "(prog.ps) distill".  It will
+%	    write the results in "prog.psx" (appends an x to the file
+%	    name you give it).
+% 
+%	MACINTOSH: I have written a small Mac utility that is called
+%	    "DistillPS" (an adaptation of "SendPS") that will perform the
+%	    above PRINTER steps for you.  If you are an Adobe registered
+%	    developer, you can get a copy directly from Adobe.
+%
+% BACKGROUND
+% The basic idea is to execute the input file completely, with all of
+% the painting operators redefined.  When one of these operators is
+% called by the client program, the distillery will write the
+% path the output file (with all coordinates normalized to the default
+% userspace coordinate system).
+% 
+% The routines in this file are broken down into several areas.  Most
+% of them are concerned with writing things to the output file,
+% actually, although there are two other interesting areas.  The first
+% are the graphics state procedures, which attempt to keep track of the
+% graphics state and, when a painting op is called, it writes out any
+% changes to the graphics state since the last time it was called.  This
+% keeps each painting op from having to write gstate itself.  The other
+% interesting procs are simply the redefinitions of the painting ops
+% themselves.
+%
+% KNOWN COMPATIBLE PROGRAMS
+% The following applications have been tested (with some version of the
+% driver, at least), successfully:
+%	Lotus Manuscript
+%	Macintosh "LaserPrep" (all documents, I think)
+%	DEC's VaxDocument
+%	Scribe
+%	PageMaker
+%	Frame Maker
+%	Adobe Illustrator
+%	TranScript (ditroff and enscript drivers)
+%
+% KNOWN PROBLEMS:
+%	Rotated text with "charpath" isn't working quite right.
+%
+%	Does not really support color yet.
+%
+%	Programs that use the transform operator to make resolution-
+%	rounding decisions may have the output file bound to a specific
+%	resolution.  The last ProcSet (called "hacks") redefines a few
+%	operators to try to work around this.  Output file is still
+%	device-independent in any case, but might look different.
+%
+%	Relies on bug in save/restore related to string bodies to
+%	preserve some information across save/restore.  Localized
+%	to the "adobe_staticvar" procedure set.
+%
+%	In order to optimize re-encoding of fonts, the distillery takes
+%	an educated guess that the first re-encoded font it sees will
+%	have a representative encoding vector ("stdvec").  If this
+%	first font is not encounterd before other marks are made, the encoding
+%	vector cannot be produced in the %%BeginSetup section, and the still
+%	is forced to repeat the vector every time a font is used.  Work
+%	is in progress on a heuristic to improve this.
+%
+%       In order to avoid building up the dictionary stack during
+%       execution, all definitions are made in one dictionary
+%       (PROLOGUE) and it is not explicitly brought to the top of
+%       the dictionary stack for each operation (to avoid
+%       "dictstackoverflow" errors).  Most of the identifiers have
+%       been chosen to be reasonably unique, but there could be a
+%       conflict if user programs use the same names.
+%
+%	Sometimes generates unnecessarily verbose code in the presence
+%	of lots of save/restores in original file.  Try distilling the
+%	output a second time to improve this (like whiskey)....
+%
+%	Some of the ProcSets depend on each other in weird ways, which
+%	is definitely wrong, since only the script should depend on
+%	the procset definitions.  Eventually this will get fixed.
+%
+%	Does not always work correctly with user-defined fonts, especially
+%	those defined by the standard TeX driver (unfortunately).
+
+%%BeginProcSet: distill_defs 1.0 0
+/setpacking where { pop currentpacking true setpacking } if
+/firstmtx matrix currentmatrix def
+
+/bdef { bind def } bind def
+
+/ifnotdef { %def
+  % only does the "def" if the key has not already been defined:
+    1 index where { pop pop pop }{ def } ifelse
+} bdef
+
+/*flushfile /flushfile load ifnotdef
+
+/setpacking where { pop setpacking } if
+%%EndProcSet
+
+%%BeginProcSet: Adobe_staticvar 1.0 0
+    % this procedure set implements the "magic" stuff to hide numbers
+    % and other things where they will not be subject to save/restore
+    /magicval { 4 string } bdef
+    /hideval { %def	% /name int :	% "hideval" uses save/restore bug!
+	exch load dup 0 (\040\040\040\040) putinterval
+	exch (\040\040\040\040) cvs dup length 4 exch sub exch putinterval
+    } bdef
+    /magicbool { 5 string } bdef
+    /hidebool { %def	% /name int :	% "hideval" uses save/restore bug!
+	exch load dup 0 (\040\040\040\040\040) putinterval
+	exch (\040\040\040\040\040) cvs 0 exch putinterval
+    } bdef
+    /cvnum { cvx exec } bdef	% makes hidden val back into an integer
+    /cvbool { cvx exec } bdef	% makes hidden val back into a boolean
+    /hidefontname { %def
+	% hides a font name in a string body, for use in %%DocumentFonts
+	scratch cvs
+	% look to see if it is already in the docfonts string:
+	% lots of hacks to search for (FontName\n), not just (FontName)
+	save	% cause we're using memory for temporary string
+	    adobe_distill begin
+		1 index length 1 add string /tmpstring exch def
+		tmpstring dup length 1 sub (\040) 0 get put
+		tmpstring 0 3 index putinterval
+		pagefonts tmpstring search {pop pop pop false}{pop true} ifelse
+		docfonts tmpstring search {pop pop pop false}{pop true}ifelse
+	    end
+	3 -1 roll restore		% roll save object past booleans
+
+	% first deal with docfonts, then with pagefonts booleans
+	{ %ifelse
+	    exch	% extra boolean for page fonts
+	    dup dfontcount cvnum 1 index length add 1 add
+	    docfonts length lt {
+		dup docfonts exch dfontcount cvnum exch putinterval
+		length 1 add dfontcount cvnum add /dfontcount exch hideval
+		docfonts dfontcount cvnum 1 sub (\040) putinterval
+	    }{ %else
+		pop (% No more room for fonts in document font list\n) d=
+	    } ifelse
+	    messages { %if
+		(document fonts: ) print
+		docfonts 0 dfontcount cvnum getinterval = flush
+	    } if
+	    exch % page font boolean still on stack, under "dup"ed string
+	}{ } ifelse
+	{ %ifelse
+	    pfontcount cvnum 1 index length add 1 add
+	    pagefonts length lt {
+		dup pagefonts exch pfontcount cvnum exch putinterval
+		length 1 add pfontcount cvnum add /pfontcount exch hideval
+		pagefonts pfontcount cvnum 1 sub (\040) putinterval
+	    }{ %else
+		pop (% No more room for fonts in page font list\n) d=
+	    } ifelse
+	    messages { %if
+		(page fonts: ) print
+		pagefonts 0 pfontcount cvnum getinterval = flush
+	    } if
+	}{ pop } ifelse
+    } bdef
+%%EndProcSet: Adobe_staticvar 1.0 0
+
+%%BeginProcSet: distill 1.0 0
+/setpacking where { pop currentpacking true setpacking } if
+
+/adobe_distill dup where { pop pop }{ 165 200 add dict def } ifelse
+
+% some variables
+    /optimize true def		% optimize "show" variants
+    /tolerance .05 ifnotdef	% for "approximately equal to" operations
+    /cachedir 60 dict def	% how many fonts to hang onto
+
+    % magic variables depending on "hideval", not subject to save/restore
+    /pagecount magicval def	/pagecount 1 hideval
+    /beginsetup magicbool def	/beginsetup true hidebool
+    /lastshowpage magicbool def	/lastshowpage false hidebool
+    /begunpage magicbool def	/begunpage false hidebool
+
+    /dfontcount magicval def 	/dfontcount 0 hideval
+    /pfontcount magicval def	/pfontcount 0 hideval
+
+    /docfonts 40 30 mul string def	    % room for 40 30-byte font names
+    /pagefonts 40 30 mul string def	    % room for 40 30-byte font names
+    /scratch 128 string def
+    /fontcount 0 def
+    /indentlevel 0 def
+    /ANYtype null def
+    /insideproc false def
+    /Dfont null def
+    /Ffont null def
+    /Fname null def
+    /lastshow false def
+    /imageproc null def
+    /imagematrix null def
+    /imagedepth null def
+    /imageheight null def
+    /imagewidth null def
+
+% a few of them go into userdict:
+/cvp {
+    messages { % ifelse
+	(                     ) cvs print (\040) print
+    }{ pop } ifelse
+} bdef
+/pr= { messages { print }{ pop } ifelse } bdef
+/d= { messages { = }{ pop } ifelse } bdef
+
+/distill {
+    adobe_distill begin
+	debug { (%!PS-Adobe-2.0 debug version ) print dup == } if
+	userdict /orig_dictcount countdictstack put
+	count 0 eq { %ifelse
+	    /OUTfile (%stdin) def
+	    /fd (%stdout) (w) file def
+	    initstill
+	    writeprologue
+	    initgstate
+	    currentfile cvx exec
+	    writetrailer
+	}{ %else
+	    initgraphics
+	    /saveall save def
+		/INfile exch def
+		/OUTfile INfile length 1 add string def
+		OUTfile 0 INfile putinterval
+		OUTfile dup length 1 sub (x) 0 get put
+		trace { (output file: ) print OUTfile = } if
+		/outfile OUTfile (w) file def
+		/fd /outfile load def
+		initstill
+		writeprologue
+		initgstate
+		debug { %ifelse
+		    INfile run
+		}{ % else
+		    { INfile run } stopped { % if
+			 errordict begin $error begin
+			    (\n%%[Error: ) wout
+			    /errorname load =string cvs wout
+			    (; OffendingCommand: ) wout
+			    /command load =string cvs wout (]%%) wout writeNL
+			    (STACK:) writeop
+			    ostack { =string cvs writeop } forall
+			    fd systemdict /flushfile get exec
+			    handleerror
+			end end
+		    } if
+		} ifelse
+		writetrailer
+		fd closefile
+		countdictstack orig_dictcount sub { end } repeat
+		clear
+	    saveall { restore } stopped { %if
+		trace { (couldn't restore after distill.) = } if
+	    } if
+	} ifelse
+   end
+} bdef
+
+% the rest of them go in "adobe_distill"
+adobe_distill begin
+%     /stopped {
+% 	(stopped: ) print dup ==
+% 	exec false
+%     } bdef
+
+    /initstill {
+	/beginsetup true hidebool
+	/lastshowpage false hidebool
+	/begunpage false hidebool
+	/pagecount 1 hideval
+	/STDvec 0 hideval
+	/PAGEvec 0 hideval
+	/dfontcount 0 hideval
+	/pfontcount 0 hideval
+	/SharedFontDirectory where { %ifelse
+	    /SharedFontDirectory get
+	}{ /FontDirectory load } ifelse
+	/FontDirectory exch def
+	0 1 pagefonts length 1 sub { pagefonts exch 0 put } for
+	0 1 docfonts length 1 sub { docfonts exch 0 put } for
+    } bdef
+    /writeRmove { %def
+	2 copy lineY sub exch lineX sub exch
+	dup 0.0 eq { pop writenum (x) writeop }{ %ifelse
+	    1 index 0.0 eq { writenum (y) writeop pop }{ %ifelse
+		writepair (r) writeop
+	    } ifelse
+	} ifelse
+	/lineY exch store /lineX exch store
+    } bdef
+    /writelines { %def
+	counttomark REPEAT_LINETO_THRESHOLD gt { % ifelse
+	    counttomark /lcount exch store
+	    lcount -2 2 { %for
+		dup /rcount exch store
+		-2 roll 2 copy lineY sub exch lineX sub exch
+		4 -2 roll /lineY exch store /lineX exch store
+		rcount 2 roll
+	    } for
+	    lcount 2 idiv { writepair writeNL } repeat
+	    lcount 2 idiv writenum (R) writeop
+	}{ % else
+	    counttomark -2 2 { -2 roll writeRmove } for
+	} ifelse
+    } bdef
+    /writepath {
+	/closed false store
+	% optimize special case of just "moveto lineto stroke"
+	mark
+	% pathforall
+	{ counttomark 2 gt { cleartomark false exit } if thruCTM true }
+	{ counttomark 5 gt { cleartomark false exit } if thruCTM true }
+	{ cleartomark false exit }
+	{ cleartomark false exit }
+	pathforall { %ifelse
+	    counttomark 5 ne { %ifelse
+		% degenerate case...
+		ischarpath counttomark 2 eq and {	% just moveto
+		    writepair (m) writeop
+		} if
+		cleartomark
+	    }{ %else
+		3 -1 roll pop
+		/?simplepath true store
+		simplepath astore pop
+		pop %mark
+	    } ifelse
+	}{ %else
+	    /?simplepath false store
+	    mark
+	    { % moveto
+		closed { (cp ) wout /closed false store } if
+		counttomark 2 gt { %if
+		    counttomark 1 add 2 roll writelines 3 1 roll
+		} if
+		2 copy thruCTM /lineY exch store /lineX exch store
+		writeTpair (m) writeop
+	    } % moveto proc
+	    { %lineto proc
+		thruCTM count 490 gt { writelines } if
+	    } % lineto
+	    { % curveto
+		counttomark 6 gt { %if
+		    counttomark 1 add 6 roll writelines 7 1 roll
+		} if
+		2 copy thruCTM /lineY exch store /lineX exch store
+		3 { %repeat
+		    6 -2 roll 2 copy thruCTM
+		    exch writenum writenum
+		} repeat (c) writeop 6 {pop} repeat
+	    } % curveto
+	    { % closepath
+		counttomark 0 gt { writelines } if
+		/closed true store
+	    } % closepath
+	    pathforall
+	    counttomark 0 gt { writelines } if
+	    pop %mark
+	} ifelse
+    } bdef
+    /hashpath { %def
+      % manufacture a [fairly] unique integer to represent a path:
+	-1				% initial value
+	{ .5 add add 2 div add }	% moveto
+	{ add sub }			% lineto
+	{ add add sub add add add }	% curveto
+	{ 1 add }			% closepath
+	pathforall
+	dup 100 lt { 10 mul truncate 10 div } if
+    } bdef
+    /hashencoding { %def
+      % manufacture a [fairly] unique integer for an encoding vector,
+      % by alternately adding then subtracting the length of the name.
+      % The alternation makes reordered lists with same names still come out
+      % with a different hash value (the "-1 exch" and the "mul" do this)
+	-1 exch 0 exch			% initial value: 0
+	{ % forall
+	    dup type /nametype eq { length }{ pop 1 } ifelse
+	    2 index mul add	% multiply by 1 or -1 and add
+	    exch -1 mul exch	% flip 1 and -1
+	} forall
+	exch pop			% get rid of -1, leave hash val
+    } bdef
+    /STDvec magicval def /STDvec 0 hideval
+    /PAGEvec magicval def /PAGEvec 0 hideval
+    /enc1 null def /enc2 null def
+    /diffencoding { %def
+	% check the "top128" boolean to see if it's worth reencoding them
+	/enc2 exch store /enc1 exch store	% enc2 is the new one
+	[ 
+	    32 1 127 { %for				% 0 1 255 ??
+		dup dup enc2 exch get exch enc1 exch get
+		1 index eq { pop pop } if
+	    } for
+	]
+    } bdef
+    /indent { indentlevel { fd (  ) writestring } repeat } bdef
+    /++ { dup load 1 add store } bdef
+    /-- { dup load dup 1 ge { 1 sub } if store } bdef
+
+end %adobe_distill
+/setpacking where { pop setpacking } if
+%%EndProcSet
+
+%%BeginProcSet: distill_writetofile 1.0 0
+/setpacking where { pop currentpacking true setpacking } if
+/adobe_distill dup where { pop pop }{ 165 200 add dict def } ifelse
+adobe_distill begin
+    /writetrailer { %def	% :
+	stackptr 0 ne { stackshow } if
+	begunpage cvbool { %if
+	    lastshowpage cvbool not { %if
+		( /showpage {} def) writeop
+	    } if
+	    pagecount cvnum scratch cvs wout ( ENDPAGE\n) wout
+	    (%%PageTrailer) writeop
+	    (%%PageFonts: ) wout
+	    pfontcount cvnum 0 eq { writeNL }{ %else
+		pfontcount cvnum 200 lt { %ifelse
+		    pagefonts 0 pfontcount cvnum getinterval writeop
+		}{ %else
+		    pagefonts (\040) search not { writeop }{ %else
+			writeop	% first one without the %%+
+			{ %loop
+			    search { (%%+ ) wout writeop }{ %else
+				(\000) search { writeop pop pop }{ pop } ifelse
+				exit
+			    } ifelse
+			} loop
+		    } ifelse
+		} ifelse
+		0 1 pfontcount cvnum { pagefonts exch 0 put } for
+		/pfontcount 0 hideval
+	    } ifelse
+	} if
+	(%%Trailer) writeop
+	(end %PROLOGUE) writeop
+	(%%Pages: ) wout pagecount cvnum writenum writeNL
+	(%%DocumentFonts: ) wout
+	dfontcount cvnum 0 eq { writeNL }{ %else
+	    dfontcount cvnum 200 lt { %ifelse
+		docfonts 0 dfontcount cvnum getinterval writeop
+	    }{ %else
+		docfonts (\040) search not { writeop }{ %else
+		    writeop	% first one without the %%+
+		    { %loop
+			search { (%%+ ) wout writeop }{ %else
+			    (\000) search { writeop pop pop }{ pop } ifelse
+			    exit
+			} ifelse
+		    } loop
+		} ifelse
+	    } ifelse
+	} ifelse
+	(%%EOF) writeop
+    } bdef
+    /writecomments { %def
+	fd (%!PS-Adobe-2.0\n) writestring
+	fd (%%Title: ) writestring fd OUTfile writestring fd (\n) writestring
+	fd (%%Creator: Glenn Reid and still.ps ) writestring
+	fd adobe_still_version writestring fd (\n) writestring
+	fd (%%DocumentProcSets: Adobe_distill 0.807\n) writestring
+	fd (%%Pages: (atend)\n) writestring
+	fd (%%EndComments\n) writestring
+    } bdef
+    /writeprologue { %def	% :
+	writecomments
+	mark
+	(%%BeginProcSet: Adobe_distill 0.807)
+	(/PROLOGUE 30 40 add dict def)
+	( % 30 procedure entries + room for 40 cached font dictionaries)
+	( PROLOGUE begin)
+	( /clip { } def    % causes problems. remove if "clip" is needed)
+	( /bdef { bind def } bind def	/ldef { load def } bdef)
+	( /T { moveto show } bdef	/A { moveto ashow } bdef)
+	( /W { moveto widthshow } bdef	/AW { moveto awidthshow } bdef)
+	( /f /fill ldef			/R { { rlineto } repeat } bdef)
+	( /r /rlineto ldef		/L { { lineto } repeat } bdef)
+	( /m /moveto ldef		/l { moveto lineto stroke } bdef)
+	( /x { 0 rlineto } bdef		/y { 0 exch rlineto } bdef)
+	( /c /curveto ldef		/cp /closepath ldef)
+	( /s /stroke ldef		/w /setlinewidth ldef)
+	( /g /setgray ldef		/j /setlinejoin ldef)
+	( /d /setdash ldef		/F /setfont ldef)
+	( /MF { findfont exch makefont setfont } bdef)
+	( /DF { findfont exch scalefont setfont currentfont def } bdef)
+	( /BEGINPAGE { pop /pagesave save def } bdef)
+	( /ENDPAGE { pop pagesave restore showpage } def)
+	( /REMAP { %def)
+	(   FontDirectory 2 index known { pop pop pop } { %ifelse)
+	(     findfont begin currentdict dup length dict begin)
+	(       { 1 index /FID ne {def}{pop pop} ifelse } forall)
+	(       exch dup length 0 gt { /Encoding exch def }{ pop } ifelse)
+	(     currentdict end end definefont pop)
+	(   } ifelse)
+	( } bdef)
+	( /RECODE { %def)
+	(    3 -1 roll 1 index findfont /Encoding get 256 array copy exch)
+	(    0 exch { %forall)
+	(     dup type/nametype eq)
+	(	{ 3 {2 index} repeat put pop 1 add }{ exch pop }ifelse)
+	(    } forall pop 3 1 roll REMAP)
+	( } bdef)
+	( end %PROLOGUE)
+	(%%EndProcSet: Adobe_distill 0.807)
+	(%%EndProlog)
+	(%%BeginSetup)
+	(PROLOGUE begin)
+	% write all the above strings to the output file:
+	counttomark -1 1 { %for
+	    -1 roll fd exch writestring fd (\n) writestring
+	} for
+	fd systemdict /flushfile get exec
+	pop %mark
+    } bdef
+    /checksetup { %def
+	% called from "fontstate", "graphicstate", and "definefont"
+	beginsetup cvbool {
+	    /beginsetup false hidebool
+	    fd (\n%%EndSetup\n%%Page: 1 1\n) writestring
+	    fd (%%PageFonts: (atend)\n) writestring
+	    fd (1 BEGINPAGE\n) writestring
+	    /begunpage true hidebool
+	    /fontcount 0 store
+	}{ %else
+	    lastshowpage cvbool { %if
+		/lastshowpage false hidebool
+		/fontcount 0 store
+		(%%Page: ) wout
+		trace { (page: ) print pagecount cvnum == flush } if
+		/pagecount pagecount cvnum 1 add hideval
+		pagecount cvnum dup writenum writenum writeNL
+		(%%PageFonts: (atend)\n) writeop
+		pagecount cvnum scratch cvs wout ( BEGINPAGE\n) wout
+		/begunpage true hidebool
+	     % invalidate all remapped fonts, for page independence
+		FontDirectory { %forall
+		    exch pop dup /FontInfo known { %ifelse
+			/FontInfo get dup /pleasemap known { %ifelse
+			    begin (Glenn Reid)
+				pleasemap cvbool not {
+				    /pleasemap true hidebool
+				} if pop
+			    end
+			}{ pop } ifelse
+		    }{ pop } ifelse
+		} forall
+		% forcegstate
+	    } if
+	} ifelse
+    } bdef
+    /writenamearray {		% [ /name ... ] :
+	fd ([) writestring
+	/indentlevel ++ fd (\n) writestring indent
+	/CNT 1 store
+	%| maintain CNT to count bytes.  wrap lines at a reasonable
+	%| place when writing out character names, to avoid long lines
+	{ %forall
+	    fd (/) writestring
+	    dup type /nametype eq { scratch cvs }{ pop (.notdef) } ifelse
+	    dup  length 1 add CNT add /CNT exch store  fd exch writestring
+	    CNT 60 ge { /CNT 1 store fd (\n) writestring indent } if
+	} forall
+	/indentlevel -- fd (\n) writestring indent fd (]) writestring
+    } bdef
+    /writediffencoding {	% [ 32/name 37/etc ... ] :
+	fd ([) writestring
+	/indentlevel ++ fd (\n) writestring indent
+	/CNT 1 store
+	%| maintain CNT to count bytes.  wrap lines at a reasonable
+	%| place when writing out character names, to avoid long lines
+	{ %forall
+	    dup type /integertype eq { %ifelse
+		fd (\040) writestring
+		scratch cvs fd exch writestring /CNT CNT 4 add store
+	    }{ %else
+		fd (/) writestring
+		dup type /nametype eq { scratch cvs }{ pop (.notdef) } ifelse
+		dup  length 1 add CNT add /CNT exch store  fd exch writestring
+	    } ifelse
+	    CNT 60 ge { /CNT 1 store fd (\n) writestring indent } if
+	} forall
+	/indentlevel -- fd (\n) writestring indent fd (]) writestring
+    } bdef
+ 
+  % write numbers in various formats:
+ 
+    /thruCTM { CTM transform } bdef
+    /dthruCTM { CTM dtransform } bdef
+    /XthruCTM { 0 CTM dtransform pop } bdef
+
+    /*writestring { %def
+	writestring fd *flushfile
+    } bdef
+    /shave { %def
+      % eliminate significant digits beyond .001; compensate for roundoff
+	dup type /realtype eq { %if
+	    1000 mul truncate 1000 div
+	} if
+    } bdef
+    /writenum { % def		% num :
+	dup abs 0.001 le { pop 0 } if		% --> 0
+	dup dup cvi eq { cvi } if
+	fd exch scratch cvs writestring _space
+    } bdef
+    /writeprecisenum { % def		% num :
+	fd exch scratch cvs writestring _space
+    } bdef
+    /writeXnum { % def		% num :
+	CTM 0 get mul writenum
+    } bdef
+    /writeYnum { % def		% num :
+	CTM 3 get mul writenum
+    } bdef
+    /writeTpair { % def		% num1 num2 :
+	thruCTM exch
+	writenum writenum
+    } bdef
+    /writepair { % def		% num1 num2 :
+	exch writenum writenum
+    } bdef
+    /writenumarray {		% [ nums ] : 
+	fd ([) writestring
+	{ writenum } forall
+	fd (] ) writestring
+    } bdef
+ 
+  % write out names and strings:
+    /writeNL { fd (\n) writestring } bdef
+    /_space { fd (\040) writestring } bdef
+    /wout { % def		% (string) :
+	 fd exch writestring
+    } bdef
+    /writestr { % def		% (string) :
+	fd exch writestring _space
+    } bdef
+    /writeop { %def		% (string) :
+	fd exch writestring writeNL
+    } bdef
+    /writePSstring { % def	% (string) :
+	fd (\() writestring dup length 75 gt exch
+	wordfix fd (\) ) writestring { writeNL } if % if length > 75 bytes
+    } bdef
+    /writename { % def		% name :
+	scratch cvs fd exch writestring  _space
+    } bdef
+    /writeRname { % def		% name :
+	(/) wout scratch cvs wout (R ) wout
+    } bdef
+    /checkallnames { %def	% proc :
+	{ % forall
+	    dup type /nametype ne { pop }{ %ifelse
+		dup systemdict exch known { pop }{ % ifelse
+		    dup xcheck not { pop }{ %ifelse
+			dup load dup type /arraytype eq %
+			    { checkallnames }{ pop } ifelse
+			(userdict /) wout dup writename
+			load writeANY
+			(put) writeop
+		    } ifelse
+		} ifelse
+	    } ifelse
+	} forall
+    } bdef
+    /writeproc { %def
+	({) writestr writeNL
+	insideproc exch /insideproc true store /indentlevel ++
+	dup type /arraytype eq 1 index type /packedarraytype eq or { % ifelse
+	    dup length 20 lt { %ifelse
+		{ writeANY } forall
+	    }{ %else
+		{ writeANY writeNL indent } forall
+	    } ifelse
+	}{ %else
+	    writename
+	} ifelse
+	/insideproc exch store /indentlevel --
+	indent (}) writestr
+    } bdef
+    /typedict 12 dict def
+    typedict begin
+	/stringtype { writePSstring } def
+	/arraytype { %def
+	    dup xcheck { %ifelse
+		writeproc
+	    }{ %else
+		/CNT 1 store
+		([) writeop /indentlevel ++ indent
+		{ indent writeANY writeNL } forall
+% 		{ %forall
+% 		    writeANY /CNT ++ CNT 10 gt { %if
+% 			/CNT 1 store writeNL indent
+% 		    } if
+% 		} forall
+		/indentlevel -- writeNL indent
+		(]) writeop
+	    } ifelse
+	} bdef
+	/packedarraytype /arraytype load def
+	/dicttype { %def
+	    dup maxlength writenum (dict begin) writeop
+	    { %forall
+		indent exch writeANY writeANY (def) writeop
+	    } forall (currentdict end) writeop
+	} bdef
+	/integertype { writenum } def
+	/realtype { writenum } def
+	/nulltype { pop (null ) wout } def
+	/operatortype { %def
+	    insideproc { %ifelse
+		writename
+	    }{ %else
+		(/) wout writename (load) writestr
+	    } ifelse
+	} bdef
+	/nametype { %def
+	    dup xcheck not { (/) wout } if
+	    writename
+	} bdef
+    end % typedict
+    /writeANY { %def 
+	dup type dup typedict exch known { %ifelse
+	    typedict exch get exec
+	}{ %else
+	    pop writename
+	} ifelse
+    } bdef
+    % The following writes an escaped string that may contain special chars.
+    % It regenerates the (\035string) notation.
+    /wordfix { %def		% (string) :
+	(\() search { %ifelse
+	    rparenfix (\\\() wout pop wordfix
+	}{ rparenfix } ifelse
+    } bdef
+    /rparenfix { %def
+	(\)) search { %ifelse
+	    binaryfix (\\\)) wout pop rparenfix
+	}{ binaryfix } ifelse
+    } bdef
+    /str1 1 string def
+    /longstr 1028 string def
+    /writetomark { %def
+	counttomark -1 0 { %for
+	    longstr exch exch put
+	} for
+    } bdef
+    /binaryfix { %def
+	dup false exch { %forall
+	    dup 128 gt 1 index 32 lt or { %ifelse
+		str1 exch 0 exch put pop true exit
+	    }{ pop } ifelse
+	} forall
+	{ %ifelse	% depending on whether num>128 was found
+	    str1 search {
+		quotefix		% string previous to num>128
+		(\\) wout		% the backslash
+					% write suspicious char as octal
+		0 get 8 scratch cvrs	% padding with leading 0 as needed
+		dup length 3 exch sub { (0) wout } repeat wout
+		binaryfix		% recurse on rest of string
+	    }{
+		(ERROR: search lied in "binaryfix".) = flush stop
+	    } ifelse
+	}{ quotefix } ifelse
+    } bdef
+    /quotefix { %def
+	(\\) search {  %ifelse
+	    wout (\\\\) wout pop quotefix
+	}{ wout } ifelse
+    } bdef
+
+end %adobe_distill
+/setpacking where { pop setpacking } if
+%%EndProcSet
+
+%%BeginProcSet: distill_graphicstate 1.0 0
+% we don't want packed arrays for all these matrices; set packing later
+/adobe_distill dup where { pop pop }{ 165 200 add dict def } ifelse
+adobe_distill begin
+ 
+  % define a bunch of state variables, then use "store" subsequently
+  % to write into them (to avoid currentdict problems).
+    /mtx matrix def
+    /tmpmtx matrix def
+    /fontmtx matrix def
+    /curfontmtx matrix def
+    /CTM matrix currentmatrix def
+%    /origCTM matrix currentmatrix def
+    /currCTM matrix currentmatrix def
+    /compareCTM matrix currentmatrix def
+    /newCTM matrix def
+    /mtx1 0 def
+    /mtx2 0 def
+    /invmtx
+	tmpmtx currentmatrix matrix invertmatrix
+    def
+    /$normalize {
+	invmtx currCTM concatmatrix
+    } bind def
+    /gray currentgray def
+    /linewidth currentlinewidth def
+    /linecap currentlinecap def
+    /linejoin currentlinejoin def
+    /miterlimit currentmiterlimit def
+    /screenang null def
+    /screenfreq null def
+    /screenproc null def
+    /closed false def
+    currentdash /dashoff exch def /dasharray exch def
+    /pointX -1 def /pointY -1 def
+    /initfontscale matrix def
+    /fontscale initfontscale def
+    /0a 0 def /0b 0 def
+    /X1 0 def /X2 0 def
+    /origfontname null def
+    /currfontdict null def
+    /definefontname null def
+    /tempfontname /Courier def
+    /ischarpath false def
+    /currpath newpath hashpath def
+    /pathstr () def
+    /pathbool false def
+    /pathX 0 def /pathY 0 def
+    /lineX 0 def /lineY 0 def
+    /lcount 0 def /rcount 0 def
+    /REPEAT_LINETO_THRESHOLD 20 def	% point at which repeat loop is used
+    /currX -1 def /currY -1 def
+    /diffX 0 def
+    /gstates 0 def
+    /CNT 0 def
+    /showX null def /showY null def
+    /currfont currentfont def
+    /cliphash newpath hashpath def
+    /?simplepath false def
+    /simplepath [ 0 0 0 0 ] def
+
+/setpacking where { pop currentpacking true setpacking } if
+ 
+    /matrixeq { %def		% compares two matrices
+	/mtx2 exch store
+	/mtx1 exch store
+	0 1 5 { %for
+	    dup mtx1 exch get
+	    exch mtx2 exch get eq
+	} for
+	5 { and } repeat
+    } bdef
+ 
+  % procedure definitions for state machinery ---------------
+ 
+    /initgstate { %def
+	gsave
+	    initgraphics
+	    tmpmtx currentmatrix compareCTM matrixeq not {
+		/CTM mtx currentmatrix $normalize store
+		compareCTM currentmatrix pop
+	    } if
+	    /gray currentgray store
+	    /linewidth currentlinewidth XthruCTM store
+	    /linecap currentlinecap store
+	    /linejoin currentlinejoin store
+	    /miterlimit currentmiterlimit store
+	    currentdash /dashoff exch store /dasharray exch store
+	    /origfontname /InvalidFont store
+	    /definefontname /InvalidFont store
+	    /fontscale initfontscale store
+	    /currfontdict currentfont store
+	    currentscreen
+	    /screenproc exch store
+	    /screenang exch store
+	    /screenfreq exch store
+	    /cliphash clippath hashpath store	% Wed Dec 28 12:41:07 1988
+	grestore
+    } bdef % initgstate
+    /forcegstate { %def
+	% after save/restore, you may have to explicitly "undo" anything
+	% that was done within the saved context.  Since save/restore
+	% affect all our state variables, we dump anything that is different
+	% from the default graphics state:
+	/CTM [1.01 0 1.01 0 .5 .5] store
+	/compareCTM [1.01 0 1.01 0 .5 .5] store
+	/fontscale initfontscale store
+	/currfontdict null store
+	/gray null store
+	% checkgstate % fontstate
+    } bdef % initgstate
+    /checkgstate { %def
+	graphicstate
+	fontstate
+    } def %checkgstate
+    /checkCTM { %def
+% 	tmpmtx currentmatrix $normalize CTM matrixeq not {
+% 	    /CTM mtx currentmatrix $normalize store
+% 	} if
+	tmpmtx currentmatrix compareCTM matrixeq not {
+ 	    /CTM mtx currentmatrix $normalize store
+	    compareCTM currentmatrix pop
+	} if
+    } bdef
+    /generalstate { %def
+	stackptr 0 ne { stackshow } if
+	/lastshow false store
+	checkCTM
+    } bdef % generalstate
+    /colorstate { %def
+	gray currentgray ne {
+	    /gray currentgray store
+	    gray shave writenum (g) writeop
+	} if
+    } bdef % colorstate
+    /registerfont { %def
+	dup cachedir exch 20 dict put	% allow 20 point sizes
+	cachedir exch get		% ptsize dict
+	exch fontcount put
+    } bdef
+    /addfontsize { %def
+	cachedir exch get
+	exch fontcount put
+    } bdef
+
+    /fontstate { %def
+% (fontstate in: ) print count ==
+	currentfont dup /ScaleMatrix known not { pop }{ %ifelse
+	    begin
+	     % determine if anything has changed:
+		tmpmtx currentmatrix compareCTM matrixeq not
+		currfontdict currentfont ne or
+		ScaleMatrix fontscale ne or
+		{ %if
+		  % get and set new font names
+		    /origfontname
+			/FontInfo where { %ifelse
+			    pop FontInfo /realname known
+			    { FontInfo /realname get }{ % ifelse
+			      /FontName where {pop FontName}{/Unknown} ifelse
+			    } ifelse
+			}{ %else
+			    /FontName where {pop FontName}{/Unknown} ifelse
+			} ifelse
+		    store
+		    /definefontname
+			/FontName where { pop FontName }{ /Unknown } ifelse
+			FontDirectory { %forall
+			    currentdict eq
+			    { exch pop exit }
+			    { pop } ifelse
+			} forall
+		    store
+		    origfontname hidefontname
+		 % check for font reencoding:
+		 % The current font is the one required in the distilled
+		 % program.  If it is a reeconded font, we must generate
+		 % a call to "REMAP", but at the same time let's mark it
+		 % so we don't generate too may "REMAP" calls.
+ 
+		    checksetup generalstate colorstate
+		 % worry about reencoding:
+		    /FontInfo where { %ifelse
+			pop FontInfo /pleasemap known { %ifelse
+			    FontInfo /pleasemap get cvbool
+			}{ %else
+			    false  % evidently has not been reencoded...
+			} ifelse % leaves a boolean
+		    }{ false } ifelse
+		    { % if remapping has not been done yet:
+			Encoding hashencoding
+			origfontname findfont /Encoding get hashencoding
+			ne { %ifelse
+			    Encoding hashencoding
+			    STDvec cvnum eq { %ifelse
+				(stdvec) writestr
+				origfontname writeRname
+				origfontname (/) wout writename
+				( REMAP) writeop
+			    }{ %else
+			      Encoding hashencoding PAGEvec cvnum eq {
+				  (pagevec) writestr
+				  origfontname writeRname
+				  origfontname (/) wout writename
+				  ( REMAP) writeop
+			      }{ %else
+				  origfontname findfont /Encoding get Encoding
+				  diffencoding writediffencoding
+				  origfontname writeRname
+				  origfontname (/) wout writename
+				  ( RECODE) writeop
+			      } ifelse
+			    } ifelse
+			    /FontInfo where { %if
+				pop FontInfo /pleasemap known { %if
+				    FontInfo begin
+				        /pleasemap false hidebool
+				    end
+				} if
+			    } if
+			} if
+		    } if % /pleasemap
+		 % check font scale change:
+		 % This stuff is absolutely horrible....
+		    /fontscale ScaleMatrix store
+		    fontscale CTM curfontmtx concatmatrix
+		    aload pop			    % Xscale 0a 0b Yscale 0 0
+		    % pop 3 -1 roll pop 3 -1 roll	% X Y 0b 0a [wrong]
+		    pop pop 3 1 roll			% X Y 0b 0a
+		   % if 2nd and 5th elements are both 0...
+		   % and X Y are equal and positive, then you can use
+		   % "scalefont", else you have to use "makefont"
+		    /0a exch store /0b exch store
+		    /X1 exch store /X2 exch store
+ 		    X1 X2			% leave on stack
+		    0a 0b eq 0b 0 eq and	% make sure 0's are 0
+ 		    X1 X2 eq and		% X1 and X2 are equal
+ 		    X1 dup abs eq X2 dup abs eq and	% and positive
+ 		    and
+		    { %ifelse
+			pop shave    % eliminate unnecessary precision
+		     % if you find it in the "font dict cache"....
+			cachedir definefontname known { %ifelse
+			    cachedir definefontname get dup 2 index known {
+				exch get (F) wout writenum
+				(F) writeop
+			    }{ %else
+				pop
+				/fontcount ++
+				dup definefontname addfontsize
+				(/F) wout fontcount writenum %+ cvnum writenum
+				writenum
+				origfontname
+				/FontInfo where { %ifelse
+				    pop FontInfo /pleasemap known { %ifelse
+					FontInfo /pleasemap get cvbool
+				    }{ false } ifelse % leaves a boolean
+				}{ false } ifelse
+				Encoding hashencoding	%new!
+				origfontname findfont /Encoding get
+				hashencoding ne and
+				{ %ifelse
+				    writeRname
+				}{ (/) wout writename } ifelse
+				(DF) writeop
+			    } ifelse
+			}{ %else if you DON'T find the name in the cache
+			    /fontcount ++
+			    dup definefontname registerfont
+			    (/F) wout fontcount writenum
+			    writenum
+			    origfontname
+			    /FontInfo where { %ifelse
+				pop FontInfo /pleasemap known { %ifelse
+				    FontInfo /pleasemap get cvbool not
+				}{ false } ifelse % leaves a boolean
+			    }{ false } ifelse
+			    Encoding hashencoding	%new!
+			    origfontname findfont /Encoding get
+			    hashencoding ne and
+			    { %ifelse
+				writeRname
+			    }{ (/) wout writename } ifelse
+			    (DF) writeop
+			} ifelse
+		    }{ %else
+		     % need either "makefont" or rotated coordinate system
+			pop pop curfontmtx
+			dup 4 0. put dup 5 0. put  % no translate
+			writenumarray
+			origfontname
+			/FontInfo where {
+			    pop FontInfo /pleasemap known
+			}{ false } ifelse { %ifelse
+			    writeRname
+			}{ (/) wout writename } ifelse
+			(MF) writeop
+		    } ifelse
+		    /currfontdict currentfont store
+		} if % anything has changed
+	    end
+	} ifelse
+	beginsetup cvbool not {
+	    generalstate
+	    colorstate
+	} if
+% (fontstate out: ) print count == () = flush
+    } bdef %fontstate
+
+    /graphicstate { %def
+	checksetup
+	generalstate
+	colorstate
+	linewidth currentlinewidth XthruCTM ne {
+	    /linewidth currentlinewidth XthruCTM store
+	    linewidth shave writenum (w) writeop
+	} if
+	linecap currentlinecap ne {
+	    /linecap currentlinecap store
+	    linecap writenum (setlinecap) writeop
+	} if
+	linejoin currentlinejoin ne {
+	    /linejoin currentlinejoin store
+	    linejoin writenum (j) writeop
+	} if
+	miterlimit currentmiterlimit ne {
+	    /miterlimit currentmiterlimit store
+	    miterlimit shave writenum (setmiterlimit) writeop
+	} if
+	currentdash dashoff ne exch dasharray ne or {
+	    currentdash /dashoff exch store /dasharray exch store
+	    fd ([) writestring
+	    dasharray { XthruCTM writenum } forall
+	    fd (] ) writestring
+	    dashoff XthruCTM writenum (d) writeop
+	} if
+	gsave
+	  % don't clip to degenerate paths of any kind:
+	    newpath clippath hashpath cliphash ne { %if
+		mark { pathbbox } stopped not {
+		    exch 4 -1 roll sub abs 1 gt
+		    3 1 roll sub abs 1 gt and { % if
+			writepath
+			(clip newpath) writeop
+			/cliphash hashpath store
+		    } if
+		} if cleartomark
+	    } if
+	grestore
+	currentscreen
+	/screenproc load ne exch screenang ne or exch screenfreq ne or { %if
+	    currentscreen
+	    /screenproc exch store
+	    /screenang exch store
+	    /screenfreq exch store
+	    screenfreq writenum screenang writenum writeNL
+	    /screenproc load
+	    dup type /arraytype eq
+	    1 index type /packedarraytype eq or { %ifelse
+		checkallnames
+	    }{ pop } ifelse
+	    /screenproc load writeproc
+	    (setscreen) writeop
+	} if
+    } bdef %graphicstate
+
+end %adobe_distill
+/setpacking where { pop setpacking } if
+%%EndProcSet
+
+%%BeginProcSet: distill_optimize 1.0 0
+/adobe_distill dup where { pop pop }{ 165 200 add dict def } ifelse
+adobe_distill begin
+  % These procedures implement an optimization scheme for recognizing
+  % sequences of "show" operations that could be optimized into calls
+  % to "widthshow" (or just "show" with a longer string body).  In
+  % order to accomplish this, we have implemented a stack to store
+  % string bodies until they are flushed by a font change, a change
+  % in Y coordinate, or an inter-string space that is inconsistent.
+  % When comparing coordinates for equality, anything with the given
+  % tolerance is accepted as being equal (to combat roundoff error).
+    /tolerance .05 ifnotdef
+    /EQ { sub abs tolerance le } bdef
+    /stack 250 array def
+    /stackptr 0 def
+/setpacking where { pop currentpacking true setpacking } if
+    /push { %def
+	stackptr 0 eq { % if
+	    currentpoint thruCTM
+	    /showY exch store /showX exch store
+	} if
+	/stackptr stackptr 1 add store
+	  stackptr 249 ge { (STACK OVERFLOW!) = flush exit } if
+	stack stackptr 3 -1 roll put
+    } bdef
+    /pull { %def
+	stack stackptr get
+	/stackptr stackptr dup 0 gt { 1 sub } if store
+    } bdef
+
+    /*save systemdict /save get def
+    /save { % def
+	stackshow	% in case there's anything pending....
+	*save
+    } bdef
+
+    /*restore systemdict /restore get def
+    /restore { % def
+	% after save & restore, you may have to explicitly "undo" anything
+	% that was done within the saved context.  Since save & restore
+	% affect all distillery state variables, we dump anything different
+	% from the default graphics state:
+	stackshow	% in case there's anything pending....
+	  currentlinecap	% 5
+	  currentlinewidth	% 4
+	  currentgray		% 3
+	  currentmiterlimit	% 2
+	  currentlinejoin	% 1
+	    6 -1 roll *restore
+	  setlinejoin		% 1
+	  setmiterlimit		% 2
+	  setgray		% 3
+	  setlinewidth		% 4
+	  setlinecap		% 5
+%	initgstate
+	forcegstate % checkgstate %graphicstate
+	(after restore) d=
+    } bdef
+
+    /stackshow { %def
+	stackptr 0 ne { %if
+	    (stackshow: ) d= 1 1 stackptr { (  ) pr= stack exch get d= } for
+	    stackptr 1 eq { %ifelse
+		%- if there is only one string, use "show":
+		pull writePSstring
+		showX showY writepair (T) writeop
+	    }{ %else
+		%- otherwise, build single string (with \b to use W):
+		diffX 0 EQ not { % if
+		    gsave		% figure out widthshow value
+			currfont setfont
+			diffX (\b) stringwidth CTM dtransform pop sub
+		    grestore
+		    writenum (0) writestr (\b) 0 get writenum
+		    (\\b)	% padding character
+		}{ % else
+		    ()		% empty padding character
+		} ifelse
+		(\() wout
+		1 1 stackptr 1 sub { % for
+		    stack exch get wordfix dup wout
+		} for
+		pop		% padding character
+		pull wordfix
+		(\)) wout writeNL
+		showX showY writepair
+		%- if diffX is 0, don't use "widthshow":
+		diffX 0 EQ { (T) }{ (W) } ifelse writeop
+	    } ifelse
+	    /stackptr 0 store
+	} if
+    } bdef
+
+    /setcurrpoint { %def
+	currentpoint thruCTM
+	/currY exch store /currX exch store
+    } bdef % setcurrpoint
+
+end %adobe_distill
+/setpacking where { pop setpacking } if
+%%EndProcSet
+
+%%BeginProcSet: distill_paintops 1.0 0
+/setpacking where { pop currentpacking true setpacking } if
+/adobe_distill dup where { pop pop }{ 165 200 add dict def } ifelse
+adobe_distill begin
+
+  % text operators
+    optimize { %ifelse
+	/sameYcoords { %def
+	  % this is pulled out of the "show" proc for readability; it is
+	  % not used anywhere else
+	    currentfont currfont ne { %ifelse
+		stackshow fontstate push
+	    }{ %else
+		currentpoint thruCTM pop
+		currX sub dup diffX EQ { %ifelse
+		    pop 	% dup'ed value
+		    push
+		}{ %else
+		    diffX -1 eq { %ifelse
+			/diffX exch store push
+		    }{ % else
+			pop stackshow fontstate
+			/diffX -1 store push
+		    } ifelse
+		} ifelse
+	    } ifelse
+	} bdef
+	/show { %def
+	    dup length 0 eq { pop } { %ifelse
+		dup			% save string for use at the end
+		lastshow not { %ifelse
+		    stackshow fontstate
+		    /currfont currentfont store
+		    push
+		    /diffX -1 store
+		}{ % else
+		  % don't optimize if matrix is different...
+		    tmpmtx currentmatrix compareCTM matrixeq
+		    currentpoint thruCTM exch pop
+		    currY eq and { %ifelse		Y = Y
+			sameYcoords
+		    }{ %else currY ne
+			stackshow	% flush the pending show stack
+			fontstate
+			push		% the string (and set showX, showY)
+			/diffX -1 store
+		    } ifelse
+		    /currfont currentfont store
+		} ifelse %lastshow
+		currentfont /FontType known {
+		    currentfont /FontType get 3 eq {
+			end show adobe_distill begin
+		    }{ show } ifelse
+		}{ end show adobe_distill begin } ifelse
+		setcurrpoint
+		/lastshow true store
+	    } ifelse % if length is not 0
+	} bdef
+    }{ % else
+	/show { %def
+	    dup length 0 eq { pop } { %ifelse
+		fontstate
+		dup writePSstring currentpoint writeTpair
+		(T) writeop
+		currentfont /FontType known {
+		    currentfont /FontType get 3 eq {
+			end show adobe_distill begin
+		    }{ show } ifelse
+		}{ end show adobe_distill begin } ifelse
+	    } ifelse % if operand is not null string
+	} bdef
+    } ifelse
+
+    /widthshow optimize { %ifelse
+	{ %def
+	    dup length 0 eq { 4{pop}repeat } { %ifelse
+		4 copy pop pop
+		1 index EQ exch 0.0 EQ and { % ifelse
+		    fontstate
+		    4 1 roll pop pop pop
+		    show	% make sure it's not "bound"
+		}{ %else
+		    fontstate
+		    4 copy
+		    4 2 roll dthruCTM writepair %exch writeXnum writeYnum
+		    exch writenum writePSstring currentpoint writeTpair
+		    (W) writeop
+		    currentfont /FontType known {
+			currentfont /FontType get 3 eq {
+			    end widthshow adobe_distill begin
+			}{ widthshow } ifelse
+		    }{ end widthshow adobe_distill begin } ifelse
+		} ifelse
+	    } ifelse
+	} % if optimized
+    }{ %else
+	{ %def	% Cx Cy char (string) widthshow
+	    dup length 0 eq { 4{pop}repeat } { %ifelse
+		fontstate
+		4 copy
+		% 4 -2 roll exch writeXnum writeYnum exch writenum
+		4 -2 roll dthruCTM writepair exch writenum
+		writePSstring currentpoint writeTpair
+		(W) writeop
+		currentfont /FontType known {
+		    currentfont /FontType get 3 eq {
+			end widthshow adobe_distill begin
+		    }{ widthshow } ifelse
+		}{ end widthshow adobe_distill begin } ifelse
+	    } ifelse
+	} % if not optimized
+    } ifelse bdef
+
+    /ashow optimize { %ifelse
+	{ %def
+	    dup length 0 eq { pop pop pop } { %ifelse
+		3 copy pop
+		1 index EQ exch 0.0 EQ and { % ifelse
+		    fontstate
+		    3 1 roll pop pop
+		    show	% make sure it's not "bound"
+		}{ %else
+		    fontstate
+		    3 copy
+		    3 1 roll dthruCTM writepair
+		    writePSstring currentpoint writeTpair
+		    (A) writeop
+		    currentfont /FontType known {
+			currentfont /FontType get 3 eq {
+			    end ashow adobe_distill begin
+			}{ ashow } ifelse
+		    }{ end ashow adobe_distill begin } ifelse
+		} ifelse
+	    } ifelse
+	} % if optimized
+    }{ %else
+	{ %def
+	    dup length 0 eq { pop pop pop } { %ifelse
+		fontstate
+		3 copy
+		3 1 roll dthruCTM writepair % exch writeXnum writeYnum
+		writePSstring currentpoint writeTpair
+		(A) writeop
+		currentfont /FontType known {
+		    currentfont /FontType get 3 eq {
+			end ashow adobe_distill begin
+		    }{ ashow } ifelse
+		}{ end ashow adobe_distill begin } ifelse
+	    } ifelse
+	} % if not optimized
+    } ifelse bdef
+
+    /awidthshow optimize { %ifelse
+	% Cx Cy 32 Ax Ay (string) awidthshow
+	{ %def
+	    dup length 0 eq { 6{pop}repeat } { %ifelse
+		fontstate
+		6 copy 6 1 roll
+		1 index EQ exch 0.0 EQ and { %ifelse
+		    4 1 roll 1 index eq exch 0.0 eq and { %leaves 32 (str)
+			8 1 roll 7 { pop } repeat
+			show	% make sure it's not "bound"
+		    }{ %else
+			pop pop 3 1 roll pop pop
+			widthshow	% make sure it's not "bound"
+		    } ifelse
+		}{ %else
+		    pop pop pop pop 6 copy 6 -3 roll pop
+		    1 index EQ exch 0.0 EQ and { % ifelse
+			9 3 roll 6 { pop } repeat
+			ashow	% make sure it's not "bound"
+		    }{ %else
+			pop pop pop 6 copy
+			6 -2 roll dthruCTM writepair
+			4 -1 roll writenum 3 1 roll dthruCTM writepair
+			writePSstring currentpoint writeTpair
+			(AW) writeop
+			currentfont /FontType known {
+			    currentfont /FontType get 3 eq {
+				end awidthshow adobe_distill begin
+			    }{ awidthshow } ifelse
+			}{ end awidthshow adobe_distill begin } ifelse
+		    } ifelse
+		} ifelse
+	    } ifelse
+	} % if optimized
+    }{ %else
+	{ %def
+	    dup length 0 eq { 6{pop}repeat } { %ifelse
+		fontstate
+		6 copy
+		% 6 -2 roll exch writeXnum writeYnum
+		% 4 -1 roll writenum 3 -1 roll writeXnum exch writeYnum
+		6 -2 roll dthruCTM writepair
+		4 -1 roll writenum 3 1 roll dthruCTM writepair
+		writePSstring currentpoint writeTpair
+		(AW) writeop
+		    currentfont /FontType known {
+			currentfont /FontType get 3 eq {
+			    end awidthshow adobe_distill begin
+			}{ awidthshow } ifelse
+		    }{ end awidthshow adobe_distill begin } ifelse
+	    } ifelse
+	} % if not optimized
+    } ifelse bdef
+
+   % graphics operators
+    /fillguts { %def
+	(starting fill) d=
+% I'm not sure why this was here to begin with, but it breaks "charpath"...
+% 	gstates 0 le {
+% 	    /ischarpath false store
+% 	    /closed false store
+% 	} if
+	generalstate
+	graphicstate
+	writepath
+	ischarpath { % if
+	    pathstr length 0 gt {
+		pathX writenum pathY writenum (m) writeop
+		pathstr writePSstring (false charpath) writeop
+	    } if
+	} if
+    } bdef
+
+    /fill { %def
+	fillguts
+	?simplepath { %ifelse
+	    simplepath aload pop
+	    4 2 roll writepair (moveto) writeop writepair (lineto) writeop
+	    /?simplepath false store
+	} if
+	(f) writeop
+	fill
+    } bdef
+    /eofill { %def
+	fillguts
+	?simplepath { %ifelse
+	    simplepath aload pop
+	    4 2 roll writepair (moveto) writeop writepair (lineto) writeop
+	    /?simplepath false store
+	} if
+	(eofill) writeop
+	eofill
+    } bdef
+
+    /stroke { %def
+	fillguts
+	?simplepath { %ifelse
+	    generalstate graphicstate
+	    simplepath aload pop writepair writepair (l) writeop
+	    /?simplepath false store
+	}{ % else
+	    closed { (cp ) wout } if
+	    (s) writeop
+	} ifelse
+	stroke
+    } bdef
+
+    /clip { %def
+	/lastshow false store
+	clip
+    } bdef
+    /eoclip { clip } def
+    /imageguts { % def
+	graphicstate
+	/imageproc exch store
+	/imagematrix exch store
+	/imagedepth exch store
+	/imageheight exch store
+	/imagewidth exch store
+     % set up the call to "image" in the output file:
+	(/imagesave save def) writeop
+	CTM writenumarray (concat) writeop
+	(/imagebuff) writestr
+	imagedepth dup type /booleantype eq { pop 1 } if
+	imagewidth mul dup dup 8 idiv 8 mul eq {8 idiv}{8 idiv 1 add} ifelse
+	writenum ( string def) writeop
+     % invoke "image" with correct args in output file:
+	imagewidth writenum imageheight writenum
+	imagedepth (     ) cvs writestr
+	imagematrix writenumarray
+    } bdef
+    /image { %def	% width height depth matrix { proc } :
+	imageguts
+	({ currentfile imagebuff readhexstring pop } image) writeop
+	imagewidth imageheight imagedepth imagematrix
+	{ imageproc dup fd exch writehexstring writeNL } image
+	(imagesave restore) writeop
+    } bdef
+    /imagemask { % def	% width height depth matrix { proc } :
+	imageguts
+	({ currentfile imagebuff readhexstring pop } imagemask) writeop
+	imagewidth imageheight imagedepth imagematrix
+	{ imageproc dup fd exch writehexstring writeNL } imagemask
+	(imagesave restore) writeop
+    } bdef
+    /*showpage systemdict /showpage get def
+    /showpage { %def
+	stackshow
+	pagecount cvnum scratch cvs wout ( ENDPAGE\n) wout
+	/lastshowpage true hidebool
+	/begunpage false hidebool
+	/PAGEvec 0 hideval
+	*showpage
+	(%%PageTrailer) writeop
+	(%%PageFonts: ) wout
+	pfontcount cvnum 0 eq { writeNL }{ %else
+	    pfontcount cvnum 200 lt { %ifelse
+		pagefonts 0 pfontcount cvnum getinterval writeop
+	    }{ %else
+		pagefonts (\040) search not { writeop }{ %else
+		    writeop	% first one without the %%+
+		    { %loop
+			search { (%%+ ) wout writeop }{ %else
+			    (\000) search { writeop pop pop }{ pop } ifelse
+			    exit
+			} ifelse
+		    } loop
+		} ifelse
+	    } ifelse
+	} ifelse
+	0 1 pfontcount cvnum { pagefonts exch 0 put } for
+	/pfontcount 0 hideval
+	% checksetup
+    } bdef
+    /*moveto systemdict /moveto get def
+    /*pathbbox systemdict /pathbbox get def
+    /pathbbox { %def
+	ischarpath { %ifelse
+	    gsave
+		{ currentpoint } stopped { 0 0 } if *moveto
+		pathstr false charpath flattenpath *pathbbox
+	    grestore
+	}{ %else
+	    *pathbbox
+	} ifelse
+    } bdef
+    /*gsave systemdict /gsave get def
+    /gsave { % def
+	/gstates gstates 1 add store
+	*gsave
+    } bdef
+    /*grestore systemdict /grestore get def
+    /grestore { % def
+	gstates 0 gt { /gstates gstates 1 sub store } if
+	*grestore
+    } bdef
+    /charpath { %def
+	% need to make sure that when "stroke" or "fill" comes along
+	% that the "charpath" elements are in the right place in the path...
+	%- writepath
+	checkgstate
+	/ischarpath true store
+	/pathbool exch store
+	/pathstr exch store
+	{ currentpoint } stopped { 0 0 } if thruCTM
+	/pathY exch store /pathX exch store
+	pathstr stringwidth rmoveto
+    } bdef
+    /*newpath systemdict /newpath get def
+    /newpath { %def
+	    gstates 0 le { /ischarpath false store } if
+	    *newpath
+    } bdef
+
+end %adobe_distill
+/setpacking where { pop setpacking } if
+%%EndProcSet: distill_paintops 1.0
+
+%%BeginProcSet: distill_guessfont 1.0
+/setpacking where { pop currentpacking true setpacking } if
+/adobe_distill dup where { pop pop }{ 165 200 add dict def } ifelse
+adobe_distill begin
+    /*definefont systemdict /definefont get def
+    /definefont { %def
+	% make a dictionary into which to put things
+	% put the ORIGINAL name of the font into that dictionary
+	% put the original FID in that dictionary, for easy comparison
+	dup /FontType get 3 eq { %ifelse
+	    dup begin
+		includeuserfonts {
+		    currentdict writeANY
+		    1 index writeANY (exch definefont pop) writeop
+		} if
+		currentdict /FontInfo known {
+		    /FontInfo 5 dict def
+		    FontInfo begin
+			/realname 2 index def
+			/pleasemap magicbool def
+			/pleasemap false hidebool
+		    end
+		} if
+	    end
+	}{ %else
+	    /Dfont exch store
+	 % This might be the first time we've ever seen a new
+	 % encoding.  If so, let's guess that we'll see lots
+	 % more of the vector, and give it the name "stdvec".
+ 	    Dfont begin
+		%gcr FontType 1 eq STDvec cvnum 0 eq and
+	        STDvec cvnum 0 eq
+		Encoding StandardEncoding ne and { %if
+		    /STDvec Encoding hashencoding hideval
+		    fd (/stdvec\n) *writestring
+		    STDvec
+		    StandardEncoding hashencoding eq { %ifelse
+			fd (StandardEncoding ) *writestring
+		    }{ %else
+			Encoding writenamearray
+		    } ifelse
+		    fd (def\n) *writestring
+		    checksetup
+		}{ %else
+		    %gcr FontType 1 eq STDvec cvnum 0 eq and
+		    STDvec cvnum 0 eq
+		    Encoding StandardEncoding ne and { %if
+			/PAGEvec Encoding hashencoding hideval
+			fd (/pagevec\n) *writestring
+			PAGEvec
+			StandardEncoding hashencoding eq { %ifelse
+			    fd (StandardEncoding ) *writestring
+			}{ %else
+			    Encoding writenamearray
+			} ifelse
+			fd (def\n) *writestring
+			checksetup
+		    } if
+		} ifelse
+	    end
+	 % try to find the "real" font in FontDirectory from which this
+	 % font was derived, assuming it was reencoded....
+	    /tempfontname /Courier store
+	    /tempfontname /UnKnownFont store
+	    FontDirectory { %forall
+		/Ffont exch store /Fname exch store
+		% if the font was already touched, ignore it:
+		Ffont /FontInfo known { %ifelse
+		    Ffont /FontInfo get /realname known not
+		}{ true } ifelse	% leaves boolean
+		{ % if
+		    % if UniqueID's match, grab it!
+		    Dfont /UniqueID known Ffont /UniqueID known and {
+			Dfont /UniqueID get Ffont /UniqueID get eq {
+			    /tempfontname Fname store exit
+			} if
+		    } if
+
+		    % if CharStrings match, then compare FontMatrix.  If
+		    % FontMatrix matches or the *second* elements match,
+		    % (it might be oblique), then grab it.
+		    Dfont/CharStrings known Ffont/CharStrings known and {
+		      Dfont/CharStrings get Ffont/CharStrings get eq {
+			Dfont/FontMatrix known Ffont/FontMatrix known and {
+			  Dfont/FontMatrix get Ffont/FontMatrix get
+			  2 copy eq  3 1 roll
+			  2 get exch 2 get eq or {
+			      /tempfontname Fname store exit
+			  } if
+			} if
+		      } if
+		    } if
+
+		    % if everything matches but some keys, grab it
+		    true	% start with "true" on stack
+		    Dfont { %forall
+			exch dup /Encoding eq 1 index /FID eq or { %ifelse
+			    pop pop
+			}{ % else
+			    dup Ffont exch known {
+				Ffont exch get ne { pop false exit } if
+			    }{ pop pop } ifelse
+			} ifelse
+		    } forall
+		    % use either "true" that was there, or "false" from loop
+		    { /tempfontname Fname store exit } if
+		} if % /realname is not there
+	    } forall
+ 	    tempfontname /UnKnownFont eq {
+		Dfont /Encoding get StandardEncoding eq
+		substitutefonts or { %ifelse
+		  % If there is no comparable fontdict already there, and
+		  % if this is of FontType 1 and has StandardEncoding,
+		  % we guess that this is a downloadable font, and ignore it
+		    Dfont /FontName known {
+			/tempfontname Dfont /FontName get store
+		    }{
+			/tempfontname /Courier store
+		    } ifelse
+		    (%substituting ) wout tempfontname writename writeNL
+		    messages {
+			(substituting: ) print tempfontname ==
+		    } if
+		    Dfont	% needed by *definefont below...
+		}{ %else
+		    (ERROR: Couldn't find original fontdict to match: ) print
+		    Dfont /FontName get == flush
+		    (Fonts in FontDirectory include:) =
+		    FontDirectory { pop (\040) print == } forall flush
+		    stop
+		} ifelse
+ 	    }{ %else
+		Dfont dup begin
+		    /FontInfo 5 dict def
+		    FontInfo begin
+			/realname tempfontname def
+			/pleasemap magicbool def
+			/pleasemap
+			    tempfontname findfont /Encoding get
+			    StandardEncoding eq
+			hidebool
+		    end
+		end
+	    } ifelse
+	} ifelse
+	*definefont
+    } bdef
+
+end %adobe_distill
+/setpacking where { pop setpacking } if
+%%EndProcSet: distill_guessfont 1.0
+
+%%BeginProcSet: hacks 0.5
+  % defeat the "transform round exch round exch itransform" trick:
+    /round { } def
+    /transform { dup type /arraytype eq { pop } if } bdef
+    /itransform { dup type /arraytype eq { pop } if } bdef
+  % redefine control-D:
+    (\004) { (\n%%EOF) writeop } def
+%%EndProcSet: hacks 0.5
+

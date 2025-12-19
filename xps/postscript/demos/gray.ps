@@ -1,0 +1,47 @@
+%!
+%    Copyright (C) 1987, 1988 by Aladdin Enterprises.  All rights reserved. ***
+%    Licensed to the Free Software Foundation, Inc.
+% 
+% Ghostscript is distributed in the hope that it will be useful, but
+% WITHOUT ANY WARRANTY.  No author or distributor accepts responsibility
+% to anyone for the consequences of using it or for whether it serves
+% any particular purpose or works at all, unless he says so in writing.
+% Refer to the Ghostscript General Public License for full details.
+% 
+% Everyone is granted permission to copy, modify and redistribute
+% Ghostscript, but only under the conditions described in the
+% Ghostscript General Public License.  A copy of this license is
+% supposed to have been given to you along with Ghostscript so you can
+% know your rights and responsibilities.  It should be in a file named
+% COPYING.  Among other things, the copyright notice and this notice
+% must be preserved on all copies.
+% 
+% In other words, go ahead and share Ghostscript, but don't try to stop
+% anyone else from sharing it farther.  Help stamp out software
+% hoarding!  
+% Test gray rendering
+%%%%%% 2 0 {dup mul exch dup mul add 1 exch sub} bind setscreen
+10 0 { exch pop abs 1 exch sub } bind setscreen
+59 59 scale
+/N 10 def
+/D 1.3 def
+0 1 N 1 sub
+ { /i exch def
+   0 1 N 1 sub
+    { /j exch def
+      i N mul j add N N mul 1 sub div setgray newpath
+      j i moveto 0 D rlineto D 0 rlineto 0 D neg rlineto
+      closepath fill
+    } for
+ } for
+/tworects
+ { 0.5 setgray newpath
+   0 N moveto 0 1 rlineto N 0 rlineto 0 -1 rlineto closepath fill
+   0.3 setgray newpath
+   0 N 1 add moveto 0 1 rlineto N 0 rlineto 0 -1 rlineto closepath fill
+ } def
+tworects
+[0 1 1 0 0 0] concat		% exchange x and y
+tworects
+
+showpage

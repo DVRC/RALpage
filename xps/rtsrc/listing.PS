@@ -1,0 +1,1572 @@
+%!PS-Adobe-1.0
+%%Creator: portnoy:opus (Mr. P. Opus,Herring-breath,11-205M,7788,2534261)
+%%Title: X11.c
+%%CreationDate: Tue Feb 28 01:35:00 1989
+%%DocumentFonts: Courier-Bold Courier Times-Roman Times-Bold Helvetica-Bold
+
+% included prolog for enscript files
+% last edit: shore Sat Nov  9 13:28:41 1985
+% Copyright (c) 1983, 1984 Adobe Systems Incorporated
+% RCSID: $Header: enscript.pro,v 2.1 85/11/24 12:19:23 shore Rel $
+save/EnscriptJob exch def
+/StartEnscriptDoc{$enscript begin}def
+/$enscript 50 dict def $enscript begin
+/EndEnscriptDoc{end}def
+/S/show load def
+/X{exch 0 rmoveto S}def
+/Y{exch 0 exch rmoveto S}def
+/B{3 1 roll moveto S}def
+/F{$fd exch get setfont}def
+/StartPage{/svpg save def .05 dup scale}def
+/EndPage{svpg restore showpage}def
+/DoPreFeed{/statusdict where{pop
+ statusdict/prefeed known{statusdict exch/prefeed exch put 0}if}if pop}def
+/Landscape{90 rotate 0 -15840 translate}def
+/SetUpFonts
+ {dup/$fd exch array def{findfont exch scalefont $fd 3 1 roll put}repeat}def
+/InitGaudy{/TwoColumn exch def /BarLength exch def
+ /ftD /Times-Bold findfont 12 UP scalefont def
+ /ftF /Times-Roman findfont 14 UP scalefont def
+ /ftP /Helvetica-Bold findfont 30 UP scalefont def}def
+/U{1440 mul}def
+/UP{U 72 div}def
+/LB{/pts exch UP def /charcolor exch def /boxcolor exch def /font exch def
+ /label exch def /dy exch def /dx exch def /lly exch def /llx exch def
+ gsave boxcolor setgray
+ llx lly moveto dx 0 rlineto 0 dy rlineto dx neg 0 rlineto closepath fill
+ /lines label length def
+ /yp lly dy add dy lines pts mul sub 2 div sub pts .85 mul sub def
+ font setfont charcolor setgray
+ label {dup stringwidth pop 2 div llx dx 2 div add exch sub yp moveto show
+   /yp yp pts sub def}forall grestore}def
+/Gaudy{/Page exch def /Date exch def /File exch def /Comment exch def
+ .25 U 10.2 U BarLength .1 sub U .25 U [File] ftF .97 0 14 LB
+ .25 U 10.45 U BarLength .1 sub U .25 U [Comment] ftF 1 0 14 LB
+ .25 U 10.2 U 1 U .5 U Date ftD .7 0 12 LB
+ BarLength .75 sub U 10.2 U 1 U .5 U [Page] ftP .7 1 30 LB
+ TwoColumn{BarLength 2 div .19 add U 10.2 U moveto 0 -10 U rlineto stroke}if
+}def
+end
+StartEnscriptDoc % end fixed prolog
+1 200 /Courier-Bold
+0 140 /Courier
+2 SetUpFonts
+10.55 true InitGaudy
+%%EndProlog
+%%Page: ? 1
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](1)Gaudy
+0 F
+360 14470(/*)B
+444 14310(* Copyright \(C\) Rutherford Appleton Laboratory 1987)B
+444 14150(* )B
+444 13990(* This source may be copied, distributed, altered or used, but not)B
+444 13830(* sold for profit or incorporated into a product except under licence)B
+444 13670(* from the author. )B
+444 13510(* It is not in the public domain.)B
+444 13350(* This notice should remain in the source unaltered, and any changes)B
+444 13190(* to the source made by persons other than the author should be)B
+444 13030(* marked as such. )B
+444 12870(* )B
+444 12710(*)B
+504(Crispin Goswell @ Rutherford Appleton Laboratory caag@uk.ac.rl.vd)X
+444 12550(*/)B
+360 12390(/* X11R2 modifications and fixes made from sources by Crispin Goswell,)B
+444 12230(* Barry Shein of BU, and Jean Marie Diaz of MIT.  The resulting)B
+444 12070(* melange, along with other fixes for color workstations, is entirely)B
+444 11910(* my fault.)B
+444 11750(*)B
+444 11590(* David Jedlinsky)B
+444 11430(* MIT Project Athena Watchmaker)B
+444 11270(* opus@athena.mit.edu)B
+444 11110(* )B
+444 10950(*/)B
+360 10790(#include "main.h")B
+360 10630(#include "graphics.h")B
+360 10470(#include <X11/Xlib.h>)B
+360 10310(#include <X11/Xutil.h>)B
+360 10150(#include <X11/Xatom.h>)B
+360 9990(#include <stdio.h>)B
+360 9670(#define ISWIN)B
+252(1)X
+360 9510(#define ISBITMAP 2)B
+360 9190(typedef int ColorType;)B
+360 9030(#define ISPIXEL)B
+756(1)X
+360 8870(#define ISHALFTONE)B
+504(2)X
+360 8550(struct screen)B
+444 8390({)B
+1032 8230(float val;)B
+1032 8070(int sx, sy;)B
+1032 7910(struct hardware *shade;)B
+444 7750(} *screen = NULL;)B
+360 7430(static int screen_size;)B
+360 7110(#define TRANSFER_SIZE)B
+252(256)X
+360 6790(static int transfer [TRANSFER_SIZE];)B
+360 6470(int pixels_per_inch;)B
+360 6150(int single_rop [] =)B
+444 5990({)B
+1032 5830(ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE,)B
+1032 5670(ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE,)B
+1032 5510(ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE,)B
+1032 5350(ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE)B
+444 5190(};)B
+360 4870(void InitTransfer \(ppi\) int ppi;)B
+360 4710({)B
+780 4550(int i;)B
+8340 14470(pixels_per_inch = ppi;)B
+8340 14310(for \(i = 0; i < TRANSFER_SIZE; i++\))B
+8760 14150(transfer [i] = i;)B
+7920 13990(})B
+7920 13670(static void Punt\(str\))B
+7920 13510(char *str;)B
+7920 13350({)B
+8256 13190(fprintf\(stderr, "%s\\n", str\);)B
+8256 13030(exit\(1\);)B
+7920 12870(})B
+7920 12550(static Display *dpy;)B
+7920 12390(static int SCREEN;)B
+7920 12230(static struct hardware *NewHardware \(\);)B
+7920 12070(struct hardware *GraySync \(\);)B
+7920 11750(extern HardPoint DeviceToHard \(\);)B
+7920 11430(typedef struct _HardwareRec {)B
+8256 11270(Drawable w;)B
+8256 11110(GC gc;)B
+8256 10950(union last_color {)B
+8676 10790(unsigned long pix;)B
+8676 10630(Pixmap halftone;)B
+8256 10470(} last_color;)B
+8256 10310(short last_used;)B
+7920 10150(} HardwareRec, *Hardware;)B
+7920 9830(/*)B
+8004 9670(* This file describes the interface that PostScript requires to the graphics)B
+8004 9510(* system at Version 1.4.)B
+8004 9350(* )B
+8004 9190(* ''Hardware'' in this context refers to a pointer to windows and/or bitmaps)B
+8004 9030(* and is the lowest level of access that PostScript is interested in. Any)B
+8004 8870(* Hardware parameter may be expected to be NULL.)B
+8004 8710(*/)B
+7920 8390(/********************* CREATION OF WINDOWS AND BITMAPS *******************/)B
+7920 8070(#define MIN\(x, y\))B
+588(\(\(\(x\) < \(y\)\) ? \(x\) : \(y\)\))X
+7920 7750(static GC NOP_GC = NULL;)B
+7920 7590(static GC fillgc[16];)B
+7920 7430(static GC BitmapGC[16];)B
+7920 7270(static GC whitegc;)B
+7920 6950(/*)B
+8004 6790(* InitHardware \(\) returns a default device which PostScript may use)B
+8004 6630(* immediately \(or NULL if not appropriate\).  Its size and shape are)B
+8004 6470(* not defined. Most typically the user will want to start up another)B
+8004 6310(* device before it is used anyway. No attempt will be made by)B
+8004 6150(* PostScript to Destroy the resulting device.)B
+8004 5990(*/)B
+7920 5830(struct hardware *InitHardware \(\))B
+7920 5670({)B
+8256 5510(XGCValues values;)B
+8256 5350(int i;)B
+8256 5190(DevicePoint p;)B
+8256 4870(if \(\(dpy = XOpenDisplay\(""\)\) == NULL\))B
+8592 4710(Punt\("Could not open display"\);)B
+8256 4550(SCREEN = DefaultScreen\(dpy\);)B
+7920 4390(/* DCJ:)B
+EndPage
+%%Page: ? 2
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](2)Gaudy
+0 F
+444 14470(* This is the real ppi.  However, we might be using a screen that)B
+444 14310(* is less than 11 inches tall, which makes life difficult.  So we)B
+444 14150(* cheat a bit.)B
+444 13990(*/)B
+360 13670(/*    if \(DisplayHeightMM\(dpy, SCREEN\) < 254\))B
+1116 13510(InitTransfer\(DisplayHeight\(dpy, SCREEN\) / 14\);)B
+696 13350(else)B
+360 13190(*/)B
+588(InitTransfer\(\(int\) \(\(float\) DisplayHeight\(dpy, SCREEN\) * \(float\) 25.4 / \(float\) )X
+696 12870(values.foreground = BlackPixel\(dpy, SCREEN\);)B
+696 12710(values.background = WhitePixel\(dpy, SCREEN\);)B
+696 12390(for \(i=0 ; i<16 ; i++\) {)B
+1116 12230(BitmapGC[i] = NULL;)B
+1116 12070(values.function = i;)B
+1116 11910(fillgc[i] = XCreateGC\(dpy, RootWindow\(dpy, SCREEN\),)B
+2964 11750(GCFunction | GCForeground | GCBackground,)B
+2964 11590(&values\);)B
+696 11430(})B
+696 11110(p.dx = DisplayWidth\(dpy, SCREEN\);)B
+696 10950(p.dy = DisplayHeight\(dpy, SCREEN\);)B
+696 10790(return NewHardware\(p\);)B
+360 10630(})B
+360 10310(static struct hardware *NewHardware\(width, height\))B
+360 10150(int width, height;)B
+360 9990({)B
+696 9830(struct hardware *to;)B
+696 9670(Hardware hard;)B
+696 9350(to = \(struct hardware *\) malloc\(sizeof\(struct hardware\)\);)B
+696 9190(hard = \(Hardware\) malloc\(sizeof\(HardwareRec\)\);)B
+696 9030(to->hard.addr = \(char *\) hard;)B
+696 8870(to->flags = 0;)B
+696 8710(to->aux = to->clip = \(struct hardware *\) NULL;)B
+696 8550(to->extent = NewDevicePoint\(width, height\);)B
+696 8390(hard->w = \(Drawable\) NULL;)B
+696 8230(hard->gc = \(GC\) NULL;)B
+696 8070(to->touched = FALSE;)B
+696 7910(to->changed = TRUE;)B
+696 7750(hard->last_used = 0;)B
+696 7590(return to;)B
+360 7430(})B
+360 7110(/*)B
+444 6950(* NewBitmapHardware \(\) is expected to create a new bitmap. Only one plane)B
+444 6790(* will be needed.)B
+444 6630(* )B
+444 6470(* NewWindowHardware \(\) is expected to create a window on the screen. On a)B
+444 6310(* colour system this will be expected to support full colour.)B
+444 6150(*/)B
+360 5990(struct hardware *NewBitmapHardware \(width, height\))B
+360 5830(int width, height;)B
+360 5670({)B
+780 5510(XGCValues values;)B
+780 5350(struct hardware *to = NewHardware\(width, height\);)B
+780 5190(Hardware hard = \(Hardware\) to->hard.addr;)B
+780 5030(int i;)B
+780 4710(to->flags = ISBITMAP;)B
+780 4390(if \(width == 0 || height == 0\) {)B
+8760 14470(return NULL;)B
+8340 14310(})B
+8340 14150(hard->w = XCreatePixmap\(dpy, RootWindow\(dpy, SCREEN\), width,)B
+10356 13990(height, 1\);)B
+8340 13670(if \(! BitmapGC[GXcopy]\) {)B
+8760 13510(values.foreground = 1;)B
+8760 13350(values.background = 0;)B
+8760 13030(for \(i=0; i<16; i++\) {)B
+9180 12870(values.function = i;)B
+9180 12710(BitmapGC[i] = XCreateGC\(dpy, hard->w,)B
+11196 12550(GCFunction|GCForeground|GCBackground,)B
+11196 12390(&values\);)B
+8760 12230(})B
+8340 12070(})B
+8340 11910(XFillRectangle\(dpy, hard->w, BitmapGC[GXclear], 0, 0,)B
+9600 11750(width, height\);)B
+8340 11430(return to;)B
+7920 11270(})B
+7920 10950(struct hardware *NewWindowHardware \(width, height\))B
+7920 10790(int width, height;)B
+7920 10630({)B
+8340 10470(struct hardware *to = NewHardware\(width, height\);)B
+8340 10310(Hardware hard = \(Hardware\) to->hard.addr;)B
+8340 10150(XEvent event;)B
+8340 9990(unsigned long vmask;)B
+8340 9830(XSetWindowAttributes xswa;)B
+8340 9510(to->flags = ISWIN;)B
+8340 9350(vmask = CWBackPixel|CWBorderPixel|CWBackingStore|)B
+8760 9190(CWBackingPlanes;)B
+8340 9030(xswa.background_pixel = WhitePixel\(dpy,SCREEN\);)B
+8340 8870(xswa.border_pixel = BlackPixel\(dpy,SCREEN\);)B
+8340 8710(xswa.backing_store = Always;)B
+8340 8550(xswa.backing_planes = AllPlanes;)B
+8340 8230(hard->w = XCreateWindow\(dpy, RootWindow\(dpy,SCREEN\),)B
+10356 8070(0, 0, width, height,)B
+10356 7910(1, DefaultDepth\(dpy,SCREEN\),)B
+10356 7750(InputOutput, DefaultVisual\(dpy,SCREEN\),)B
+10356 7590(vmask, &xswa\);)B
+8340 7270(XChangeProperty\(dpy,hard->w,XA_WM_NAME,XA_STRING,8,)B
+9684 7110(PropModeReplace,"POSTSCRIPT",10\);)B
+8340 6790(XSelectInput\(dpy, hard->w, ExposureMask\);)B
+8340 6630(XMapWindow\(dpy, hard->w\);)B
+8340 6470(XNextEvent\(dpy, &event\);)B
+8340 6310(XSelectInput\(dpy, hard->w, 0\);)B
+8340 6150(return to;)B
+7920 5990(})B
+7920 5670(/*)B
+8004 5510(* IsWindowHardware \(\) should return TRUE if the hardware is a window, FALSE)B
+8004 5350(* otherwise.)B
+8004 5190(*)B
+8004 5030(* IsBitmapHardware \(\) should return TRUE if the hardware is a bitmap,)B
+8004 4870(* FALSE otherwise.)B
+8004 4710(*/)B
+7920 4390(int IsWindowHardware \(h\) struct hardware *h;)B
+EndPage
+%%Page: ? 3
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](3)Gaudy
+0 F
+360 14470({)B
+780 14310(return h->flags & ISWIN;)B
+360 14150(})B
+360 13830(#define IsWindowHardware\(h\) \(\(h\)->flags & ISWIN\))B
+360 13510(#define IsBitmapHardware\(h\) \(\(h\)->flags & ISBITMAP\))B
+360 13190(/*)B
+444 13030(* )B
+444 12870(* DestroyHardware \(\) should release the resources required by the hardware,)B
+444 12710(* bitmap or window.  This should cause a window device to vanish. NULL is not)B
+444 12550(* an error \(does nothing\).)B
+444 12390(*/)B
+360 12070(void DestroyHardware \(h\))B
+360 11910(struct hardware *h;)B
+360 11750({)B
+780 11590(if \(h\) {)B
+1200 11430(Hardware hard = \(Hardware\) h->hard.addr;)B
+1200 11270(if \(IsWindowHardware\(h\)\))B
+1620 11110(XDestroyWindow\(dpy, hard->w\);)B
+1200 10950(else)B
+1620 10790(if \(IsBitmapHardware\(h\)\))B
+2040 10630(XFreePixmap\(dpy, hard->w\);)B
+1200 10470(Free\(h\);)B
+780 10310(})B
+360 10150(})B
+360 9830(/*)B
+444 9670(*)B
+444 9510(* DeviceMatrix \(\) should return a matrix appropriate to a device of the given)B
+444 9350(* height and width.  For a typical display with a graphics origin at the top)B
+444 9190(* left of a window, an appropriate definition would be:)B
+444 9030(* )B
+444 8870(* Matrix DeviceMatrix \(width, height\))B
+444 8710(* int width, height;)B
+444 8550(* {)B
+444 8390(*     return NewMatrix \(PIXELS_PER_INCH / 72.0, 0.0, 0.0,)B
+444 8230(* )B
+1848(-PIXELS_PER_INCH / 72.0, 0.0, \(float\) height\);)X
+444 8070(* })B
+444 7910(*/)B
+360 7590(Matrix DeviceMatrix \(width, height\) int width, height;)B
+444 7430({)B
+1032 7270(return NewMatrix \(pixels_per_inch / 72.0, 0.0, 0.0,)B
+2544 7110(-pixels_per_inch / 72.0, 0.0, \(float\) height\);)B
+444 6950(})B
+360 6630(/*)B
+444 6470(* HardwareExtent \(\) returns a DevicePoint describing the width and height of)B
+444 6310(* the argument.  NULL has extent NewDevicePoint \(0, 0\).)B
+444 6150(*/)B
+360 5830(DevicePoint HardwareExtent \(h\) struct hardware *h;)B
+444 5670({)B
+1032 5510(if \(h\))B
+1704 5350(return h->extent;)B
+1032 5190(else)B
+1704 5030(return NewDevicePoint \(0, 0\);)B
+444 4870(})B
+360 4550(static NeedAux \(h\) struct hardware *h;)B
+360 4390({)B
+8340 14470(DevicePoint p;)B
+8340 14150(if \(h->aux\))B
+8760 13990(return;)B
+8340 13830(p = HardwareExtent\(h\);)B
+8340 13670(h->aux = NewBitmapHardware \(p.dx, p.dy\);)B
+7920 13510(})B
+7920 13190(/*************************** OUTPUT PRIMITIVES ******************************/)B
+7920 13030(/*)B
+8004 12870(* )B
+8004 12710(* BitBlt \(\) is a full function RasterOp. The 'rop' argument will have values)B
+8004 12550(* as described in the header file hard.h. If the from argument is NULL it is)B
+8004 12390(* taken to be a bitmap full of ones the shape of the fromPoint and extent. If)B
+8004 12230(* the to argument is NULL, this is a no-op.)B
+8004 12070(*)B
+8004 11910(* Paint \(\) is an addition to BitBlt. Bits that are set in the source are)B
+8004 11750(* Painted into the destination in the given colour with a copying rasterop so)B
+8004 11590(* that they replace pixels previously there. If the machine does not support)B
+8004 11430(* colour windows, half-toning should be performed.  Colour values have hue,)B
+8004 11270(* saturation and brightness components. On a black and white or greyscale)B
+8004 11110(* system the brightness value will be a FP value between 0.0 \(black\) and 1.0)B
+8004 10950(* \(white\), which can be used as a grey level.)B
+8004 10790(* )B
+8004 10630(* Paint is expected to mask with the clip mask. BitBlt is not,)B
+8004 10470(*/)B
+7920 10150(void BitBlt \(from, to, fromPoint, toPoint, extent, rop\))B
+7920 9990(struct hardware *from, *to;)B
+7920 9830(DevicePoint toPoint, fromPoint, extent;)B
+7920 9670(int rop;)B
+7920 9510({)B
+8340 9350(Hardware fromhard, tohard;)B
+8340 9190(static int count = 0;)B
+8340 9030(GC gc = NULL;)B
+8340 8870(XGCValues values;)B
+8340 8550(if \(to == NULL\) return;)B
+8340 8390(/*)B
+8424 8230(* Copying from full color window to monochrome bitmap is the)B
+8424 8070(* wrong idea.)B
+8424 7910(*/)B
+8340 7750(if \(IsWindowHardware\(from\) && !IsWindowHardware\(to\)\) return;)B
+8340 7430(tohard = \(Hardware\) to->hard.addr;)B
+8340 7270(if \(IsWindowHardware\(to\)\) {)B
+8760 7110(if \(from == NULL\) {)B
+9180 6950(XFillRectangle\(dpy, tohard->w, fillgc[rop], toPoint.dx,)B
+10440 6790(toPoint.dy, extent.dx, extent.dy\);)B
+8760 6630(} else {)B
+9180 6470(fromhard = \(Hardware\) from->hard.addr;)B
+9180 6310(if \(IsWindowHardware\(from\)\) {)B
+9600 6150(XCopyArea\(dpy, fromhard->w, tohard->w, fillgc[rop],)B
+10440 5990(fromPoint.dx, fromPoint.dy,)B
+10440 5830(extent.dx, extent.dy,)B
+10440 5670(toPoint.dx, toPoint.dy\);)B
+9180 5510(} else)B
+9180 5350(if \(IsBitmapHardware \(from\)\) {)B
+9600 5190(XCopyPlane\(dpy, fromhard->w, tohard->w, fillgc[15-rop],)B
+10524 5030(fromPoint.dx, fromPoint.dy,)B
+10524 4870(extent.dx, extent.dy,)B
+10524 4710(toPoint.dx, toPoint.dy, 1\);)B
+9180 4550(})B
+8760 4390(})B
+EndPage
+%%Page: ? 4
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](4)Gaudy
+0 F
+780 14470(} else)B
+780 14310(if \(IsBitmapHardware\(to\)\) {)B
+1200 14150(if \(from == NULL\) {)B
+1620 13990(XFillRectangle\(dpy, tohard->w, BitmapGC[rop], toPoint.dx,)B
+2880 13830(toPoint.dy, extent.dx, extent.dy\);)B
+1200 13670(} else {)B
+1620 13510(if \(IsBitmapHardware\(from\)\) {)B
+2040 13350(fromhard = \(Hardware\) from->hard.addr;)B
+2040 13190(XCopyArea\(dpy, fromhard->w, tohard->w, BitmapGC[rop],)B
+2880 13030(fromPoint.dx, fromPoint.dy,)B
+2880 12870(extent.dx, extent.dy,)B
+2880 12710(toPoint.dx, toPoint.dy\);)B
+1620 12550(})B
+1200 12390(})B
+780 12230(})B
+780 11910(to->touched = TRUE;)B
+780 11750(to->changed = TRUE;)B
+780 11430(if \(gc != NULL\))B
+1200 11270(XFreeGC\(dpy, gc\);)B
+780 11110(if \(count++ % 50 == 0\) XSync\(dpy, FALSE\);)B
+360 10950(})B
+360 10630(void Paint \(from, to, fromPoint, toPoint, extent, colour\))B
+360 10470(struct hardware *from, *to;)B
+360 10310(DevicePoint fromPoint, toPoint, extent;)B
+360 10150(Colour colour;)B
+360 9990({)B
+780 9830(struct hardware *temp = NULL, *gray = NULL;)B
+780 9670(Hardware hard, grayhard, tohard;)B
+780 9510(int valuemask = 0, created = FALSE;)B
+780 9350(XGCValues values;)B
+780 9190(GC gc = NULL;)B
+780 9030(unsigned long pix;)B
+780 8870(ColorType ret;)B
+780 8710(static int count = 0;)B
+780 8550(Drawable root = RootWindow\(dpy, SCREEN\);)B
+780 8230(if \(!IsBitmapHardware\(from\) && from != NULL\))B
+1200 8070(Punt\("Paint\(\) called with non-bitmap source.\\n"\);)B
+780 7750(ret = RealColor\(colour, &pix, &gray\);)B
+780 7430(if \(to == NULL\))B
+1200 7270(return;)B
+780 6950(if \(!from->touched\))B
+1200 6790(return;)B
+780 6470(if \(IsBitmapHardware\(to\)\) {)B
+1200 6310(root = \(\(Hardware\) to->hard.addr\)->w;)B
+1200 6150(if \(ret == ISPIXEL\))B
+1620 5990(BitBlt\(from, to, fromPoint, toPoint, extent,)B
+2208 5830(\(pix == WhitePixel\(dpy,SCREEN\)\)?ROP_NOTAND:ROP_OR\);)B
+1200 5670(else if \(ret == ISHALFTONE\) {)B
+1620 5350(printf\("Paint calling BitBlt halftone !?\\n"\);)B
+1620 5030(BitBlt\(from, to, fromPoint, toPoint, extent, ROP_SOURCE\);)B
+1200 4870(})B
+1200 4710(return;)B
+780 4550(})B
+8340 14470(UpdateControl \(to, FALSE\);)B
+8340 14150(if \(ret == ISPIXEL\) {)B
+8760 13990(values.function = GXcopy;)B
+8760 13830(values.foreground = pix;)B
+8760 13670(valuemask = valuemask|GCFunction|GCForeground;)B
+8760 13510(if \(pix == BlackPixel\(dpy, SCREEN\)\))B
+9180 13350(gc = fillgc[GXcopy];)B
+8760 13190(else if \(pix == WhitePixel\(dpy, SCREEN\)\))B
+9180 13030(gc = whitegc;)B
+8340 12870(} else if \(ret == ISHALFTONE\) {)B
+8760 12710(values.function = GXcopy;)B
+8760 12550(values.foreground = BlackPixel\(dpy, SCREEN\);)B
+8760 12390(values.background = WhitePixel\(dpy, SCREEN\);)B
+8760 12230(grayhard = \(Hardware\) gray->hard.addr;)B
+8760 12070(values.fill_style = FillOpaqueStippled;)B
+8760 11910(values.stipple = grayhard->w;)B
+8760 11750(valuemask = valuemask|GCFunction|GCForeground|GCBackground|GCFillStyle|GCStippl)B
+8760 11590(gc = grayhard->gc;)B
+8340 11430(} else {)B
+8760 11270(UpdateControl \(to, TRUE\);)B
+8760 11110(return;)B
+8340 10950(})B
+8340 10630(if \(from\) {)B
+8760 10470(if \(to->clip\) {)B
+9180 10310(temp = NewBitmapHardware\(extent.dx, extent.dy\);)B
+9180 10150(BitBlt\(to->clip, temp, toPoint, NewDevicePoint\(0, 0\),)B
+9768 9990(extent, ROP_SOURCE\);)B
+9180 9830(BitBlt\(from, temp, fromPoint, NewDevicePoint\(0, 0\),)B
+9768 9670(extent, ROP_AND\);)B
+9180 9350(hard = \(Hardware\) temp->hard.addr;)B
+9180 9190(values.clip_mask = hard->w;)B
+9180 9030(values.clip_x_origin = toPoint.dx;)B
+9180 8870(values.clip_y_origin = toPoint.dy;)B
+9180 8710(valuemask = valuemask|GCClipMask|GCClipXOrigin|GCClipYOrigin;)B
+9180 8550(gc = NULL;)B
+8760 8390(} else {)B
+9180 8230(temp = NewBitmapHardware\(extent.dx, extent.dy\);)B
+9180 8070(BitBlt\(from, temp, fromPoint, NewDevicePoint\(0, 0\),)B
+9768 7910(extent, ROP_SOURCE\);)B
+9180 7750(hard = \(Hardware\) temp->hard.addr;)B
+9180 7590(values.clip_mask = hard->w;)B
+9180 7430(values.clip_x_origin = toPoint.dx;)B
+9180 7270(values.clip_y_origin = toPoint.dy;)B
+9180 7110(valuemask = valuemask|GCClipMask|GCClipXOrigin|GCClipYOrigin;)B
+9180 6950(gc = NULL;)B
+8760 6790(})B
+8340 6630(} else {)B
+8760 6470(if \(to->clip\) {)B
+9180 6310(hard = \(Hardware\) to->clip->hard.addr;)B
+9180 6150(values.clip_mask = hard->w;)B
+9180 5990(valuemask = valuemask|GCClipMask;)B
+9180 5830(gc = NULL;)B
+8760 5670(})B
+8340 5510(})B
+8340 5190(if \(!gc\) {)B
+8760 5030(created = TRUE;)B
+8760 4870(gc = XCreateGC\(dpy, root, valuemask, &values\);)B
+8340 4710(})B
+8340 4550(tohard = \(Hardware\) to->hard.addr;)B
+EndPage
+%%Page: ? 5
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](5)Gaudy
+0 F
+780 14470(XFillRectangle\(dpy, tohard->w, gc, toPoint.dx, toPoint.dy,)B
+2040 14310(extent.dx, extent.dy\);)B
+780 13990(if \(temp\))B
+1200 13830(DestroyHardware\(temp\);)B
+780 13510(if \(created\))B
+1200 13350(XFreeGC\(dpy, gc\);)B
+780 13030(UpdateControl \(to, TRUE\);)B
+780 12710(to->touched = TRUE;)B
+780 12550(to->changed = TRUE;)B
+780 12230(if \(++count % 100 == 0\) {)B
+1200 12070(XSync\(dpy, FALSE\);)B
+1200 11910(printf\("%d Paints.\\n", count\);)B
+780 11750(})B
+360 11590(})B
+360 11270(int FillPath\(to, path, rule\))B
+360 11110(struct hardware *to;)B
+360 10950(Path path;)B
+360 10790(int rule;)B
+360 10630({)B
+780 10470(register Path p;)B
+780 10310(static XPoint *vertices = NULL;)B
+780 10150(static int counter = 0;)B
+780 9990(int ret, ok = FALSE, i = 0, valuemask = 0;)B
+780 9830(XGCValues values;)B
+780 9670(GC gc;)B
+780 9510(unsigned long pix;)B
+780 9350(struct hardware *gray = NULL;)B
+780 9190(Hardware hard, grayhard;)B
+780 8870(if \(!vertices\) {)B
+1200 8710(if \(\(vertices = \(XPoint *\) malloc\(MAXPATHELEMENTS * sizeof\(XPoint\)\)\))B
+1536 8550(== NULL\))B
+1620 8390(Punt\("Not enough memory for filling.\\n"\);)B
+780 8230(})B
+780 7910(if \(to->clip\))B
+1200 7750(printf\("Can't clip \(yet\).\\n"\);)B
+780 7430(if \(EmptyPath \(path\)\))B
+1200 7270(return TRUE;)B
+780 6950(path = FlattenPath \(path\);)B
+780 6630(if \(!CloseAll \(path\)\) {)B
+1200 6470(PathFree \(path\);)B
+1200 6150(return FALSE;)B
+780 5990(})B
+780 5670(ret = RealColor\(gstate->colour, &pix, &gray\);)B
+780 5350(if \(ret == ISPIXEL\) {)B
+1200 5190(values.function = GXcopy;)B
+1200 5030(values.foreground = pix;)B
+1200 4870(valuemask = valuemask|GCFunction|GCForeground;)B
+1200 4710(if \(pix == BlackPixel\(dpy, SCREEN\)\))B
+1620 4550(if \(IsWindowHardware\(to\)\))B
+2040 4390(gc = fillgc[GXcopy];)B
+9180 14470(else)B
+9600 14310(gc = BitmapGC[GXcopy];)B
+8760 14150(if \(pix == WhitePixel\(dpy, SCREEN\)\))B
+9180 13990(if \(IsWindowHardware\(to\)\))B
+9600 13830(gc = whitegc;)B
+9180 13670(else)B
+9600 13510(gc = BitmapGC[GXcopyInverted];)B
+8760 13350(hard = \(Hardware\) to->hard.addr;)B
+8760 13190(if \(hard->last_used == ISPIXEL && hard->last_color.pix == pix\))B
+9180 13030(ok = TRUE;)B
+8340 12870(} else if \(ret == ISHALFTONE\) {)B
+8760 12710(values.function = GXcopy;)B
+8760 12550(values.foreground = BlackPixel\(dpy, SCREEN\);)B
+8760 12390(values.background = WhitePixel\(dpy, SCREEN\);)B
+8760 12230(values.fill_style = FillOpaqueStippled;)B
+8760 12070(grayhard = \(Hardware\) gray->hard.addr;)B
+8760 11910(values.stipple = grayhard->w;)B
+8760 11750(valuemask = valuemask|GCFunction|GCForeground|GCBackground|GCFillStyle|GCStippl)B
+8760 11590(gc = grayhard->gc;)B
+8760 11270(hard = \(Hardware\) to->hard.addr;)B
+8760 11110(if \(hard->last_used == ISHALFTONE &&)B
+9096 10950(hard->last_color.halftone == grayhard->w\))B
+9180 10790(ok = TRUE;)B
+8760 10470(if \(!gc\))B
+9180 10310(printf\("HalfTone GC not set!\\n"\);)B
+8340 9990(} else return;)B
+7920 9670(/*     if \(to->clip\) {)B
+8760 9510(hard = \(Hardware\) to->clip->hard.addr;)B
+8760 9350(values.clip_mask = hard->w;)B
+8760 9190(valuemask = valuemask|GCClipMask;)B
+8760 8870(if \(ok\))B
+9180 8710(gc = \(\(Hardware\) to->hard.addr\)->gc;)B
+8760 8390(if \(to->clip->changed\) {)B
+9180 8230(to->clip->changed = FALSE;)B
+9180 8070(printf\("Clip changed.\\n"\);)B
+9180 7910(gc = NULL;)B
+8760 7750(})B
+8340 7590(})B
+7920 7430(*/     )B
+8340 7270(if \(!gc\) {)B
+8760 7110(gc = XCreateGC\(dpy, RootWindow\(dpy, SCREEN\), valuemask, &values\);)B
+8340 6950(})B
+8340 6630(hard = \(Hardware\) to->hard.addr;)B
+7920 6470(/*     hard->last_used = ret;)B
+8340 6310(hard->gc = gc;)B
+8340 5990(if \(created\))B
+8760 5830(XFreeGC\(dpy, gc\);)B
+7920 5670(*/)B
+8340 5350(UpdateControl \(to, FALSE\);)B
+8340 5030(for \(p = path->next; p != path; p = p->next\))B
+8340 4870(switch \(p->ptype\) {)B
+8340 4710(case EMove:)B
+8760 4550(if \(i > 1\))B
+9180 4390(XFillPolygon\(dpy, hard->w, gc, vertices, i,)B
+EndPage
+%%Page: ? 6
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](6)Gaudy
+0 F
+2712 14470(Complex, CoordModeOrigin\);)B
+1200 14310(vertices[0].x = \(short\) p->pe.point.hx;)B
+1200 14150(vertices[0].y = \(short\) p->pe.point.hy;)B
+1200 13990(i = 1;)B
+1200 13830(break;)B
+780 13670(case ELine:)B
+1200 13510(vertices[i].x = \(short\) p->pe.point.hx;)B
+1200 13350(vertices[i++].y = \(short\) p->pe.point.hy;)B
+1200 13190(break;)B
+780 13030(case EClose:)B
+1200 12870(XFillPolygon\(dpy, hard->w, gc, vertices, i,)B
+2292 12710(Complex, CoordModeOrigin\);)B
+1200 12550(i = 0;)B
+1200 12390(break;)B
+780 12230(})B
+780 11910(UpdateControl \(to, TRUE\);)B
+780 11590(PathFree \(path\);)B
+780 11270(if \(++counter % 100 == 0\) {)B
+1200 11110(XSync\(dpy, FALSE\);)B
+1200 10950(printf\("%d FillPaths.\\n", counter\);)B
+780 10790(})B
+780 10470(to->touched = TRUE;)B
+780 10310(to->changed = TRUE;)B
+780 9990(return TRUE;)B
+360 9830(})B
+360 9510(static short Xvalue \(ax, ay, bx, by, cy\) int ax, ay, bx, by, cy;)B
+360 9350({)B
+780 9190(if \(ay - by == 0\) {)B
+1200 9030(printf\("Xvalue: ax=%d, ay=%d, bx=%d, by=%d, cy=%d\\n",)B
+1788 8870(ax, ay, bx, by, cy\);)B
+1200 8710(return bx + \(cy - by\) * \(ax - bx\);)B
+780 8550(})B
+780 8390(return bx + \(cy - by\) * \(ax - bx\) / \(float\) \(ay - by\);)B
+360 8230(})B
+360 7910(/*)B
+444 7750(* BitBltTrapezoid \(\) and PaintTrapezoid \(\) render a complete trapezoidal)B
+444 7590(* shape.  The corners of the trapezoid may lie far outside the range of)B
+444 7430(* interesting scan-lines, but the slope of the line should be clipped by the)B
+444 7270(* top and bottom. The coordinates are half-open.)B
+444 7110(*/)B
+360 6790(void BitBltTrapezoid \(to, lefttop, leftbottom, righttop, rightbottom,)B
+2208 6630(top, bottom, rop\))B
+360 6470(struct hardware *to;)B
+360 6310(DevicePoint lefttop, leftbottom, righttop, rightbottom;)B
+360 6150(int top, bottom, rop;)B
+360 5990({)B
+780 5830(int i, j, temp;)B
+780 5670(static int left [1024], right [1024];)B
+780 5350(int)B
+1200 5190(ltx = Xvalue \(lefttop.dx, lefttop.dy, leftbottom.dx,)B
+2292 5030(leftbottom.dy, top\),)B
+1200 4870(rtx = Xvalue \(righttop.dx, righttop.dy, rightbottom.dx,)B
+2376 4710(rightbottom.dy, top\),)B
+1200 4550(lbx = Xvalue \(lefttop.dx, lefttop.dy, leftbottom.dx,)B
+2376 4390(leftbottom.dy, bottom\),)B
+8760 14470(rbx = Xvalue \(righttop.dx, righttop.dy, rightbottom.dx,)B
+9936 14310(rightbottom.dy, bottom\);)B
+8340 13990(if \(ltx == lbx && rtx == rbx\) {)B
+8760 13830(if \(rtx < ltx\))B
+9180 13670(temp = rtx, rtx = ltx, ltx = temp;)B
+8760 13350(BitBlt \(\(struct hardware *\) NULL, to,)B
+9432 13190(NewDevicePoint \(0, 0\), NewDevicePoint \(ltx, top\),)B
+9432 13030(NewDevicePoint \(rtx - ltx + 1, bottom - top + 1\), rop\);)B
+8760 12710(return;)B
+8340 12550(})B
+8340 12230(for \(i = top, j = 0; i <= bottom; i++, j++\) {)B
+8760 12070(int)B
+9180 11910(lx = Xvalue \(lefttop.dx, lefttop.dy, leftbottom.dx,)B
+10272 11750(leftbottom.dy, i\),)B
+9180 11590(rx = Xvalue \(righttop.dx, righttop.dy, rightbottom.dx,)B
+10272 11430(rightbottom.dy, i\);)B
+8760 11110(if \(rx < lx\))B
+9180 10950(temp = rx, rx = lx, lx = temp;)B
+8760 10630(left [j] = lx; right [j] = rx;)B
+8340 10470(})B
+8340 10310(BitBltBlob \(to, top, bottom - top, left, right, single_rop [rop]\);)B
+8340 9990(to->touched = TRUE;)B
+8340 9830(to->changed = TRUE;)B
+7920 9670(})B
+7920 9350(/*void BitBltTrapezoid \(to, lefttop, leftbottom, righttop, rightbottom,)B
+9768 9190(top, bottom, rop\))B
+7920 9030(struct hardware *to;)B
+7920 8870(DevicePoint lefttop, leftbottom, righttop, rightbottom;)B
+7920 8710(int top, bottom, rop;)B
+7920 8550({)B
+8340 8390(int i, j, temp;)B
+8340 8230(static int left [1024], right [1024];)B
+8340 7910(int)B
+8760 7750(ltx = Xvalue \(lefttop.dx, lefttop.dy, leftbottom.dx,)B
+9852 7590(leftbottom.dy, top\),)B
+8760 7430(rtx = Xvalue \(righttop.dx, righttop.dy, rightbottom.dx,)B
+9936 7270(rightbottom.dy, top\),)B
+8760 7110(lbx = Xvalue \(lefttop.dx, lefttop.dy, leftbottom.dx,)B
+9936 6950(leftbottom.dy, bottom\),)B
+8760 6790(rbx = Xvalue \(righttop.dx, righttop.dy, rightbottom.dx,)B
+9936 6630(rightbottom.dy, bottom\);)B
+8340 6310(if \(ltx == lbx && rtx == rbx\) {)B
+8760 6150(if \(rtx < ltx\))B
+9180 5990(temp = rtx, rtx = ltx, ltx = temp;)B
+8760 5670(BitBlt \(\(struct hardware *\) NULL, to,)B
+9432 5510(NewDevicePoint \(0, 0\), NewDevicePoint \(ltx, top\),)B
+9432 5350(NewDevicePoint \(rtx - ltx + 1, bottom - top + 1\), rop\);)B
+8760 5030(return;)B
+8340 4870(})B
+8340 4550(for \(i = top, j = 0; i <= bottom; i++, j++\) {)B
+8760 4390(int)B
+EndPage
+%%Page: ? 7
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](7)Gaudy
+0 F
+1620 14470(lx = Xvalue \(lefttop.dx, lefttop.dy, leftbottom.dx,)B
+2712 14310(leftbottom.dy, i\),)B
+1620 14150(rx = Xvalue \(righttop.dx, righttop.dy, rightbottom.dx,)B
+2712 13990(rightbottom.dy, i\);)B
+1200 13670(if \(rx < lx\))B
+1620 13510(temp = rx, rx = lx, lx = temp;)B
+1200 13190(left [j] = lx; right [j] = rx;)B
+780 13030(})B
+780 12870(BitBltBlob \(to, top, bottom - top, left, right, single_rop [rop]\);)B
+360 12710(})B
+360 12550(*/)B
+360 12230(void PaintTrapezoid \(to, lefttop, leftbottom, righttop, rightbottom,)B
+2124 12070(top, bottom, colour\))B
+360 11910(struct hardware *to;)B
+360 11750(DevicePoint lefttop, leftbottom, righttop, rightbottom;)B
+360 11590(int top, bottom;)B
+360 11430(Colour colour;)B
+360 11270({)B
+780 11110(struct hardware *gray = NULL;)B
+780 10950(Hardware hard, grayhard, tohard;)B
+780 10790(int valuemask = 0, ok = FALSE;)B
+780 10630(XGCValues values;)B
+780 10470(GC gc = NULL;)B
+780 10310(unsigned long pix;)B
+780 10150(ColorType ret;)B
+780 9990(XPoint coord[4];)B
+780 9830(static int counter = 0;)B
+780 9510(ret = RealColor\(colour, &pix, &gray\);)B
+780 9190(/* This should be done better: Halftones aren't handled... */)B
+780 9030(if \(IsBitmapHardware\(to\)\) {)B
+1200 8870(BitBltTrapezoid\(to, lefttop, leftbottom, righttop, rightbottom,)B
+2544 8710(top, bottom, \(pix == WhitePixel\(dpy, SCREEN\)\) ? ROP_FALSE : ROP)B
+1200 8550(return;)B
+780 8390(})B
+780 8070(if \(to == NULL\))B
+1200 7910(return;)B
+780 7590(coord[0].x = Xvalue \(lefttop.dx, lefttop.dy, leftbottom.dx,)B
+2544 7430(leftbottom.dy, bottom\);)B
+780 7270(coord[0].y = bottom;)B
+780 7110(coord[1].x = Xvalue \(lefttop.dx, lefttop.dy, leftbottom.dx,)B
+2544 6950(leftbottom.dy, top\);)B
+780 6790(coord[1].y = top;)B
+780 6630(coord[2].x = Xvalue \(righttop.dx, righttop.dy, rightbottom.dx,)B
+2544 6470(rightbottom.dy, top\);)B
+780 6310(coord[2].y = top;)B
+780 6150(coord[3].x = Xvalue \(righttop.dx, righttop.dy, rightbottom.dx,)B
+2544 5990(rightbottom.dy, bottom\);)B
+780 5830(coord[3].y = bottom;)B
+780 5510(UpdateControl \(to, FALSE\);)B
+780 5190(if \(ret == ISPIXEL\) {)B
+1200 5030(values.function = GXcopy;)B
+1200 4870(values.foreground = pix;)B
+1200 4710(valuemask = valuemask|GCFunction|GCForeground;)B
+1200 4550(if \(pix == BlackPixel\(dpy, SCREEN\)\))B
+1620 4390(gc = fillgc[GXcopy];)B
+8760 14470(if \(pix == WhitePixel\(dpy, SCREEN\)\))B
+9180 14310(gc = whitegc;)B
+8760 14150(hard = \(Hardware\) to->hard.addr;)B
+8760 13990(if \(hard->last_used == ISPIXEL && hard->last_color.pix == pix\))B
+9180 13830(ok = TRUE;)B
+8340 13670(} else if \(ret == ISHALFTONE\) {)B
+8760 13510(values.function = GXcopy;)B
+8760 13350(values.foreground = BlackPixel\(dpy, SCREEN\);)B
+8760 13190(values.background = WhitePixel\(dpy, SCREEN\);)B
+8760 13030(values.fill_style = FillOpaqueStippled;)B
+8760 12870(grayhard = \(Hardware\) gray->hard.addr;)B
+8760 12710(values.stipple = grayhard->w;)B
+8760 12550(valuemask = valuemask|GCFunction|GCForeground|GCBackground|GCFillStyle|GCStippl)B
+8760 12390(gc = grayhard->gc;)B
+8760 12070(hard = \(Hardware\) to->hard.addr;)B
+8760 11910(if \(hard->last_used == ISHALFTONE &&)B
+9096 11750(hard->last_color.halftone == grayhard->w\))B
+9180 11590(ok = TRUE;)B
+8760 11270(if \(!gc\))B
+9180 11110(printf\("HalfTone GC not set!\\n"\);)B
+8340 10790(} else return;)B
+8340 10470(if \(to->clip\) {)B
+8760 10310(hard = \(Hardware\) to->clip->hard.addr;)B
+8760 10150(values.clip_mask = hard->w;)B
+8760 9990(valuemask = valuemask|GCClipMask;)B
+8760 9670(if \(ok\))B
+9180 9510(gc = \(\(Hardware\) to->hard.addr\)->gc;)B
+7920 9190(/*)B
+672(if \(to->clip->changed\) {)X
+9180 9030(to->clip->changed = FALSE;)B
+9180 8870(printf\("Clip changed.\\n"\);)B
+9180 8710(gc = NULL;)B
+8760 8550(})B
+7920 8390(*/)B
+8760 8230(gc = NULL;)B
+8340 8070(})B
+8340 7750(if \(!gc\) {)B
+8760 7590(gc = XCreateGC\(dpy, RootWindow\(dpy, SCREEN\), valuemask, &values\);)B
+8340 7430(})B
+8340 7270(tohard = \(Hardware\) to->hard.addr;)B
+8340 6950(XFillPolygon\(dpy, tohard->w, gc, coord, 4, Complex, CoordModeOrigin\);)B
+8340 6630(hard = \(Hardware\) to->hard.addr;)B
+8340 6470(hard->last_used = ret;)B
+8340 6310(hard->gc = gc;)B
+7920 5990(/*     if \(created\))B
+8760 5830(XFreeGC\(dpy, gc\);)B
+8760 5670(*/)B
+8340 5350(UpdateControl \(to, TRUE\);)B
+8340 5030(if \(++counter % 100 == 0\) {)B
+8760 4870(XSync\(dpy, FALSE\);)B
+8760 4710(printf\("%d Trapezoids.\\n", counter\);)B
+8340 4550(})B
+EndPage
+%%Page: ? 8
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](8)Gaudy
+0 F
+780 14470(to->touched = TRUE;)B
+780 14310(to->changed = TRUE;)B
+360 14150(})B
+360 13830(/*)B
+360 13670(void PaintTrapezoid \(to, lefttop, leftbottom, righttop, rightbottom,)B
+2124 13510(top, bottom, colour\))B
+360 13350(struct hardware *to;)B
+360 13190(DevicePoint lefttop, leftbottom, righttop, rightbottom;)B
+360 13030(int top, bottom;)B
+360 12870(Colour colour;)B
+360 12710({)B
+780 12550(int col;)B
+780 12230(if \(to == NULL\))B
+1200 12070(return;)B
+780 11750(col = IsWindowHardware \(to\) ? HardColour \(colour\) : 0;)B
+780 11430(UpdateControl \(to, FALSE\);)B
+780 11110(if \(to->clip\))B
+1200 10950(NeedAux \(to\);)B
+780 10790(if \(col == 0\))B
+1200 10630(BitBltTrapezoid \(to, lefttop, leftbottom, righttop, rightbottom,)B
+2628 10470(top, bottom, ROP_TRUE\);)B
+780 10310(else if \(col == TransferSize \(\) - 1\))B
+1200 10150(BitBltTrapezoid \(to, lefttop, leftbottom, righttop, rightbottom,)B
+2628 9990(top, bottom, ROP_FALSE\);)B
+780 9830(else {)B
+1200 9670(DevicePoint origin, extent;)B
+1200 9510(struct hardware *gray;)B
+1200 9190(int left = lefttop.dx < leftbottom.dx ? lefttop.dx : leftbottom.dx,)B
+1200 9030(right = righttop.dx > rightbottom.dx ? righttop.dx : rightbottom.dx;)B
+1200 8710(if \(righttop.dx < left\))B
+1620 8550(left = righttop.dx;)B
+1200 8390(if \(rightbottom.dx < left\))B
+1620 8230(left = rightbottom.dx;)B
+1200 8070(if \(lefttop.dx > right\))B
+1620 7910(right = lefttop.dx;)B
+1200 7750(if \(leftbottom.dx > right\))B
+1620 7590(right = leftbottom.dx;)B
+1200 7430(origin = NewDevicePoint \(left, top\);)B
+1200 7270(extent = NewDevicePoint \(right - left, bottom - top\);)B
+1200 6950(gray = GraySync \(col\);)B
+1200 6790(NeedAux \(to\);)B
+1200 6630(BitBlt \(\(struct hardware *\) NULL, to->aux, origin, origin, extent,)B
+1872 6470(ROP_FALSE\);)B
+1200 6310(BitBltTrapezoid \(to->aux, lefttop, leftbottom, righttop, rightbottom,)B
+2628 6150(top, bottom, ROP_TRUE\);)B
+1200 5990(if \(to->clip\))B
+1620 5830(BitBlt \(to->clip, to->aux, origin, origin, extent, ROP_AND\);)B
+1200 5670(BitBlt \(to->aux, to, origin, origin, extent, ROP_NOTAND\);)B
+1200 5510(RasterTile \(gray, to->aux, origin, extent, ROP_AND\);)B
+1200 5350(BitBlt \(to->aux, to, origin, origin, extent, ROP_OR\);)B
+780 5190(})B
+780 5030(UpdateControl \(to, TRUE\);)B
+360 4870(})B
+360 4710(*/)B
+360 4390(/*)B
+8004 14470(* )B
+8004 14310(* )B
+420(BitBltLine \(\) is expected to draw a line between the given points)X
+8004 14150(* )B
+420(with the given RasterOp and colour masking.)X
+8004 13990(* )B
+420(The line should be one pixel wide and half-open.)X
+8004 13830(* )B
+420([Thicker lines are done with BitBlt.])X
+8004 13670(* )B
+8004 13510(* )B
+420(PaintLine \(\) is expected to Paint a line by analogy with Paint)X
+8004 13350(* )B
+420(and BitBlt.)X
+8004 13190(*/)B
+7920 12870(void BitBltLine \(h, fromPoint, toPoint, rop\))B
+7920 12710(struct hardware *h;)B
+7920 12550(DevicePoint fromPoint, toPoint;)B
+7920 12390(int rop;)B
+7920 12230({)B
+8256 12070(if \(h\) {)B
+8592 11910(Hardware hard = \(Hardware\) h->hard.addr;)B
+8592 11750(if \(IsWindowHardware\(h\)\) {)B
+9012 11590(XDrawLine\(dpy, hard->w, fillgc[rop], fromPoint.dx, fromPoint.dy,)B
+9852 11430(toPoint.dx, toPoint.dy\);)B
+8592 11270(} else)B
+8592 11110(if \(IsBitmapHardware\(h\)\) {)B
+9012 10950(XDrawLine\(dpy, hard->w, BitmapGC[rop], fromPoint.dx, fromPoint.dy,)B
+9852 10790(toPoint.dx, toPoint.dy\);)B
+8592 10630(})B
+8592 10310(h->touched = TRUE;)B
+8592 10150(h->changed = TRUE;)B
+8172 9990(})B
+7920 9830(})B
+7920 9510(void PaintLine \(h, fromPoint, toPoint, colour\))B
+7920 9350(struct hardware *h;)B
+7920 9190(DevicePoint fromPoint, toPoint;)B
+7920 9030(Colour colour;)B
+7920 8870({)B
+8340 8710(int col;)B
+8340 8390(if \(h == NULL\))B
+8760 8230(return;)B
+8340 7910(col = IsWindowHardware \(h\) ? HardColour \(colour\) : 0;)B
+8340 7590(UpdateControl \(h, FALSE\);)B
+8340 7270(if \(h->clip == NULL && \(col == 0 || col == TransferSize \(\) - 1\)\))B
+8760 7110(BitBltLine \(h, fromPoint, toPoint,)B
+9768 6950(\(col == 0 ? ROP_TRUE : ROP_FALSE\)\);)B
+8340 6790(else {)B
+8760 6630(int mx = Min \(fromPoint.dx, toPoint.dx\), my = Min \(fromPoint.dy,)B
+13044 6470(toPoint.dy\),)B
+8760 6310(Mx = Max \(fromPoint.dx, toPoint.dx\), My = Max \(fromPoint.dy,)B
+12708 6150(toPoint.dy\);)B
+8760 5990(DevicePoint orig, ex;)B
+8760 5670(orig = NewDevicePoint \(mx, my\);)B
+8760 5510(ex = NewDevicePoint \(Mx - mx + 1, My - my + 1\);)B
+8760 5190(NeedAux \(h\);)B
+8760 5030(BitBlt \(\(struct hardware *\) NULL, h->aux, orig, orig, ex, ROP_FALSE\);)B
+8760 4710(BitBltLine \(h->aux, fromPoint, toPoint, ROP_TRUE\);)B
+8760 4390(BitBlt \(h->clip, h->aux, orig, orig, ex, ROP_AND\);)B
+EndPage
+%%Page: ? 9
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](9)Gaudy
+0 F
+1200 14470(BitBlt \(h->aux, h, orig, orig, ex, ROP_NOTAND\);)B
+1200 14150(if \(col != 0 && col != TransferSize \(\) - 1\) {)B
+1620 13990(struct hardware *gray = GraySync \(col\);)B
+1620 13830(RasterTile \(gray, h->aux, orig, ex, ROP_AND\);)B
+1200 13670(})B
+1200 13510(BitBlt \(h->aux, h, orig, orig, ex, ROP_OR\);)B
+780 13350(})B
+780 13190(UpdateControl \(h, TRUE\);)B
+780 12870(h->touched = TRUE;)B
+780 12710(h->changed = TRUE;)B
+360 12550(})B
+360 12230(/*)B
+444 12070(* BitBltBlob \(\) takes a set of pixel coordinates and fills the trapezon)B
+444 11910(* figure half open.)B
+444 11750(*/)B
+360 11430(void BitBltBlob \(to, top, height, left, right, rop\))B
+360 11270(struct hardware *to;)B
+360 11110(int top, height, *left, *right, rop;)B
+360 10950({)B
+696 10790(int i;)B
+696 10630(DevicePoint p1, p2;)B
+696 10470(for \(i=0 ; i<height ; i++\) {)B
+1116 10310(p1 = NewDevicePoint \(left[i], top + i\);)B
+1116 10150(p2 = NewDevicePoint \(right[i], top + i\);)B
+1116 9990(BitBltLine\(to, p1, p2, rop\);)B
+696 9830(})B
+360 9670(})B
+360 9350(/*)B
+444 9190(* RasterTile \(\) replicates the whole of ``from'' over ``to'', but clipped by)B
+444 9030(* the rectangle bounded by ``toPoint'' and ``extent''.)B
+444 8870(*/)B
+360 8710(void RasterTile \(from, to, toPoint, extent, rop\))B
+360 8550(struct hardware *from, *to;)B
+360 8390(DevicePoint toPoint, extent;)B
+360 8230(int rop;)B
+360 8070({)B
+696 7910(Hardware fromhard, tohard;)B
+696 7750(static GC wgc = NULL, bgc = NULL;)B
+696 7590(XGCValues values;)B
+696 7430(int valuemask;)B
+696 7270(if \(to == NULL\) return;)B
+696 7110(if \(from == NULL || IsWindowHardware\(from\)\))B
+1032 6950(Punt\("Can only RasterTile from Bitmap."\);)B
+696 6630(fromhard = \(Hardware\) from->hard.addr;)B
+696 6470(tohard = \(Hardware\) to->hard.addr;)B
+696 6310(values.tile = fromhard->w;)B
+696 6150(values.fill_style = FillTiled;)B
+696 5990(values.function = rop;)B
+696 5830(valuemask = GCFunction | GCTile | GCFillStyle;)B
+696 5670(if \(IsWindowHardware \(to\)\) {)B
+1116 5510(if \(wgc == NULL\) {)B
+1536 5350(wgc = XCreateGC\(dpy, RootWindow\(dpy, SCREEN\),)B
+2880 5190(valuemask, &values\);)B
+1116 5030(} else {)B
+1536 4870(XChangeGC\(dpy, wgc, valuemask, &values\);)B
+1116 4710(})B
+1116 4550(XFillRectangle\(dpy, tohard->w, wgc, toPoint.dx, toPoint.dy,)B
+2376 4390(extent.dx, extent.dy\);)B
+8256 14470(} else)B
+8256 14310(if \(IsBitmapHardware\(to\)\){)B
+8676 14150(if \(bgc == NULL\) {)B
+9096 13990(bgc = XCreateGC\(dpy, tohard->w, valuemask, &values\);)B
+8676 13830(} else {)B
+9096 13670(XChangeGC\(dpy, bgc, valuemask, &values\);)B
+8676 13510(})B
+8676 13350(XFillRectangle\(dpy, tohard->w, bgc, toPoint.dx, toPoint.dy,)B
+9936 13190(extent.dx, extent.dy\);)B
+8256 13030(})B
+8256 12870(to->touched = TRUE;)B
+8256 12710(to->changed = TRUE;)B
+7920 12550(})B
+7920 12230(/******************* BRIGHTNESS TRANSFER FUNCTION ************************/)B
+7920 12070(/*)B
+8004 11910(* )B
+8004 11750(* TransferSize \(\) and SetTransfer \(\) control the mapping function between)B
+8004 11590(* user brightnesses and device brightnesses. The interface is expected to)B
+8004 11430(* perform this mapping of brightnesses to a sufficient resolution.)B
+8004 11270(* SetTransfer takes a table of floating point numbers between 0 and 1. User)B
+8004 11110(* brightnesses are scaled to the size of this table and mapped through it.)B
+8004 10950(* The argument table given to SetTransfer \(\) will be deleted after use.)B
+8004 10790(* TransferSize \(\) simply enquires the required size of the table.)B
+8004 10630(* )B
+8004 10470(* It may be appropriate to half-tone on a grayscale or colour device to)B
+8004 10310(* improve rendering if it is not too expensive. TransferSize \(\) returns the)B
+8004 10150(* size of the pattern table.)B
+8004 9990(*/)B
+7920 9670(GC GetGC \(color, src, dest\))B
+7920 9510(Colour color;)B
+7920 9350(struct hardware *src, *dest;)B
+7920 9190({)B
+8340 9030(int bright, ret;)B
+8340 8870(Hardware hard, grayhard, cliphard;)B
+8340 8710(struct hardware *halftone;)B
+8340 8550(unsigned long pixelvalue = BlackPixel\(dpy, SCREEN\);)B
+8340 8390(Pixmap gray;)B
+8340 8230(XGCValues values;)B
+8340 8070(int valuemask = 0;)B
+8340 7910(GC gc;)B
+8340 7750(Drawable root = RootWindow\(dpy, SCREEN\);)B
+8340 7430(/* Assumes dest is either a bitmap or window. */)B
+8340 7110(/* Handles only monochrome for now.  Fix for color later. */)B
+8340 6790(/*)B
+8424 6630(* This routine should take a color, a destination, and a source)B
+8424 6470(* hardware.  Simplest case:)B
+8424 6310(* Solid color, No clip, No from.)B
+8424 6150(*)B
+8424 5990(* Worst case:)B
+8424 5830(* Halftone, to clip, from non-null.)B
+8424 5670(*/)B
+8340 5350(if \(NOP_GC == NULL\) {)B
+8760 5190(values.function = GXnoop;)B
+8760 5030(NOP_GC = XCreateGC\(dpy, RootWindow\(dpy, SCREEN\),)B
+10356 4870(GCFunction, &values\);)B
+8340 4710(})B
+8340 4390(bright = transfer[\(int\)\(\(TRANSFER_SIZE - 1\) * color.brightness + .5\)];)B
+EndPage
+%%Page: ? 10
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](10)Gaudy
+0 F
+780 14310(if \(bright == 0\) {)B
+1200 14150(pixelvalue = BlackPixel\(dpy, SCREEN\);)B
+1200 13990(ret = ISPIXEL;)B
+780 13830(} else if \(bright == TRANSFER_SIZE - 1\) {)B
+1200 13670(pixelvalue = WhitePixel\(dpy, SCREEN\);)B
+1200 13510(if \(!whitegc\) {)B
+1620 13350(values.function = GXcopy;)B
+1620 13190(values.foreground = WhitePixel\(dpy, SCREEN\);)B
+1620 13030(values.background = BlackPixel\(dpy, SCREEN\);)B
+1620 12870(whitegc = XCreateGC\(dpy, RootWindow\(dpy, SCREEN\),)B
+3300 12710(GCFunction|GCForeground|GCBackground,)B
+3300 12550(&values\);)B
+1200 12390(})B
+1200 12230(ret = ISPIXEL;)B
+780 12070(} else {)B
+1200 11910(halftone = GraySync\(bright\);)B
+1200 11750(grayhard = \(Hardware\) halftone->hard.addr;)B
+1200 11590(ret = ISHALFTONE;)B
+780 11430(})B
+780 11110(if \(dest == NULL\))B
+1200 10950(return NOP_GC;)B
+780 10630(if \(src && !src->touched\))B
+1200 10470(return NOP_GC;)B
+780 10150(if \(IsBitmapHardware\(dest\)\) {)B
+1200 9990(root = \(\(Hardware\) dest->hard.addr\)->w;)B
+1200 9830(values.function = GXcopy;)B
+1200 9670(values.foreground = 1;)B
+1200 9510(values.background = 0;)B
+1200 9350(valuemask = GCFunction|GCForeground|GCBackground;)B
+1200 9190(gc = BitmapGC[GXcopy];)B
+1200 9030(if \(src\) {)B
+1620 8870(if \(IsWindowHardware\(src\)\))B
+2040 8710(return NOP_GC;)B
+1620 8550(if \(dest->clip\) {)B
+2040 8390(if \(ret == ISHALFTONE\) {)B
+2460 8230(temp = NewBitmapHardware\(extent.dx, extent.dy\);)B
+2460 8070(BitBlt\(to->clip, temp, toPoint, NewDevicePoint\(0, 0\),)B
+3048 7910(extent, ROP_SOURCE\);)B
+2460 7750(BitBlt\(from, temp, fromPoint, NewDevicePoint\(0, 0\),)B
+3048 7590(extent, ROP_AND\);)B
+2460 7270(hard = \(Hardware\) temp->hard.addr;)B
+2460 7110(values.clip_mask = hard->w;)B
+2460 6950(values.clip_x_origin = toPoint.dx;)B
+2460 6790(values.clip_y_origin = toPoint.dy;)B
+2460 6630(valuemask = valuemask|GCClipMask|GCClipXOrigin|GCClipYOrigin;)B
+2460 6470(gc = NULL;)B
+2040 6310(} else {)B
+2460 6150(/* clip = clip, Stippled = src */)B
+2460 5990(cliphard = \(Hardware\) to->clip->hard.addr;)B
+2460 5830(values.clip_mask = cliphard->w;)B
+2040 5670(})B
+1620 5510(} else {)B
+2040 5350(if \(IsBitmapHardware\(src\)\) {)B
+2460 5190(hard = \(Hardware\) src->hard.addr;)B
+2460 5030(values.fill_style = FillStippled;)B
+2460 4870(values.stipple = hard->w;)B
+2460 4710(valuemask = valuemask|GCFillStyle|GCStipple;)B
+2460 4550(gc = NULL;)B
+2040 4390(})B
+9180 14470(})B
+8760 14310(} else {)B
+9180 14150(if \(dest->clip\) {)B
+9600 13990(/* clip=clip */)B
+9600 13830(cliphard = \(Hardware\) to->clip->hard.addr;)B
+9600 13670(values.clip_mask = cliphard->w;)B
+9600 13510(valuemask = valuemask|GCClipMask;)B
+9600 13350(gc = NULL;)B
+9180 13190(} else {)B
+9600 13030(if \(ret == ISHALFTONE\) {)B
+10020 12870(values.fill_style = FillTiled;)B
+10020 12710(values.tile = grayhard->w;)B
+10020 12550(valuemask = valuemask|GCFillStyle|GCStipple;)B
+10020 12390(gc = NULL;)B
+9600 12230(})B
+9180 12070(})B
+8760 11910(})B
+8340 11750(} else {)B
+8760 11590(root = RootWindow \(dpy, SCREEN\);)B
+8760 11430(values.function = GXcopy;)B
+8760 11270(values.foreground = pixelvalue;)B
+8760 11110(values.background = WhitePixel \(dpy, SCREEN\);)B
+8760 10950(gc = fillgc[GXcopy];)B
+8760 10790(if \(src\) {)B
+9180 10630(if \(dest->clip\) {)B
+9600 10470(if \(ret == ISHALFTONE\) {)B
+9600 10150(} else {)B
+10020 9990(/* clip = clip, OpaqueStippled = src */)B
+9600 9670(})B
+9180 9510(} else {)B
+9600 9350(if \(IsBitmapHardware\(src\)\) {)B
+10020 9190(hard = \(Hardware\) src->hard.addr;)B
+10020 9030(values.fill_style = FillStippled;)B
+10020 8870(values.stipple = hard->w;)B
+10020 8710(valuemask = valuemask|GCFillStyle|GCStipple;)B
+10020 8550(gc = hard->gc;)B
+9600 8390(} else {)B
+10020 8230(hard = \(Hardware\) src->hard.addr;)B
+10020 8070(values.fill_style = FillTiled;)B
+10020 7910(values.tile = hard->w;)B
+10020 7750(valuemask = valuemask|GCFillStyle|GCTile;)B
+10020 7590(gc = NULL;)B
+9600 7430(})B
+9180 7270(})B
+8760 7110(} else {)B
+9180 6950(if \(dest->clip\) {)B
+9600 6790(/* clip=clip */)B
+9180 6630(} else {)B
+9600 6470(if \(ret == ISHALFTONE\) {)B
+10020 6310(values.fill_style = FillOpaqueStippled;)B
+10020 6150(values.stipple = grayhard->w;)B
+10020 5990(valuemask = valuemask|GCFillStyle|GCStipple;)B
+10020 5830(gc = grayhard->gc;)B
+9600 5670(})B
+9180 5510(})B
+8760 5350(})B
+8340 5190(})B
+7920 4870(/*)B
+8340 4710(if \(!gc\) {)B
+8760 4550(created = TRUE;)B
+8760 4390(gc = XCreateGC\(dpy, root, valuemask, &values\);)B
+EndPage
+%%Page: ? 11
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](11)Gaudy
+0 F
+780 14470(})B
+360 14310(*/)B
+780 13990(return gc;)B
+360 13830(})B
+360 13510(ColorType RealColor \(color, pixelvalue, halftone\))B
+360 13350(Colour color;)B
+360 13190(unsigned long *pixelvalue;)B
+360 13030(struct hardware **halftone;)B
+360 12870({)B
+780 12710(int bright;)B
+780 12550(XGCValues values;)B
+780 12230(bright = transfer[\(int\)\(\(TRANSFER_SIZE - 1\) * color.brightness + .5\)];)B
+780 11910(if \(bright == 0\) {)B
+1200 11750(*pixelvalue = BlackPixel\(dpy, SCREEN\);)B
+1200 11590(return ISPIXEL;)B
+780 11430(} else if \(bright == TRANSFER_SIZE - 1\) {)B
+1200 11270(*pixelvalue = WhitePixel\(dpy, SCREEN\);)B
+1200 11110(if \(!whitegc\) {)B
+1620 10950(values.function = GXcopy;)B
+1620 10790(values.foreground = WhitePixel\(dpy, SCREEN\);)B
+1620 10630(values.background = BlackPixel\(dpy, SCREEN\);)B
+1620 10470(whitegc = XCreateGC\(dpy, RootWindow\(dpy, SCREEN\),)B
+3300 10310(GCFunction|GCForeground|GCBackground,)B
+3300 10150(&values\);)B
+1200 9990(})B
+1200 9830(return ISPIXEL;)B
+780 9670(})B
+780 9350(*halftone = GraySync\(bright\);)B
+780 9190(return ISHALFTONE;)B
+360 9030(})B
+360 8710(struct hardware *GraySync \(col\) int col;)B
+360 8550({)B
+780 8390(col = col * \(float\) screen_size / TRANSFER_SIZE + 0.5;)B
+780 8070(return screen[col].shade;)B
+360 7910(})B
+360 7590(int HardColour \(colour\) Colour colour;)B
+360 7430({)B
+780 7270(/* DCJ:)B
+864 7110(* This is a hack.  This is only a hack.  If this had been real)B
+864 6950(* code, you would have been notified of it through email.)B
+864 6790(*/)B
+780 6630(if \(BlackPixel\(dpy, SCREEN\) == 0\))B
+1200 6470(return \(TRANSFER_SIZE - 1 - transfer [\(int\) \(\(TRANSFER_SIZE - 1\) * colour.brigh)B
+780 6310(else)B
+1200 6150(return transfer [\(int\) \(\(TRANSFER_SIZE - 1\) * colour.brightness + .5\)];)B
+360 5990(})B
+360 5670(int TransferSize \(\))B
+360 5510({)B
+780 5350(return TRANSFER_SIZE;)B
+360 5190(})B
+360 4870(#define TransferSize\(\) TRANSFER_SIZE)B
+360 4550(void SetTransfer \(tran\) float *tran;)B
+360 4390({)B
+8340 14470(int i;)B
+8340 14150(for \(i = 0; i < TRANSFER_SIZE; i++\))B
+8760 13990(transfer [i] = \(TRANSFER_SIZE - 1\) * tran[i] + .5;)B
+7920 13830(})B
+7920 13510(/********************** BITMAP CONVERSION ********************************/)B
+7920 13350(/*)B
+8004 13190(* )B
+8004 13030(* StringFromHardware \(\) produces a string from its argument which describes)B
+8004 12870(* the bitmap.  The bitmap is returned in row-major order with the leftmost)B
+8004 12710(* bit of each byte in the most significant position. Rows are padded to byte)B
+8004 12550(* boundaries. Only single plane bitmaps are used.)B
+8004 12390(* )B
+8004 12230(* HardwareFromString \(\) performs the inverse mapping, generating a bitmap)B
+8004 12070(* from a set of bits, given a width and height. Only single plane bitmaps are)B
+8004 11910(* used.)B
+8004 11750(*/)B
+7920 11430(/*char *StringFromHardware \(h\))B
+7920 11270(struct hardware *h;)B
+7920 11110({)B
+8256 10950(XImage *image;)B
+8256 10790(Hardware hard;)B
+8256 10630(char *result, *ptr, c;)B
+8256 10470(int x, y, i, hdx, hdy;)B
+8256 10310(if \(h == NULL\) return NULL;)B
+8256 10150(hard = \(Hardware\) h->hard.addr;)B
+8256 9990(hdx = h->extent.dx;)B
+8256 9830(hdy = h->extent.dy;)B
+8256 9670(image = XGetImage\(dpy, hard->w, 0, 0, hdx, hdy, AllPlanes, ZPixmap\);)B
+8256 9510(result = Malloc\(\(\(hdx + 7\) / 8\) * hdy\);)B
+8256 9350(ptr = result;)B
+8256 9190(for \(y=0 ; y<hdy ; y++\) {)B
+8592 9030(for \(x=0 ; x<hdx ; x+=8\) {)B
+8928 8870(c = 0;)B
+8928 8710(for \(i=0 ; i<8 ; i++\) {)B
+9264 8550(c = c << 1;)B
+9264 8390(if \(x+i < hdx\))B
+9600 8230(c |= XGetPixel\(image, x+i, y\);)B
+8928 8070(})B
+8592 7910(})B
+8592 7750(*ptr++ = c;)B
+8256 7590(})B
+8256 7430(Free\(\(char *\) image\);)B
+8256 7270(return \(char *\) result;)B
+7920 7110(})B
+7920 6790(struct hardware *HardwareFromString \(s, width, height\))B
+7920 6630(char *s;)B
+7920 6470(int width, height;)B
+7920 6310({)B
+8256 6150(struct hardware *h = NewBitmapHardware\(width, height\);)B
+8256 5990(Hardware hard = \(Hardware\) h->hard.addr;)B
+8256 5830(XImage *image;)B
+8256 5670(if \(s == NULL\) Punt\("HardwareFromString called with NULL string!"\);)B
+8256 5510(image = XCreateImage\(dpy, DefaultVisual\(dpy, SCREEN\),)B
+10020 5350(DefaultDepth\(dpy, SCREEN\), ZPixmap, 0, s,)B
+10020 5190(h->extent.dx, h->extent.dy, 8, 0\);)B
+8256 5030(image->bitmap_bit_order = MSBFirst;)B
+8256 4870(XPutImage\(dpy, hard->w, fillgc[GXcopy], image, 0, 0, 0, 0,)B
+9096 4710(h->extent.dx, h->extent.dy\);)B
+8256 4550(free\(\(char *\) image\);)B
+8256 4390(return h;)B
+EndPage
+%%Page: ? 12
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](12)Gaudy
+0 F
+360 14470(})B
+360 14310(*/)B
+360 14150(char *StringFromHardware \(h\))B
+360 13990(struct hardware *h;)B
+360 13830({)B
+696 13670(XImage *image;)B
+696 13510(Hardware hard;)B
+696 13350(char *result, *ptr, c;)B
+696 13190(int x, y, i, hdx, hdy;)B
+696 12870(printf\("StringFromHardware called.\\n"\);)B
+696 12550(if \(h == NULL || !IsBitmapHardware\(h\)\) return NULL;)B
+696 12230(printf\("and is getting the image.\\n"\);)B
+696 11910(hard = \(Hardware\) h->hard.addr;)B
+696 11750(hdx = h->extent.dx;)B
+696 11590(hdy = h->extent.dy;)B
+696 11430(image = XGetImage\(dpy, hard->w, 0, 0, hdx, hdy, AllPlanes, XYPixmap\);)B
+696 11270(result = Malloc\(\(\(hdx + 7\) / 8\) * hdy\);)B
+696 11110(ptr = result;)B
+696 10950(for \(y=0 ; y<hdy ; y++\) {)B
+1032 10790(for \(x=0 ; x<hdx ; x+=8\) {)B
+1368 10630(c = 0;)B
+1368 10470(for \(i=0 ; i<8 ; i++\) {)B
+1704 10310(c = c << 1;)B
+1704 10150(if \(x+i < hdx\))B
+2040 9990(c |= XGetPixel\(image, x+i, y\);)B
+1368 9830(})B
+1032 9670(})B
+1032 9510(*ptr++ = c;)B
+696 9350(})B
+696 9190(Free\(\(char *\) image\);)B
+696 9030(return \(char *\) result;)B
+360 8870(})B
+360 8550(struct hardware *HardwareFromString \(s, width, height\))B
+360 8390(char *s;)B
+360 8230(int width, height;)B
+360 8070({)B
+696 7910(struct hardware *h = NewBitmapHardware\(width, height\);)B
+696 7750(Hardware hard = \(Hardware\) h->hard.addr;)B
+696 7590(XImage *image;)B
+696 7270(printf\("HardwareFromString called.\\n"\);)B
+696 6950(if \(s == NULL\) Punt\("HardwareFromString called with NULL string!"\);)B
+696 6790(image = XCreateImage\(dpy, DefaultVisual\(dpy, SCREEN\),)B
+2460 6630(1, XYBitmap, 0, s,)B
+2460 6470(h->extent.dx, h->extent.dy, 8, 0\);)B
+696 6310(image->bitmap_bit_order = MSBFirst;)B
+696 6150(XPutImage\(dpy, hard->w, BitmapGC[GXcopy], image, 0, 0, 0, 0,)B
+1536 5990(h->extent.dx, h->extent.dy\);)B
+696 5830(free\(\(char *\) image\);)B
+696 5670(h->touched = TRUE;)B
+696 5510(h->changed = TRUE;)B
+696 5350(return h;)B
+360 5190(})B
+360 4870(/************************* HALF-TONE SCREEN *******************************/)B
+360 4710(/*)B
+444 4550(* ScreenSize \(\) allows PostScript to determine how large an array of sample)B
+444 4390(* points to expect.  It should return the length of the side of the sample)B
+8004 14470(* square.)B
+8004 14310(* )B
+8004 14150(* BuildScreen \(\) returns a set of sampling coordinates to PostScript to hand)B
+8004 13990(* to the users spot-function)B
+8004 13830(* )B
+8004 13670(* SetScreen \(\) allows PostScript to set the thresholds for each sample point)B
+8004 13510(* so that half-tone bitmaps can be made.)B
+8004 13350(*/)B
+7920 13030(static int FreqSize \(freq\) float freq;)B
+7920 12870({)B
+8340 12710(int i = pixels_per_inch / freq + 0.5;)B
+8340 12390(if \(i < 2\))B
+8760 12230(return 2;)B
+8340 12070(return i;)B
+7920 11910(})B
+7920 11590(int ScreenSize \(freq, rot\) float freq, rot;)B
+7920 11430({)B
+8340 11270(int size = FreqSize \(freq\);)B
+8340 10950(return size * size;)B
+7920 10790(})B
+7920 10470(void BuildScreen \(freq, rotation, x, y\) float freq, rotation, *x, *y;)B
+7920 10310({)B
+8340 10150(int size = FreqSize \(freq\);)B
+8340 9990(int i, j;)B
+8340 9670(for \(i = 0; i < size; i++\))B
+8760 9510(for \(j = 0; j < size; j++\))B
+9180 9350(*x++ = \(2 * i - size + 1\) / \(float\) size,)B
+9180 9190(*y++ = \(2 * j - size + 1\) / \(float\) size;)B
+7920 9030(})B
+7920 8710(static sgn \(a\) float a;)B
+7920 8550({)B
+8340 8390(if \(a == 0\))B
+8760 8230(return 0;)B
+8340 8070(else if \(a < 0\))B
+8760 7910(return -1;)B
+8340 7750(else)B
+8760 7590(return 1;)B
+7920 7430(})B
+7920 7110(static int screen_cmp \(a, b\) char *a, *b;)B
+7920 6950({)B
+8340 6790(struct screen *aa = \(struct screen *\) a, *bb = \(struct screen *\) b;)B
+8340 6470(return sgn \(aa->val - bb->val\);)B
+7920 6310(})B
+7920 5990(void SetScreen \(freq, rotation, thresh\) float freq, rotation, *thresh;)B
+7920 5830({)B
+8340 5670(struct hardware *temp;)B
+8340 5510(int i, j, size = FreqSize \(freq\);)B
+8340 5350(struct screen *p;)B
+8340 5190(int valuemask;)B
+8340 5030(XGCValues values;)B
+8340 4870(Hardware hard;)B
+8340 4550(if \(screen\) {)B
+8760 4390(for \(i = 0; i < screen_size; i++\))B
+EndPage
+%%Page: ? 13
+StartPage
+Landscape
+()(X11.c)[(89/02/28)(01:34:41)](13)Gaudy
+0 F
+1620 14470(DestroyHardware \(screen [i].shade\);)B
+1200 14310(free \(\(char *\) screen\);)B
+780 14150(})B
+780 13990(p = screen = \(struct screen *\) Malloc \(\(unsigned\) \(\(\(screen_size = size * size\) + 1\))B
+360 13830(/*     screen_side = size;*/)B
+780 13670(for \(i = 0; i < size; i++\))B
+1200 13510(for \(j = 0; j < size; j++\) {)B
+1620 13350(p->val = *thresh++;)B
+1620 13190(p->sx = i;)B
+1620 13030(p->sy = j;)B
+1620 12870(++p;)B
+1200 12710(})B
+780 12550(qsort \(\(char *\) screen, screen_size, sizeof \(struct screen\), screen_cmp\);)B
+780 12390(temp = NewBitmapHardware \(size, size\);)B
+780 12230(BitBlt \(\(struct hardware *\) NULL, temp, NewDevicePoint \(0, 0\),)B
+1452 12070(NewDevicePoint \(0, 0\), NewDevicePoint \(size, size\), ROP_TRUE\);)B
+780 11750(for \(i = 0; i < screen_size; i++\) {)B
+1200 11590(screen [i].shade = NewBitmapHardware \(size, size\);)B
+1200 11430(BitBlt \(temp, screen[i].shade,)B
+1872 11270(NewDevicePoint \(0, 0\), NewDevicePoint \(0, 0\),)B
+1872 11110(NewDevicePoint \(size, size\), ROP_SOURCE\);)B
+1200 10950(BitBlt \(\(struct hardware *\) NULL, temp,)B
+1872 10790(NewDevicePoint \(0, 0\),)B
+1872 10630(NewDevicePoint \(screen[i].sx, screen[i].sy\),)B
+1872 10470(NewDevicePoint \(1, 1\), ROP_FALSE\);)B
+1200 10310(values.function = GXcopy;)B
+1200 10150(values.foreground = BlackPixel\(dpy, SCREEN\);)B
+1200 9990(values.background = WhitePixel\(dpy, SCREEN\);)B
+1200 9830(values.fill_style = FillOpaqueStippled;)B
+1200 9670(hard = \(Hardware\) screen[i].shade->hard.addr;)B
+1200 9510(values.stipple = hard->w;)B
+1200 9350(valuemask = GCFunction|GCForeground|GCBackground|GCFillStyle|GCStipple;)B
+1200 9190(hard->gc = XCreateGC\(dpy, RootWindow\(dpy, SCREEN\), valuemask,)B
+2964 9030(&values\);)B
+1200 8870(screen[i].shade->touched = TRUE;)B
+1200 8710(screen[i].shade->changed = TRUE;)B
+780 8550(})B
+780 8390(screen[screen_size].shade = temp;)B
+780 8230(values.function = GXcopy;)B
+780 8070(values.foreground = BlackPixel\(dpy, SCREEN\);)B
+780 7910(values.background = WhitePixel\(dpy, SCREEN\);)B
+780 7750(values.fill_style = FillOpaqueStippled;)B
+780 7590(hard = \(Hardware\) temp->hard.addr;)B
+780 7430(values.stipple = hard->w;)B
+780 7270(valuemask = GCFunction|GCForeground|GCBackground|GCFillStyle|GCStipple;)B
+780 7110(hard->gc = XCreateGC\(dpy, RootWindow\(dpy, SCREEN\), valuemask,)B
+2544 6950(&values\);)B
+780 6790(screen[screen_size].shade->touched = TRUE;)B
+780 6630(screen[screen_size].shade->changed = TRUE;)B
+360 6470(})B
+360 6150(/************************* CLIPPING ******************************************/)B
+360 5990(/*)B
+444 5830(* )B
+444 5670(* SetClipHardware sets hardware which is a clip mask for BitBlt. This mask)B
+444 5510(* should be ANDed with any output operation. If clip is NULL, masking will)B
+444 5350(* not be needed.)B
+444 5190(*/)B
+360 4870(void SetClipHardware \(h, clip\) struct hardware *h, *clip;)B
+360 4710({)B
+780 4550(if \(h\) {)B
+1200 4390(h->clip = clip;)B
+8760 14470(if \(h->clip\))B
+9180 14310(h->clip->changed = TRUE;)B
+8340 14150(})B
+7920 13990(})B
+7920 13670(/************************ UPDATE CONTROLS **********************************/)B
+7920 13510(/*)B
+8004 13350(* HardUpdate is a hook to allow devices which do output buffering to flush)B
+8004 13190(* that buffering when appropriate.  This allows an interactive user to see)B
+8004 13030(* completed graphics between prompts \(it is called as a side-effect of the)B
+8004 12870(* PostScript flush operator\). Typically is is a no-op.)B
+8004 12710(*/)B
+7920 12390(void HardUpdate \(\))B
+7920 12230({)B
+8256 12070(XFlush\(dpy, 0\);)B
+7920 11910(})B
+7920 11590(/*)B
+8004 11430(* This call can be used to enable batching of output operations.)B
+8004 11270(* UpdateControl \(h, FALSE\) means ``start of batching'' UpdateControl \(h,)B
+8004 11110(* TRUE\) means ``end of batching''. It is used to improve performance on)B
+8004 10950(* machines where screen updates have a high locking overhead. It may be a)B
+8004 10790(* no-op.  The operation should nest if batching is already in progress: FALSE)B
+8004 10630(* increments a counter, TRUE decrements a counter. Display changes are)B
+8004 10470(* allowed when the counter is non-zero.)B
+8004 10310(*/)B
+7920 9990(void UpdateControl \(h, on\))B
+7920 9830(struct hardware *h;)B
+7920 9670(int on;)B
+7920 9510({})B
+7920 9190(#define UpdateControl \(h, on\) {})B
+7920 8870(DevicePoint ConvertToDevicePoint \(x, y\) int x, y;)B
+8004 8710({)B
+8424 8550(DevicePoint res;)B
+8424 8230(res.dx = \(int\) \(\(float\) x * \(float\) pixels_per_inch / 72.0\);)B
+8424 8070(res.dy = \(int\) \(\(float\) y * \(float\) pixels_per_inch / 72.0\);)B
+8424 7750(return res;)B
+8004 7590(})B
+EndPage
+%%Trailer
+EndEnscriptDoc
+EnscriptJob restore

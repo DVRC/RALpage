@@ -1,0 +1,47 @@
+cc -g  -mc68010 -c  array.c
+cc -g  -mc68010 -c  boolean.c
+cc -g -c -DDEFAULT_LIBRARY=\"/usr/local/lib/postscript\" config.c
+cc -g  -mc68010 -c  control.c
+cc -g  -mc68010 -c  dictionary.c
+cc -g  -mc68010 -c  file.c
+cc -g  -mc68010 -c  integer.c
+cc -g  -mc68010 -c  main.c
+cc -g  -mc68010 -c  math.c
+cc -g  -mc68010 -c  misc.c
+cc -g  -mc68010 -c  name.c
+cc -g  -mc68010 -c  operator.c
+cc -g  -mc68010 -c  poly.c
+cc -g  -mc68010 -c  property.c
+cc -g  -mc68010 -c  real.c
+cc -g  -mc68010 -c  save.c
+cc -g  -mc68010 -c  stack.c
+cc -g  -mc68010 -c  string.c
+cc -g  -mc68010 -c  unix.c
+cc -g  -mc68010 -c  cache.c
+cc -g  -mc68010 -c  colour.c
+cc -g  -mc68010 -c  device.c
+cc -g  -mc68010 -c  fill.c
+cc -g  -mc68010 -c  font.c
+cc -g  -mc68010 -c  gsave.c
+cc -g  -mc68010 -c  image.c
+cc -g  -mc68010 -c  mat.c
+cc -g  -mc68010 -c  matrix.c
+cc -g  -mc68010 -c  pat.c
+cc -g  -mc68010 -c  path.c
+cc -g  -mc68010 -c  state.c
+cc -g  -mc68010 -c  stroke.c
+cc -g  -mc68010 -c  X11.c
+cc -g  -mc68010 -c  canon.c
+cc -g  -mc68010 -c  screen.c
+cc -g  -mc68010 -c  trapezoid.c
+cc -g  -mc68010 -c  paint.c
+ar ruv canon.a canon.o screen.o trapezoid.o paint.o
+r - canon.o
+r - screen.o
+r - trapezoid.o
+r - paint.o
+ranlib canon.a
+rm -f x11PS
+cc -o x11PS -g array.o boolean.o config.o control.o dictionary.o file.o integer.o main.o math.o misc.o name.o operator.o poly.o property.o real.o save.o stack.o string.o unix.o cache.o colour.o device.o fill.o font.o gsave.o image.o mat.o matrix.o pat.o path.o state.o stroke.o X11.o canon.a -lm /usr/local/lib/libX11.a
+cc -g  -mc68010 -c  pixwin.c
+cc -g  array.o boolean.o config.o control.o dictionary.o file.o integer.o main.o math.o misc.o name.o operator.o poly.o property.o real.o save.o stack.o string.o unix.o cache.o colour.o device.o fill.o font.o gsave.o image.o mat.o matrix.o pat.o path.o state.o stroke.o pixwin.o canon.a -lm -lsuntool -lsunwindow -lpixrect -o sunPS

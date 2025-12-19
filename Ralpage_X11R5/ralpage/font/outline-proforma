@@ -1,0 +1,59 @@
+
+30 dict begin
+	10 dict begin
+		/glyphdir (fonts/) def
+		/metricdir (metrics/) def
+		/name MappedName 100 string cvs def
+		/CharFile name length glyphdir length add string def
+		CharFile 0 glyphdir putinterval
+		CharFile glyphdir length name putinterval
+		MetricMap UnmappedName known {
+			MetricMap UnmappedName get
+		} {
+			MetricMap MappedName known {
+				MetricMap MappedName get
+			} {
+				MappedName
+			} ifelse
+		} ifelse 100 string cvs /metric-name exch def
+		/MetricFile metric-name length metricdir length add string def
+		MetricFile 0 metricdir putinterval
+		MetricFile metricdir length metric-name putinterval
+		MetricFile CharFile
+	end /CharFile exch def /MetricFile exch def
+	/OriginalName UnmappedName def
+	/FontName MappedName def
+	/FontType 3 def
+	/FontBBox {-500 -500 1000 1000} def
+	/FontMatrix [.001 0 0 .001 0 0] def
+	/Encoding 256 array def
+	StandardEncoding Encoding copy pop
+	/Metrics 256 dict def
+	/$outline-dict 30 dict def
+	MetricFile lib run
+	Metrics /space Metrics /zero get put
+	/CharProcs 256 dict def
+	/build-outline { % font code
+		1 index begin $outline-dict begin
+		exch dup /outline-font exch def
+		/Encoding get exch get /outline-name exch def
+		outline-font /Metrics get dup outline-name known { outline-name get } { /zero get } ifelse
+			0 outline-font /FontBBox get exec
+		setcachedevice
+		outline-font /CharProcs get dup outline-name known { outline-name get } { pop {} } ifelse
+		end end
+
+		exec eofill
+	 } def								
+	/BuildChar {
+		1 index begin
+			FontDirectory FontName get /BuildChar /build-outline load put
+			currentdict /BuildChar /build-outline load put
+			CharFile lib run
+			CharProcs /space {} put
+			/BuildChar load
+		end
+		exec
+	} def
+	FontName currentdict definefont pop
+end

@@ -1,0 +1,76 @@
+The pixwin changes require some subtle knowledge to use effectively.
+
+To compile, edit the Makefile and replace each instance of pixrect.o
+with pixwin.o. Replace each instance of
+    -lpixrect
+with
+    -lsuntool -lsunwindow -lpixrect
+(Yes, the ordering is important.) Do a make depend. Do a make suntools.
+
+Next, to make this work properly, you must redefine showpage in your
+~/.postscript file. The definition is thus:
+
+/showpage { copypage initgraphics flush erasepage } def
+
+If you don't do this, the interpreter (either "postscript" or "sunPS")
+will beep nastily at you every time it encounters a showpage, and wait
+for a carriage return, thus requiring response in TWO windows!
+
+Execute "sunPS file.ps". Voila.
+
+It can be highly efficient to run the interpreter on one machine via
+rsh and the viewer on your Sun. However, suntools requires some
+environment variables be set for you to start up -- environment
+variables which your .cshrc or .profile will not provide. These are
+WINDOW_PARENT and WMGR_ENV_PLACEHOLDER.
+
+This example assumes that machine A and machine B have the rsh command
+available.
+
+Let us suppose that you wish to view the output on machine A, but run
+the interpreter on machine B. The following shell script, which should
+reside on machine A and which I call "rmtviewer", will provide the
+window information for suntools.
+
+-----
+#! /bin/sh
+# the following is the "most general" method. For quick 'n' dirty, comment
+# this out and uncomment the two lines following, which seem to work in
+# all the cases I've tried.
+eval `ps axeww | grep shelltool | awk '
+    BEGIN   {	done = 0 }
+    	    {	for (i=1;i<NF&&done != 2;i++)
+		if (index($i,"=")) {
+		    split($i,tmp,"=")
+		    if (tmp[1] == "WINDOW_PARENT" || \
+			tmp[1] == "WMGR_ENV_PLACEHOLDER") {
+			print $i
+			done++
+			}
+		    }
+	    }'`
+#WINDOW_PARENT=/dev/win0
+#WMGR_ENV_PLACEHOLDER=/dev/win1
+
+export WINDOW_PARENT; export WMGR_ENV_PLACEHOLDER
+
+exec sunviewer
+-----
+
+On machine B, you must have
+
+    POSTSCRIPTDEVICE="| rsh machineA rmtviewer"; export POSTSCRIPTDEVICE
+		-or-
+    setenv POSTSCRIPTDEVICE "| rsh machineA rmtviewer"
+
+in your .cshrc or .profile (as appropriate for your shell). Verify that
+your .postscript is set up as above. Then, still on machine B, execute
+
+    postscript myfile
+
+(where myfile contains postscript commands)
+
+The window should appear on machine A and (eventually) display your output.
+
+There is no reason you could not use rsh to run the postscript command on
+machine B from machine A, either.

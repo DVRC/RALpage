@@ -1,0 +1,43 @@
+30 dict begin
+	10 dict begin
+		/glyphdir (glyphs/) def
+		/metricdir (metrics/) def
+		/name MappedName 100 string cvs def
+		/CharFile name length glyphdir length add string def
+		CharFile 0 glyphdir putinterval
+		CharFile glyphdir length name putinterval
+		MetricMap UnmappedName known {
+			MetricMap UnmappedName get
+		} {
+			MetricMap MappedName known {
+				MetricMap MappedName get
+			} {
+				MappedName
+			} ifelse
+		} ifelse 100 string cvs /metric-name exch def
+		/MetricFile metric-name length metricdir length add string def
+		MetricFile 0 metricdir putinterval
+		MetricFile metricdir length metric-name putinterval
+		MetricFile CharFile
+	end /CharFile exch def /MetricFile exch def
+	/OriginalName UnmappedName def
+	/FontName MappedName def
+	/FontType 3 def
+	/FontBBox [0.0 -32.0 32.0 16.0] def
+	/FontMatrix [ 1 38.0 div 0 0 -1 32.0 div 0 0] def
+	/Encoding 256 array def
+	StandardEncoding Encoding copy pop
+	/Metrics 256 dict def
+	MetricFile lib run
+	/CharStrings 256 dict def
+	/BuildChar {
+		1 index begin
+			FontDirectory FontName get /BuildChar /buildhershey load put
+			currentdict /BuildChar /buildhershey load put
+			CharFile lib run
+			/BuildChar load
+		end
+		exec
+	} def
+	FontName currentdict definefont pop
+end

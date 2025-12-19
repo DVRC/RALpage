@@ -1,0 +1,103 @@
+#! /bin/sh
+# shell script to drive RALpage for conforming documents
+# Copyright Crispin A. A. Goswell 1988
+#
+TTY=`tty | sed 's,^.*/,,'`;
+if [ "$TTY" = "not a tty" ]
+then
+	:
+else
+	RHOST=`who | grep $TTY | grep ')$' | sed 's/^.*(//;s/)$//'`
+fi
+if [ -n "$RHOST" ]
+then
+	if [ -z "`rsh $RHOST ls /usr/ral/bin/viewer 2>/dev/null`" ]
+	then
+		echo 1>&2 `basename $0`: viewer unavailable on remote host \'$RHOST\'
+		exit 1
+	fi
+	RALPAGEDEVICE="|rsh $RHOST sh -c \'WMGR_ENV_PLACEHOLDER=/dev/win1 WINDOW_GFX=/dev/win1 WINDOW_PARENT=/dev/win0 /usr/ral/bin/viewer\'"
+	export RALPAGEDEVICE
+	PROG=/usr/ral/bin/ralview
+	if [ ! \( -r "$PROG" \) ]
+	then
+		echo 1>&2 `basename $0`:cannot find ralview for remote browsing
+		exit 1
+	fi
+else
+	PROG=/usr/ral/bin/ralpage
+	if [ ! \( -r "$PROG" \) ]
+	then
+		echo 1>&2 `basename $0`:cannot find ralpage or RHOST
+		exit 1
+	fi
+fi
+TEMPNAME=/usr/tmp/ralb$$ export TEMPNAME
+TEMPNAME2=/usr/tmp/ralbf$$ export TEMPNAME2
+trap 'rm $TEMPNAME $TEMPNAME2' 1 2 13 15
+(echo 1>&2 'Type <RETURN> to view sequentially, <number> to view a random page'
+echo 1>&2 '"exit" "quit" "q" or <EOF> to stop'
+echo 1>&2 -n Reading $1 - please wait...
+cat $1 | tee $TEMPNAME2 | egrep -n '^%%(Page:|Trailer)' | sed -e 's/:/	/' | awk '{ print $1 }' >$TEMPNAME
+exec </dev/tty
+count=`wc -l <$TEMPNAME`
+count=`expr $count - 1`
+echo 1>&2 $count pages.
+header=`head -1 $TEMPNAME`
+oldpage=0
+head -$header $TEMPNAME2
+while true
+do
+	echo -n 1>&2 'page: '
+	if read page 1>&2
+	then
+		:
+	else
+		rm $TEMPNAME
+		rm $TEMPNAME2
+		echo 1>&2
+		exit
+	fi
+	if [ -z "$page" ]
+	then
+		page=`expr $oldpage + 1`
+		echo [$page] 1>&2
+	fi
+	if [ "$page" = "exit" ]
+	then
+		rm $TEMPNAME
+		rm $TEMPNAME2
+		exit
+	fi
+	if [ "$page" = "quit" ]
+	then
+		rm $TEMPNAME
+		rm $TEMPNAME2
+		exit
+	fi
+	if [ "$page" = "q" ]
+	then
+		rm $TEMPNAME
+		rm $TEMPNAME2
+		exit
+	fi
+	if expr "$page" \> $count >/dev/null
+	then
+		page=`expr "$page" - 1`
+		if [ -z "$page" ]
+		then
+			page=$oldpage
+		else
+			echo [end] 1>&2
+		fi
+		oldpage=$page
+	else
+		oldpage=$page
+		page=`expr $page + 1`
+		page1=`expr $page - 1`
+		from=`tail +$page1 $TEMPNAME | head -1`
+		to=`tail +$page $TEMPNAME | head -1`
+		echo erasepage
+		tail +$from $TEMPNAME2 | head -`expr $to - $from`
+	fi
+done) | $PROG -c '/showpage { flush initgraphics } def flush' -

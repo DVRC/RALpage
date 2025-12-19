@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# this script converts a table called screen-fonts into the disk-cache-list used by RALpage.
+#
+awk -e '{
+	if (substr ($0, 0, 1) == "#")
+		next;
+	if ($0 == "")
+		next;
+	if (substr ($2, 0, 1) == "/")
+		path = "(" $2 ")";
+	else
+		path = "(" $2 ") lib ";
+	if ($5 == "snf")
+		loader = "loadxcache";
+	else if ($5 == "vfont")
+		loader = "loadvfont";
+	else
+	 {
+		print "unknown format: " $5 "at line " NR >"/dev/tty";
+		next;
+	 }
+	if (0+$4 == 0)
+	 {
+		print "invalid resolution: " $4 " at line " NR >"/dev/tty";
+		next;
+	 }
+	if ($3 == "")
+	 {
+		print "invalid suffix at line " NR >"/dev/tty";
+		next;
+	 }
+	if ($3 == "\"\"")
+		suffix = "";
+	else
+		suffix = $3;
+	print "/" $1 "	[ " path "(" suffix ") find-sizes " 1.4 * $4 / 75 " /" loader " ] def";
+}' screen-fonts >disk-cache-list

@@ -1,0 +1,83 @@
+Metrics /a[-3 22] put
+Metrics /b[3 19] put
+Metrics /c[-3 18] put
+Metrics /d[1 22] put
+Metrics /e[-3 18] put
+Metrics /f[4 16] put
+Metrics /g[-1 21] put
+Metrics /h[1 22] put
+Metrics /i[5 13] put
+Metrics /j[5 13] put
+Metrics /k[1 22] put
+Metrics /l[6 12] put
+Metrics /m[-1 35] put
+Metrics /n[-1 24] put
+Metrics /o[-3 20] put
+Metrics /p[1 22] put
+Metrics /q[-3 21] put
+Metrics /r[-1 18] put
+Metrics /s[-2 17] put
+Metrics /t[5 14] put
+Metrics /u[-1 24] put
+Metrics /v[-1 20] put
+Metrics /w[-1 30] put
+Metrics /x[-1 22] put
+Metrics /y[-1 22] put
+Metrics /z[-3 20] put
+Metrics /A[2 20] put
+Metrics /B[0 24] put
+Metrics /C[2 21] put
+Metrics /D[0 23] put
+Metrics /E[0 23] put
+Metrics /F[0 22] put
+Metrics /G[2 22] put
+Metrics /H[0 26] put
+Metrics /I[5 14] put
+Metrics /J[3 19] put
+Metrics /K[0 23] put
+Metrics /L[2 20] put
+Metrics /M[0 28] put
+Metrics /N[0 25] put
+Metrics /O[1 22] put
+Metrics /P[0 23] put
+Metrics /Q[1 22] put
+Metrics /R[0 24] put
+Metrics /S[1 23] put
+Metrics /T[1 22] put
+Metrics /U[0 25] put
+Metrics /V[2 20] put
+Metrics /W[-1 26] put
+Metrics /X[1 22] put
+Metrics /Y[1 22] put
+Metrics /Z[1 22] put
+Metrics /zero [2 21] put
+Metrics /one [2 21] put
+Metrics /two [2 21] put
+Metrics /three [2 21] put
+Metrics /four [2 21] put
+Metrics /five [2 21] put
+Metrics /six [2 21] put
+Metrics /seven [2 21] put
+Metrics /eight [2 21] put
+Metrics /nine [2 21] put
+Metrics /period [-2 11] put
+Metrics /comma [-1 11] put
+Metrics /colon [0 11] put
+Metrics /semicolon [0 11] put
+Metrics /exclam [7 11] put
+Metrics /question [2 21] put
+Metrics /quoteleft [7 11] put
+Metrics /quoteright [7 11] put
+Metrics /ampersand [-1 26] put
+Metrics /dollar [6 21] put
+Metrics /slash [5 23] put
+Metrics /parenleft [8 16] put
+Metrics /parenright [8 16] put
+Metrics /asterisk [4 17] put
+Metrics /minus [-4 25] put
+Metrics /plus [-3 25] put
+Metrics /equal [-4 25] put
+Metrics /quotesingle [7 10] put
+Metrics /quotedbl [2 20] put
+Metrics /ring [5 15] put
+Metrics /space [0 20] put % nicked from Times/roman.r

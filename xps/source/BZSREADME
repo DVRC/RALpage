@@ -1,0 +1,9 @@
+
+Some changes to speed things up and a few minor changes in X11.c,
+name the window etc.
+
+The makefile now has some variables at the top to be set for each
+machine (to set up CFLAGS and LDFLAGS, for example on my Sun I want
+to set -fsingle and -f68881.)
+
+	-Barry Shein, July 26, 1988

@@ -1,0 +1,16 @@
+MetricMap /Times-Roman /Times-Roman put
+MetricMap /Times-Bold /Times-Bold put
+MetricMap /Times-Italic /Times-Italic put
+MetricMap /Times-BoldItalic /Times-BoldItalic put
+
+MetricMap /Helvetica /Helvetica put
+MetricMap /Helvetica-Oblique /Helvetica-Oblique put
+MetricMap /Helvetica-Bold /Helvetica-Bold put
+MetricMap /Helvetica-BoldOblique /Helvetica-BoldOblique put
+
+MetricMap /Courier /Courier put
+MetricMap /Courier-Oblique /Courier-Oblique put
+MetricMap /Courier-Bold /Courier-Bold put
+MetricMap /Courier-BoldOblique /Courier-BoldOblique put
+
+MetricMap /Symbol /Symbol put

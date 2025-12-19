@@ -1,0 +1,362 @@
+%!PS-Adobe-1.0
+%%DocumentFonts: Helvetica
+%%Title: XMath plot
+%%Creator: tmdonahu and XMath
+%%CreationDate: sometime
+%%Pages: 1
+%%BoundingBox: 
+%%EndComments
+%/setworldscale {
+%  /world 
+%    xmin neg ymax neg                   % translate from upper left corner
+%    matrix translate                    % to origin
+%
+%    72 pagewidth mul 6 sub xmax xmin sub div
+%    72 pageheight mul 6 sub ymax ymin sub div   % change scale from points
+%    matrix scale                                % to world coordinates
+%
+%    pagex 72 mul 3 add
+%    11 pagey sub 72 mul 3 sub         % move origin to ul corner of window
+%    matrix translate 
+%    % the above puts 3 matricies on the stack.  Now concat them
+%    matrix concatmatrix             % concat last 2 transforms
+%    matrix concatmatrix             % concat first trans. and prev. concat.
+%  def
+%} def
+%
+/setpixelscale {
+  /pixel
+    72 pagewidth mul 6 sub pixwidth 1 sub div
+    72 pageheight mul 6 sub pixheight 1 sub neg div
+    matrix scale
+
+    pagex 72 mul 3 add 11 pagey sub 72 mul 3 sub
+    matrix translate
+    matrix concatmatrix
+  def
+} def
+
+/setworldscale {
+  /world
+    72 pagewidth mul 6 sub xmax xmin sub div
+    72 pageheight mul 6 sub ymax ymin sub div   % change scale from points
+    matrix scale                                % to world coordinates
+
+    pixwidth xmax xmin sub div xmin neg mul    % move to pixel origin
+    pixheight ymax ymin sub div ymax mul
+    pixel transform matrix translate
+    matrix concatmatrix
+  def
+} def
+
+/box {
+    pagex 72 mul 11 pagey sub 72 mul moveto
+    pagewidth 72 mul 0 rlineto
+    0 pageheight 72 mul neg rlineto
+    pagewidth 72 mul neg 0 rlineto
+    closepath stroke
+} def
+
+/axis {
+    xmax 0 world transform moveto xmin 0 world transform lineto
+    0 ymax world transform moveto 0 ymin world transform lineto stroke
+} def
+
+/setclip {
+    initclip xmin ymin world transform moveto 
+    xmax ymin world transform lineto
+    xmax ymax world transform lineto 
+    xmin ymax world transform lineto
+    closepath clip newpath
+} def
+
+/drawsquare {
+  moveto         % move to center
+  squaresize 2 div dup rmoveto    % move to upper right corner
+  squaresize neg 0 rlineto
+  0 squaresize neg rlineto
+  squaresize 0 rlineto
+  closepath stroke } def
+/drawdiamond {
+  moveto
+  0 diamondside rmoveto
+  diamondside neg dup rlineto
+  diamondside dup neg rlineto
+  diamondside dup rlineto
+  closepath stroke} def
+/drawtriangle {
+  moveto
+  0 triangleheight 2 div rmoveto
+  trianglesize 2 div neg triangleheight neg rlineto
+  trianglesize 0 rlineto
+  closepath stroke} def
+/drawcross {
+  moveto
+  0 crosssize 2 div rmoveto
+  0 crosssize neg rlineto
+  crosssize 2 div dup rmoveto
+  crosssize neg 0 rlineto
+  stroke} def
+/drawstar {
+  moveto
+  0 starsize 2 div rmoveto
+  0 starsize neg rlineto
+  starsize 2 div dup rmoveto
+  starsize neg 0 rlineto
+  starsize 2 div 0 rmoveto
+  stardiag 2 div  dup rmoveto
+  stardiag neg dup rlineto
+  0 stardiag rmoveto
+  stardiag dup neg rlineto
+  stroke} def
+/drawdot {
+  dotsize 2 div 0 360 arc 
+  fill} def
+/drawcircle {
+  circlesize 2 div 0 360 arc
+  stroke} def
+/drawbar {
+  /yval exch def
+  /xval exch def
+  xval halfbar sub 0 worldtopix moveto
+  xval halfbar sub yval worldtopix lineto
+  xval halfbar add yval worldtopix lineto
+  xval halfbar add 0 worldtopix lineto
+  stroke} def
+/drawimpulse {
+  2 copy 
+  worldtopix moveto
+  pop 0 worldtopix lineto
+  stroke} def
+/pixline {pixel transform moveto pixel transform lineto stroke} def
+/pixdot {pixel transform drawdot} def
+/pixtic {pixel transform moveto show} def
+/pixrect {dup dup dup dup dup dup dup dup dup
+          0 get exch 1 get pixel transform moveto
+          2 get exch 1 get pixel transform lineto
+          2 get exch 3 get pixel transform lineto
+          0 get exch 3 get pixel transform lineto
+          0 get exch 1 get pixel transform lineto} def
+/connect {dup 0 get exch 1 get worldtopix lineto} def
+/square {dup 0 get exch 1 get worldtopix drawsquare} def
+/triangle {dup 0 get exch 1 get worldtopix drawtriangle} def
+/circle {dup 0 get exch 1 get worldtopix drawcircle} def
+/cross {dup 0 get exch 1 get worldtopix drawcross} def
+/dot {dup 0 get exch 1 get worldtopix drawdot} def
+/diamond {dup 0 get exch 1 get worldtopix drawdiamond} def
+/star {dup 0 get exch 1 get worldtopix drawstar} def
+/impulse {dup dup 0 get exch 1 get worldtopix moveto
+          0 get 0 worldtopix lineto} def
+/bar {dup dup dup dup dup 0 get halfbar sub 0 worldtopix moveto
+      0 get halfbar sub exch 1 get worldtopix lineto
+      0 get halfbar add exch 1 get worldtopix lineto
+      0 get halfbar add 0 worldtopix lineto
+} def
+/labimp {pixel transform moveto pixel transform lineto stroke} def
+/worldtopix {
+  world transform} def
+
+/xmin -11 def     % measured in world coordinates
+/xmax 11 def
+/ymin -11 def
+/ymax 11 def
+
+/pagewidth 6.5 def     % in inches
+/pageheight 6.5 def
+/pagex 1 def
+/pagey 1 def
+
+/dashon 6 def  % measured in points (1 point = 1/72 inches)
+/dashoff 6 def
+/doton 1 def
+/dotoff 3 def
+/ddashon 6 def
+/ddashoff 3 def
+/ddoton 2 def
+/fontheight 9 def
+/linewidth .5 def
+/squaresize 6 def
+/trianglesize 6 def
+/triangleheight trianglesize .866 mul def
+/circlesize 6 def
+/crosssize 6 def
+/dotsize 1 def
+/diamondsize 6 def
+/diamondside diamondsize .707 mul def
+/starsize 6 def
+/stardiag starsize .707 mul def
+/pixwidth 403 def    % measured in pixels
+/pixheight 378 def
+linewidth setlinewidth    % set things up
+setpixelscale
+setworldscale
+box
+setclip
+/Helvetica findfont fontheight scalefont setfont
+%*********** the following junk draws the axes.  Ignore it
+  10  368 pixdot	  10  332 pixdot	  10  296 pixdot	  10  260 pixdot
+  10  224 pixdot	  10  189 pixdot	  10  153 pixdot	  10  117 pixdot
+  10   81 pixdot	  10   45 pixdot	  10   10 pixdot	  48  368 pixdot
+  48  332 pixdot	  48  296 pixdot	  48  260 pixdot	  48  224 pixdot
+  48  189 pixdot	  48  153 pixdot	  48  117 pixdot	  48   81 pixdot
+  48   45 pixdot	  48   10 pixdot	  86  368 pixdot	  86  332 pixdot
+  86  296 pixdot	  86  260 pixdot	  86  224 pixdot	  86  189 pixdot
+  86  153 pixdot	  86  117 pixdot	  86   81 pixdot	  86   45 pixdot
+  86   10 pixdot	 124  368 pixdot	 124  332 pixdot	 124  296 pixdot
+ 124  260 pixdot	 124  224 pixdot	 124  189 pixdot	 124  153 pixdot
+ 124  117 pixdot	 124   81 pixdot	 124   45 pixdot	 124   10 pixdot
+ 163  368 pixdot	 163  332 pixdot	 163  296 pixdot	 163  260 pixdot
+ 163  224 pixdot	 163  189 pixdot	 163  153 pixdot	 163  117 pixdot
+ 163   81 pixdot	 163   45 pixdot	 163   10 pixdot	 201  368 pixdot
+ 201  332 pixdot	 201  296 pixdot	 201  260 pixdot	 201  224 pixdot
+ 201  189 pixdot	 201  153 pixdot	 201  117 pixdot	 201   81 pixdot
+ 201   45 pixdot	 201   10 pixdot	 239  368 pixdot	 239  332 pixdot
+ 239  296 pixdot	 239  260 pixdot	 239  224 pixdot	 239  189 pixdot
+ 239  153 pixdot	 239  117 pixdot	 239   81 pixdot	 239   45 pixdot
+ 239   10 pixdot	 278  368 pixdot	 278  332 pixdot	 278  296 pixdot
+ 278  260 pixdot	 278  224 pixdot	 278  189 pixdot	 278  153 pixdot
+ 278  117 pixdot	 278   81 pixdot	 278   45 pixdot	 278   10 pixdot
+ 316  368 pixdot	 316  332 pixdot	 316  296 pixdot	 316  260 pixdot
+ 316  224 pixdot	 316  189 pixdot	 316  153 pixdot	 316  117 pixdot
+ 316   81 pixdot	 316   45 pixdot	 316   10 pixdot	 354  368 pixdot
+ 354  332 pixdot	 354  296 pixdot	 354  260 pixdot	 354  224 pixdot
+ 354  189 pixdot	 354  153 pixdot	 354  117 pixdot	 354   81 pixdot
+ 354   45 pixdot	 354   10 pixdot	 393  368 pixdot	 393  332 pixdot
+ 393  296 pixdot	 393  260 pixdot	 393  224 pixdot	 393  189 pixdot
+ 393  153 pixdot	 393  117 pixdot	 393   81 pixdot	 393   45 pixdot
+ 393   10 pixdot	  10  189  392  189 pixline	  10  185   10  193 pixline	  48  185   48  193 pixline
+  86  185   86  193 pixline	 124  185  124  193 pixline	 163  185  163  193 pixline
+ 239  185  239  193 pixline	 278  185  278  193 pixline	 316  185  316  193 pixline
+ 354  185  354  193 pixline	 393  185  393  193 pixline	 201   10  201  367 pixline
+ 197  368  205  368 pixline	 197  332  205  332 pixline	 197  296  205  296 pixline
+ 197  260  205  260 pixline	 197  224  205  224 pixline	 197  153  205  153 pixline
+ 197  117  205  117 pixline	 197   81  205   81 pixline	 197   45  205   45 pixline
+ 197   10  205   10 pixline	(-10)    1  203 pixtic	(-8)   42  203 pixtic	(-6)   80  203 pixtic
+(-4)  118  203 pixtic	(-2)  157  203 pixtic	(2)  236  203 pixtic
+(4)  275  203 pixtic	(6)  313  203 pixtic	(8)  351  203 pixtic
+(10)  387  203 pixtic	(-10)  176  373 pixtic	(-8)  182  337 pixtic
+(-6)  182  301 pixtic	(-4)  182  265 pixtic	(-2)  182  229 pixtic
+(2)  188  158 pixtic	(4)  188  122 pixtic	(6)  188   86 pixtic
+(8)  188   50 pixtic	(10)  182   15 pixtic	%********** End of axis junk.
+
+%********* Start drawing the plots.
+%**** Draw lines of plot 1
+/x {worldtopix lineto} def
+      -10     22026 worldtopix moveto
+      -10     22026 x	  -9.9331     20601 x	  -9.8662     19268 x
+  -9.7993     18022 x	  -9.7324     16856 x	  -9.6656     15765 x
+  -9.5987     14745 x	  -9.5318     13791 x	  -9.4649     12899 x
+   -9.398     12064 x	  -9.3311     11284 x	  -9.2642     10554 x
+  -9.1973    9870.7 x	  -9.1304      9232 x	  -9.0635    8634.7 x
+  -8.9967      8076 x	  -8.9298    7553.5 x	  -8.8629    7064.8 x
+   -8.796    6607.7 x	  -8.7291    6180.1 x	  -8.6622    5780.3 x
+  -8.5953    5406.3 x	  -8.5284    5056.5 x	  -8.4615    4729.3 x
+  -8.3946    4423.3 x	  -8.3278    4137.1 x	  -8.2609    3869.5 x
+   -8.194    3619.1 x	  -8.1271    3384.9 x	  -8.0602    3165.9 x
+stroke   -8.0602    3165.9 worldtopix moveto
+  -7.9933    2961.1 x	  -7.9264    2769.5 x	  -7.8595    2590.3 x
+  -7.7926    2422.7 x	  -7.7258      2266 x	  -7.6589    2119.3 x
+   -7.592    1982.2 x	  -7.5251      1854 x	  -7.4582      1734 x
+  -7.3913    1621.8 x	  -7.3244    1516.9 x	  -7.2575    1418.7 x
+  -7.1906    1326.9 x	  -7.1237    1241.1 x	  -7.0569    1160.8 x
+    -6.99    1085.7 x	  -6.9231    1015.4 x	  -6.8562    949.74 x
+  -6.7893    888.29 x	  -6.7224    830.82 x	  -6.6555    777.06 x
+  -6.5886    726.78 x	  -6.5217    679.76 x	  -6.4548    635.78 x
+   -6.388    594.64 x	  -6.3211    556.17 x	  -6.2542    520.18 x
+  -6.1873    486.53 x	  -6.1204    455.05 x	  -6.0535    425.61 x
+stroke   -6.0535    425.61 worldtopix moveto
+  -5.9866    398.07 x	  -5.9197    372.31 x	  -5.8528    348.22 x
+   -5.786    325.69 x	  -5.7191    304.62 x	  -5.6522    284.91 x
+  -5.5853    266.48 x	  -5.5184    249.23 x	  -5.4515    233.11 x
+  -5.3846    218.03 x	  -5.3177    203.92 x	  -5.2508    190.73 x
+  -5.1839    178.39 x	  -5.1171    166.84 x	  -5.0502    156.05 x
+  -4.9833    145.95 x	  -4.9164    136.51 x	  -4.8495    127.68 x
+  -4.7826    119.42 x	  -4.7157    111.69 x	  -4.6488    104.46 x
+  -4.5819    97.704 x	  -4.5151    91.382 x	  -4.4482     85.47 x
+  -4.3813     79.94 x	  -4.3144    74.767 x	  -4.2475     69.93 x
+  -4.1806    65.405 x	  -4.1137    61.173 x	  -4.0468    57.215 x
+stroke   -4.0468    57.215 worldtopix moveto
+  -3.9799    53.513 x	   -3.913    50.051 x	  -3.8462    46.813 x
+  -3.7793    43.784 x	  -3.7124    40.951 x	  -3.6455    38.301 x
+  -3.5786    35.823 x	  -3.5117    33.505 x	  -3.4448    31.338 x
+  -3.3779     29.31 x	   -3.311    27.414 x	  -3.2441     25.64 x
+  -3.1773    23.981 x	  -3.1104    22.429 x	  -3.0435    20.978 x
+  -2.9766    19.621 x	  -2.9097    18.351 x	  -2.8428    17.164 x
+  -2.7759    16.053 x	   -2.709    15.015 x	  -2.6421    14.043 x
+  -2.5753    13.135 x	  -2.5084    12.285 x	  -2.4415     11.49 x
+  -2.3746    10.747 x	  -2.3077    10.051 x	  -2.2408    9.4009 x
+  -2.1739    8.7926 x	   -2.107    8.2237 x	  -2.0401    7.6916 x
+stroke   -2.0401    7.6916 worldtopix moveto
+  -1.9732     7.194 x	  -1.9064    6.7285 x	  -1.8395    6.2932 x
+  -1.7726     5.886 x	  -1.7057    5.5052 x	  -1.6388     5.149 x
+  -1.5719    4.8158 x	   -1.505    4.5042 x	  -1.4381    4.2128 x
+  -1.3712    3.9402 x	  -1.3043    3.6853 x	  -1.2375    3.4468 x
+  -1.1706    3.2238 x	  -1.1037    3.0152 x	  -1.0368    2.8201 x
+  -0.9699    2.6377 x	 -0.90301     2.467 x	 -0.83612    2.3074 x
+ -0.76923    2.1581 x	 -0.70234    2.0185 x	 -0.63545    1.8879 x
+ -0.56856    1.7657 x	 -0.50167    1.6515 x	 -0.43478    1.5446 x
+ -0.36789    1.4447 x	   -0.301    1.3512 x	 -0.23411    1.2638 x
+ -0.16722     1.182 x	 -0.10033    1.1055 x	-0.033445     1.034 x
+stroke -0.033445     1.034 worldtopix moveto
+ 0.033445   0.96711 x	  0.10033   0.90453 x	  0.16722   0.84601 x
+  0.23411   0.79127 x	    0.301   0.74008 x	  0.36789   0.69219 x
+  0.43478   0.64741 x	  0.50167   0.60552 x	  0.56856   0.56634 x
+  0.63545    0.5297 x	  0.70234   0.49542 x	  0.76923   0.46337 x
+  0.83612   0.43339 x	  0.90301   0.40535 x	   0.9699   0.37912 x
+   1.0368   0.35459 x	   1.1037   0.33165 x	   1.1706   0.31019 x
+   1.2375   0.29012 x	   1.3043   0.27135 x	   1.3712   0.25379 x
+   1.4381   0.23737 x	    1.505   0.22201 x	   1.5719   0.20765 x
+   1.6388   0.19421 x	   1.7057   0.18165 x	   1.7726   0.16989 x
+   1.8395    0.1589 x	   1.9064   0.14862 x	   1.9732   0.13901 x
+stroke    1.9732   0.13901 worldtopix moveto
+   2.0401   0.13001 x	    2.107    0.1216 x	   2.1739   0.11373 x
+   2.2408   0.10637 x	   2.3077  0.099491 x	   2.3746  0.093053 x
+   2.4415  0.087033 x	   2.5084  0.081402 x	   2.5753  0.076135 x
+   2.6421  0.071209 x	    2.709  0.066601 x	   2.7759  0.062292 x
+   2.8428  0.058262 x	   2.9097  0.054492 x	   2.9766  0.050966 x
+   3.0435  0.047669 x	   3.1104  0.044585 x	   3.1773    0.0417 x
+   3.2441  0.039002 x	    3.311  0.036478 x	   3.3779  0.034118 x
+   3.4448  0.031911 x	   3.5117  0.029846 x	   3.5786  0.027915 x
+   3.6455  0.026109 x	   3.7124  0.024419 x	   3.7793  0.022839 x
+   3.8462  0.021362 x	    3.913   0.01998 x	   3.9799  0.018687 x
+stroke    3.9799  0.018687 worldtopix moveto
+   4.0468  0.017478 x	   4.1137  0.016347 x	   4.1806  0.015289 x
+   4.2475    0.0143 x	   4.3144  0.013375 x	   4.3813  0.012509 x
+   4.4482    0.0117 x	   4.5151  0.010943 x	   4.5819  0.010235 x
+   4.6488 0.0095728 x	   4.7157 0.0089534 x	   4.7826 0.0083741 x
+   4.8495 0.0078323 x	   4.9164 0.0073255 x	   4.9833 0.0068516 x
+   5.0502 0.0064083 x	   5.1171 0.0059936 x	   5.1839 0.0056058 x
+   5.2508 0.0052431 x	   5.3177 0.0049039 x	   5.3846 0.0045866 x
+   5.4515 0.0042898 x	   5.5184 0.0040123 x	   5.5853 0.0037527 x
+   5.6522 0.0035099 x	   5.7191 0.0032828 x	    5.786 0.0030704 x
+   5.8528 0.0028717 x	   5.9197 0.0026859 x	   5.9866 0.0025121 x
+stroke    5.9866 0.0025121 worldtopix moveto
+   6.0535 0.0023496 x	   6.1204 0.0021976 x	   6.1873 0.0020554 x
+   6.2542 0.0019224 x	   6.3211  0.001798 x	    6.388 0.0016817 x
+   6.4548 0.0015729 x	   6.5217 0.0014711 x	   6.5886 0.0013759 x
+   6.6555 0.0012869 x	   6.7224 0.0012036 x	   6.7893 0.0011258 x
+   6.8562 0.0010529 x	   6.9231 0.0009848 x	     6.99 0.00092108 x
+   7.0569 0.00086148 x	   7.1237 0.00080574 x	   7.1906 0.00075361 x
+   7.2575 0.00070485 x	   7.3244 0.00065925 x	   7.3913 0.00061659 x
+   7.4582 0.0005767 x	   7.5251 0.00053938 x	    7.592 0.00050448 x
+   7.6589 0.00047184 x	   7.7258 0.00044131 x	   7.7926 0.00041276 x
+   7.8595 0.00038605 x	   7.9264 0.00036108 x	   7.9933 0.00033771 x
+stroke    7.9933 0.00033771 worldtopix moveto
+   8.0602 0.00031586 x	   8.1271 0.00029543 x	    8.194 0.00027631 x
+   8.2609 0.00025843 x	   8.3278 0.00024171 x	   8.3946 0.00022607 x
+   8.4615 0.00021145 x	   8.5284 0.00019777 x	   8.5953 0.00018497 x
+   8.6622  0.000173 x	   8.7291 0.00016181 x	    8.796 0.00015134 x
+   8.8629 0.00014155 x	   8.9298 0.00013239 x	   8.9967 0.00012382 x
+   9.0635 0.00011581 x	   9.1304 0.00010832 x	   9.1973 0.00010131 x
+   9.2642 9.4755e-05 x	   9.3311 8.8624e-05 x	    9.398 8.289e-05 x
+   9.4649 7.7527e-05 x	   9.5318 7.2511e-05 x	   9.5987 6.7819e-05 x
+   9.6656 6.3431e-05 x	   9.7324 5.9327e-05 x	   9.7993 5.5489e-05 x
+   9.8662 5.1898e-05 x	   9.9331 4.8541e-05 x	       10  4.54e-05 x
+stroke        10  4.54e-05 worldtopix moveto
+ stroke
+%******* This stuff draws the key.
+10 10 pixel transform moveto 25 10 pixel transform lineto stroke
+(exp(-x)) 35 12 pixel transform moveto show newpath
+% ************* This stuff draws the labels
+
+showpage

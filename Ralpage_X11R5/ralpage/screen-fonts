@@ -1,0 +1,50 @@
+# this file describes the screen fonts available to the interpreter
+#
+# the font name is that used by documents
+#
+# each screen font name comprises a prefix, a point size and a suffix. To be useful, a 
+# range of sizes should be available.
+# e.g.
+#	family-cache/sans10.snf
+#
+#	family-cache/sans 	is the prefix
+#	10			is one of the available point sizes
+#	.snf			is the suffix
+#
+# a null suffix can be specified with ""
+#
+# if the prefix begins with a / it is taken to be an absolute path name
+# if it does not, the $RALPAGELIB library name is prepended, so that fonts can be
+# placed in the ralpage library.
+#
+# the resolution is in pixels per inch and describes the screen resolution that
+# will display the font at the given point size.
+#
+# font name			prefix				suffix	resolution	format
+#
+#Serif-Roman			adobe-cache/timR		.snf	75		snf
+#Serif-Italic			adobe-cache/timI		.snf	75		snf
+#Serif-Bold			adobe-cache/timB		.snf	75		snf
+#Serif-BoldItalic		adobe-cache/timBI		.snf	75		snf
+#
+#Sans-Roman			adobe-cache/helvR		.snf	75		snf
+#Sans-Italic 			adobe-cache/helvO		.snf	75		snf
+#Sans-Bold			adobe-cache/helvB		.snf	75		snf
+#Sans-BoldItalic		adobe-cache/helvBO		.snf	75		snf
+#
+Times-Roman			adobe-cache/agfa-timR		.snf	75		snf
+Times-Italic			adobe-cache/agfa-timI		.snf	75		snf
+Times-Bold			adobe-cache/agfa-timB		.snf	75		snf
+Times-BoldItalic		adobe-cache/agfa-timBI		.snf	75		snf
+#
+Helvetica			adobe-cache/agfa-helvR		.snf	75		snf
+Helvetica-Oblique		adobe-cache/agfa-helvO		.snf	75		snf
+Helvetica-Bold			adobe-cache/agfa-helvB		.snf	75		snf
+Helvetica-BoldOblique		adobe-cache/agfa-helvBO		.snf	75		snf
+#
+Courier				adobe-cache/courR		.snf	75		snf
+Courier-Oblique			adobe-cache/courO		.snf	75		snf
+Courier-Bold			adobe-cache/courB		.snf	75		snf
+Courier-BoldOblique		adobe-cache/courBO		.snf	75		snf
+#
+Symbol				adobe-cache/symb		.snf	75		snf

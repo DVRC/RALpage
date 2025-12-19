@@ -1,0 +1,106 @@
+From @photon:everson@computervision.bristol.ac.uk Mon Dec 11 13:32:07 1989
+Received: from compsci.bristol.ac.uk by grumpy.med-image.compsci.bristol.ac.uk
+          id aa09940; 11 Dec 89 7:31 GMT
+Received: from photon by kukini.CompSci.Bristol.ac.uk id aa28080;
+          11 Dec 89 13:27 GMT
+To: phill@med-image.compsci.bristol.ac.uk
+Subject: ps.tar follows
+Date: Mon, 11 Dec 89 13:26:22 GMT
+From: everson@computervision.bristol.ac.uk
+Sender: everson@computervision.bristol.ac.uk
+Message-ID:  <8912111327.aa28080@kukini.CompSci.Bristol.ac.uk>
+Status: RO
+
+This introduces the SunView version of the Postscript interpreter. This
+is the PD code by Crispin Goswell at Rutherford Appleton Laboratory
+with modifications by Julian Onions at Nottingham University and very
+minor ones by myself. It isn't the fastest interpreter in the world, but
+does to date seem to produce correct results.
+
+The tar that follows has been compressed, uuencoded and split.  To
+create a copy of the interpreter that will work under SunView running
+SunOS3.5, decode everything, go into the "source" directory, edit the
+file "config.c" to set the "default_library" string to point to where
+you want your postscript libraries to go (/usr/local/lib/ps ??) , "cp
+main.c.sunview main.c", "cp makefile.sunview makefile", "make sunview",
+"make" and copy the directory "postscript" to the directory you
+specified in config.c. The compiled program is called sunPS by default.
+
+Under SunOS4.0 you will, I believe, find that the final make fails
+twice, I forget in which files exactly. In the first file that make
+bombs out on globally substitute "inf" for "infinity" and in the second
+globally substitute "l2" for "log2". Then remake. Other than this no
+other modifications should be necessary.
+
+If anyone hears of a driver that takes advantage of the 8 bit deep
+pixrects on colour Suns I would be *VERY* interested...
+
+The program that I used to mail this to you is at the end of this
+message.  I'll keep this script lying around in case you need anything
+else.  Any problems, get in touch.
+
+Phillip G. Everson
+--------------------------------------------------------------------------
+Medical Imaging                      Senior Software Engineer
+Dept Comp Sci                        Philips Radiotherapy Systems
+University of Bristol, UK            Horfield Road, Bristol, UK
+--------------------------------------------------------------------------
+#!/bin/sh
+
+DEST=phill@cs.mi
+MSG=ps.tar
+DIR=/usr/photon/alv/everson/info/archive/src
+cd $DIR
+
+cat <<HERE > /tmp/${MSG}.leader
+This introduces the SunView version of the Postscript interpreter. This
+is the PD code by Crispin Goswell at Rutherford Appleton Laboratory
+with modifications by Julian Onions at Nottingham University and very
+minor ones by myself. It isn't the fastest interpreter in the world, but
+does to date seem to produce correct results.
+
+The tar that follows has been compressed, uuencoded and split.  To
+create a copy of the interpreter that will work under SunView running
+SunOS3.5, decode everything, go into the "source" directory, edit the
+file "config.c" to set the "default_library" string to point to where
+you want your postscript libraries to go (/usr/local/lib/ps ??) , "cp
+main.c.sunview main.c", "cp makefile.sunview makefile", "make sunview",
+"make" and copy the directory "postscript" to the directory you
+specified in config.c. The compiled program is called sunPS by default.
+
+Under SunOS4.0 you will, I believe, find that the final make fails
+twice, I forget in which files exactly. In the first file that make
+bombs out on globally substitute "inf" for "infinity" and in the second
+globally substitute "l2" for "log2". Then remake. Other than this no
+other modifications should be necessary.
+
+If anyone hears of a driver that takes advantage of the 8 bit deep
+pixrects on colour Suns I would be *VERY* interested...
+
+The program that I used to mail this to you is at the end of this
+message.  I'll keep this script lying around in case you need anything
+else.  Any problems, get in touch.
+
+Phillip G. Everson
+--------------------------------------------------------------------------
+Medical Imaging                      Senior Software Engineer
+Dept Comp Sci                        Philips Radiotherapy Systems
+University of Bristol, UK            Horfield Road, Bristol, UK
+--------------------------------------------------------------------------
+HERE
+
+cat $0 >> /tmp/${MSG}.leader
+
+Mail -s "$MSG follows" $DEST < /tmp/${MSG}.leader
+rm -rf /tmp/${MSG}.leader
+
+uuencode $MSG.Z $MSG.Z > /tmp/${MSG}.uu
+split /tmp/${MSG}.uu /tmp/${MSG}-uu
+for j in /tmp/${MSG}-uu*
+do
+	Mail -s `basename $j` $DEST < $j
+	echo $j
+done
+
+rm -rf /tmp/${MSG}-uu* /tmp/${MSG}.uu
+

@@ -1,0 +1,77 @@
+
+/find-sizes { % prefix suffix --- prefix suffix [size array]
+	[
+		(|/bin/ls )
+		3 index 		% prefix
+		(*|/bin/grep '[0-9][0-9]*)
+		4 index			% suffix
+		($' | /bin/sed -e 's,^.*/[^0-9]*\\([0-9]*\\)[^0-9]*$,\\1,')
+	] concatstrings
+} def
+
+systemdict /CacheDirectory 200 dict put
+
+/adobe-factor 1.6 def
+/lucida-factor 1.4 def
+/vfont-factor 1.4 def
+
+CacheDirectory begin (disk-cache-list) lib run end
+
+/choose-cache { % [size array] size --- size from name % choose the best size to use or zero
+	/size exch def
+	/bestsize 0 def
+	{
+		dup bestsize gt {
+			dup size le {
+				dup /bestsize exch def
+			} if
+		} if
+		pop
+	} forall
+	bestsize
+} def
+
+/loaddiskcache {
+	systemdict begin
+	20 dict begin
+	
+		/allowed-variability 1.3 def % amount by which a cache can be smaller than ideal.
+		/buf 100 string def
+		/bbox currentfont /FontBBox get cvlit def
+		bbox 0 get bbox 1 get transform /oy exch def /ox exch def
+		bbox 2 get bbox 1 get transform oy sub cvi /ry exch def ox sub cvi /rx exch def
+		bbox 0 get bbox 3 get transform oy sub /by exch def ox sub cvi /bx exch def
+		
+		% we now have the four coordinates in   rx ry bx by
+		currentfont /OriginalName known currentfont /FontName known or {
+			/name currentfont /OriginalName known {
+				currentfont /OriginalName get
+			} {
+				currentfont /FontName known {
+					currentfont /FontName get
+				} {
+					currentfont /OriginalName get
+				} ifelse
+			} ifelse def
+		} if
+			
+		CacheDirectory name known
+				ry 0 eq and
+				bx 0 eq and {
+			CacheDirectory name get cvx exec
+			
+			% prefix suffix sizes factor function
+			/fn exch def
+			by dup 0 lt { neg } if exch div cvi  exch
+			[ exch run ]
+			exch dup /ideal-size exch def
+			choose-cache
+			dup 0 ne {
+				dup allowed-variability mul ideal-size ge {
+					buf cvs exch [ 4 1 roll ] concatstrings fn load exec pop
+				} { pop pop pop } ifelse
+			} { pop pop pop } ifelse
+		} if
+	end
+	end
+} def

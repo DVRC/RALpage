@@ -1,0 +1,114 @@
+OBJECTS=array.o boolean.o config.o control.o dictionary.o file.o\
+	integer.o main.o math.o misc.o name.o operator.o\
+	poly.o property.o real.o save.o stack.o string.o unix.o
+
+CANON_OBJECTS=can-canon.o can-device.o can-update.o can-is-window.o \
+	can-extent.o can-set-clip.o can-screen.o can-transfer.o \
+	can-trapezoid.o can-raster.o can-paint.o can-line.o \
+	can-trap.o
+
+SOURCES=array.c boolean.c config.c control.c dictionary.c file.c \
+	integer.c main.c math.c misc.c name.c operator.c poly.c \
+	property.c real.c save.c stack.c string.c unix.c
+
+LIBS=libww.a -lsuntool -lsunwindow -lpixrect
+
+GRAPHICS=cache.o colour.o device.o fill.o font.o gsave.o image.o mat.o matrix.o\
+	pat.o path.o state.o stroke.o xcache.o vcache.o
+
+GSOURCES=cache.c colour.c device.c fill.c font.c gsave.c image.c mat.c matrix.c\
+	pat.c path.c state.c stroke.c xcache.c vcache.c
+
+CFLAGS=-O -fsingle -f68881 /usr/lib/f68881/libm.il
+
+DEVICE=x11
+
+# type:
+# $ make all DEVICE=type
+# 	 - where type is one of:
+# 		x11 x10 sunview pixwin pixrect null apollo ww wwx colour-ww
+# if your machine is not one of these, you'll have to write a driver.
+# set the environment variable X11 to the root of an X11 installation if
+# you have one. This will enable you to use fonts in Server Natural Format,
+# even if you are not using X windows.
+# You may want to set -f68881 or -ffpa or -fsky on a sun.
+
+all:	ralpage ralview viewer
+
+ralpage:	$(OBJECTS) $(GRAPHICS) canon.a $(DEVICE).o $(DEVICE)-libs
+	cc -o ralpage $(CFLAGS) $(OBJECTS) $(GRAPHICS) $(DEVICE).o canon.a -lm `cat libs`
+
+ralview:	$(OBJECTS) $(GRAPHICS) adapter.o protocol.o
+	cc -o ralview $(CFLAGS) $(OBJECTS) $(GRAPHICS) adapter.o protocol.o -lm
+
+viewer:	protocol.o viewer.o canon.a $(DEVICE).o $(DEVICE)-libs
+	cc -o viewer  $(CFLAGS)    protocol.o viewer.o $(DEVICE).o canon.a -lm `cat libs`
+
+lint:	$(SOURCES) $(GSOURCES)
+	lint -u $(SOURCES) $(GSOURCES)
+
+ww.o:	ww.c
+	cc $(CFLAGS) `ww -I` -c ww.c
+
+ww-libs:
+	ww -l >libs
+
+colour-ww.o:	colour-ww.c
+	cc $(CFLAGS) `ww -I` -c colour-ww.c
+
+colour-ww-libs:
+	ww -l >libs
+
+sunview.o:	sunview.c
+	cc $(CFLAGS) -c sunview.c 
+
+sunview-libs:
+	echo -lsuntool -lsunwindow -lpixrect >libs
+
+pixwin.o:	pixwin.c
+	cc $(CFLAGS) -c pixwin.c 
+
+pixwin-libs:
+	echo -lsuntool -lsunwindow -lpixrect >libs
+
+pixrect.o:	pixrect.c
+	cc $(CFLAGS) -c pixrect.c
+
+pixrect-libs:
+	echo -lpixrect >libs
+
+x11.o:	x11.c
+	cc $(CFLAGS) -c x11.c
+
+x11-libs:
+	echo -lX11 >libs
+
+apollo.o:	apollo.c
+	cc $(CFLAGS) -c apollo.c
+
+apollo-libs:
+	echo >libs
+
+null.o:	null.c
+	cc $(CFLAGS) -c null.c
+
+null-libs:
+	echo >libs
+
+x10.o:	x10.c
+	cc $(CFLAGS) -c x10.c
+
+x10-libs:
+	echo -lX >libs
+
+xcache.o:
+	if [ -n "$$X11" ]; \
+	then \
+		cc $(CFLAGS) -DX11 -I$$X11/X11 -I$$X11/server/include -c xcache.c; \
+	else \
+		cc $(CFLAGS) -c xcache.c ; \
+	fi
+
+canon.a:	$(CANON_OBJECTS)
+	ar ruv canon.a $(CANON_OBJECTS)
+	ranlib canon.a

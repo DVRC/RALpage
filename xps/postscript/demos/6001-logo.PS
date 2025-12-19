@@ -1,0 +1,201 @@
+%!
+%%
+%% Title: 6001.ps
+%%
+%% The following text was snarfed from the Postscript Cookbook 
+%% published by Adobe 
+/logodict 100 dict def
+/logo { logodict begin
+
+/outsidecircletext
+ { circtextdict begin
+   /radius exch def
+   /centerangle exch def
+   /ptsize exch def
+   /str exch def
+   /xradius radius ptsize 4 div add def
+   gsave
+   centerangle str findhalfangle add rotate
+   str
+   { /charcode exch def
+     ( ) dup 0 charcode put outsideplacechar
+   } forall
+   grestore
+   end
+ } def
+
+/insidecircletext
+ { circtextdict begin
+   /radius exch def
+   /centerangle exch def
+   /ptsize exch def
+   /str exch def
+   /xradius radius ptsize 3 div sub def
+   gsave
+   centerangle str findhalfangle sub rotate
+   str
+   { /charcode exch def
+     ( ) dup 0 charcode put insideplacechar
+   } forall
+   grestore
+   end
+ } def
+
+/circtextdict 16 dict def
+ circtextdict begin
+ /findhalfangle
+ { stringwidth pop 2 div
+   2 xradius mul pi mul div 360 mul
+ } def
+
+/outsideplacechar
+ { /char exch def
+   /halfangle char findhalfangle def
+   gsave
+   halfangle neg rotate
+   radius 0 translate
+   -90 rotate
+   char stringwidth pop 2 div neg 0 moveto
+   char show
+   grestore
+   halfangle 2 mul neg rotate
+ } def
+
+/insideplacechar
+ { /char exch def
+   /halfangle char findhalfangle def
+   gsave
+   halfangle rotate
+   radius 0 translate
+   90 rotate
+   char stringwidth pop 2 div neg 0 moveto
+   char show
+   grestore
+   halfangle 2 mul rotate
+ } def
+
+/pi 3.1415926 def
+%%
+%% End snarfed procedures
+%% Procedure to draw shield, Y operator equation, and lambda.
+%% We define the proc here and call it recursively below.
+%%
+/shield
+ { gsave
+%%
+%% This finds the font for the Y operator equation, moves to the
+%% correct place, and puts it on the page.
+%%
+   /Times-Roman findfont 10 scalefont setfont
+   -35 20 moveto
+   ((Y F) = (F (Y F))) show
+%%
+%% This finds the font for the lambda (l in symbol font), moves left from
+%% the center of the shape the length of the character and down 26 points,
+%% and draws the character on the page.
+%%
+   /Symbol findfont 40 scalefont setfont
+   (l) stringwidth pop neg -8 add -26 moveto
+   (l) show
+%%
+%% Draw the right side curve of the shield
+%%
+   1 setlinewidth
+   newpath
+   38 .5 inch translate
+   0 0 moveto
+   0 -.9 inch -36 -86 38 arcto
+
+   -38 -86 lineto
+%%
+%% Draw the left side curve of the shield
+%%
+   exch -76 exch sub exch lineto
+   pop pop
+   -76 -.9 inch -76 0 38 arcto
+   4 {pop} repeat
+   -76 0 lineto
+%%
+%% Draw the two arcs that make up the top of the shield.
+%%
+   -57 -12 -38 0 34 arcto 4 {pop} repeat
+   -19 -12 0 0 34 arcto 4 {pop} repeat
+   closepath stroke
+   grestore
+ } def
+
+/stardict 10 dict def
+/altstars {
+stardict begin
+/starright
+ { stardict begin
+   /forward exch def
+   0 setgray
+   0 forward lineto
+   5 { -144 rotate
+        0 forward lineto } repeat
+   fill 
+   end
+ } def
+/starleft
+ { stardict begin
+   /forward exch def
+   0 setgray
+   0 forward lineto
+   5 { 144 rotate
+       0 forward lineto } repeat
+   fill
+   end
+ } def
+/angle (                  ) stringwidth pop 65 div 180 mul pi div 10 add def
+angle rotate
+0 65 translate 0 0 moveto 5 starright 0 -65 translate
+-2 angle mul rotate
+0 65 translate 0 0 moveto 5 starleft 0 -65 translate
+angle rotate
+end
+} def
+
+%%
+%% End of shield definition.  Start drawing the actual shape.
+%% Start with the circles that make up the border.
+%%
+0 setlinewidth
+0 0 56 0 360 arc stroke
+0 0 58 0 360 arc stroke
+0 0 72 0 360 arc stroke
+1 setlinewidth
+0 0 74 0 360 arc stroke
+0 setlinewidth
+0 0 78 0 360 arc stroke
+
+/Times-Roman findfont 12 scalefont setfont
+(  MASSACHUSETTS  ) 12 90 61 outsidecircletext
+(INSTITUTE OF TECHNOLOGY) 12 270 69 insidecircletext
+%%
+%% Place the circular text on the screen
+%% \110 is the character for a star.
+%%
+%% /ZapfDingbats findfont 12 scalefont setfont
+%% (\110                                    \110) 12 90 61 outsidecircletext 
+%% 
+%% Use the following if you don't have ZapfDingbats
+%%
+altstars
+%%
+%%
+10 { shield
+    0 0 moveto
+    .175 inch -.125 inch translate
+    .5 .5 scale
+   } repeat
+end
+} def
+
+/inch { 72 mul } def
+
+4.25 inch 5.5 inch translate
+newpath
+3 3 scale
+logo
+showpage

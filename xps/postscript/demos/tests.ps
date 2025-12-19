@@ -1,0 +1,24 @@
+30 setlinewidth 1 setlinejoin 1 setlinecap
+100 100 moveto 200 300 lineto 400 100 lineto strokepath
+0 setlinewidth stroke
+
+200 100 50 0 360 arc 
+gsave .5 setgray fill grestore 10 setlinewidth stroke
+
+showpage
+0 setlinewidth
+10 10 200 { 400 250 3 -1 roll 0 360 arc stroke } for
+
+showpage
+1 setflat
+100 100 moveto
+100 100 600 600 200 500 700 100 curveto stroke
+
+[50 50 ] 0 setdash 0 setlinecap
+ false setstrokeadjust
+showpage
+2 setlinewidth
+100 100 moveto 400 102 lineto stroke
+
+
+

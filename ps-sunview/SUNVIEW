@@ -1,0 +1,40 @@
+This introduces the SunView version of the Postscript interpreter. This
+is the PD code by Crispin Goswell at Rutherford Appleton Laboratory
+with modifications by Julian Onions at Nottingham University and very
+minor ones by myself. It isn't the fastest interpreter in the world, but
+does to date seem to produce fairly correct results.
+
+The tar that follows has been compressed, uuencoded and split.  To
+create a copy of the interpreter that will work under SunView running
+SunOS3.5, decode everything, go into the "source" directory, edit the
+file "config.c" to set the "default_library" string to point to where
+you want your postscript libraries to go (/usr/local/lib/ps ??) , "cp
+main.c.sunview main.c", "cp makefile.sunview makefile", "make sunview",
+"make" and copy the directory "postscript" to the directory you
+specified in config.c. The compiled program is called sunPS by default.
+ 
+Under SunOS4.0 you will, I believe, find that the final make fails
+twice, I forget in which files exactly. In the first file that make
+bombs out on globally substitute "inf" for "infinity" and in the second
+globally substitute "l2" for "log2". Then remake. Other than this no  
+other modifications should be necessary.
+ 
+A file "ww-info.h" was missing from the original distribution of the
+interpreter to comp.sources.unix. Although it does not affect making a
+version for Sunview it is necessary when attempting to create new    
+drivers.  If anyone gets hold of it I would appreciate a copy.  
+ 
+If anyone hears of a driver that takes advantage of the 8 bit deep
+pixrects on colour Suns I would be *VERY* interested...
+
+The program that I used to mail this to you is at the end of this
+message.  I'll keep this script lying around in case you need anything
+else.  Any problems, get in touch.
+ 
+Phill Everson
+University of Bristol
+<everson@cs.bris.ac.uk>
+Thu Nov 17 11:43:49 GMT 1988
+
+Now Phillip.Everson@uk.sun.com
+Wed Oct 17 13:42:13 BST 1990

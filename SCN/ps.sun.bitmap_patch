@@ -1,0 +1,35 @@
+Path: ut-emx!cs.utexas.edu!tut.cis.ohio-state.edu!mailrus!cornell!uw-beaver!rice!sun-spots-request
+From: beaty@cinelli.UUCP (steve beaty)
+Newsgroups: comp.sys.sun
+Subject: Re: Fix for PostScript for Sunview
+Message-ID: <8901191732.AA27292@cinelli.Horizon.COM>
+Date: 26 Jan 89 08:11:21 GMT
+Article-I.D.: cinelli.8901191732.AA27292
+Posted: Thu Jan 26 02:11:21 1989
+Sender: usenet@rice.edu
+Organization: Sun-Spots
+Lines: 20
+Approved: Sun-Spots@rice.edu
+Original-Date: Thu, 19 Jan 89 10:32:42 MST
+X-Sun-Spots-Digest: Volume 7, Issue 122, message 6 of 11
+
+i hope this is timely enough, i've been trying to catch up on all my
+reading.  Howard J. Postley (bambam!hjp@uunet.uu.net) asks in v7n73 about
+the postscript interpreter from comp.sources.unix not properly displaying
+within a sunview window.  we had the same problem here and fixed it with
+the following patch:
+
+------- pixwin.c -------
+***************
+*** 398,403 ****
+--- 402,408 ----
+  	case ROP_NOTDEST: 	op = PIX_NOT (PIX_SRC);	break;
+  	case ROP_TRUE: 		op = PIX_SET;		break;
+  	}
++     bm = Pixrect_addr (to);
+      rop = rop_map [rop];
+      UpdateControl (to, FALSE);
+      for (i = top; i < height; i++)
+
+hope this works for you.
+	steve beaty@handel.colostate.edu

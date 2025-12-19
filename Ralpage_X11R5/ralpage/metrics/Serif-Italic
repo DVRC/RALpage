@@ -1,0 +1,114 @@
+Metrics /a[-3 21] put
+Metrics /b[2 19] put
+Metrics /c[-3 18] put
+Metrics /d[2 21] put
+Metrics /e[-3 18] put
+Metrics /f[5 15] put
+Metrics /g[-1 20] put
+Metrics /h[2 21] put
+Metrics /i[6 13] put
+Metrics /j[6 13] put
+Metrics /k[2 20] put
+Metrics /l[7 12] put
+Metrics /m[-1 33] put
+Metrics /n[-1 23] put
+Metrics /o[-3 18] put
+Metrics /p[1 21] put
+Metrics /q[-3 20] put
+Metrics /r[-1 17] put
+Metrics /s[-2 17] put
+Metrics /t[5 14] put
+Metrics /u[-1 23] put
+Metrics /v[-1 20] put
+Metrics /w[-1 29] put
+Metrics /x[-2 20] put
+Metrics /y[-1 21] put
+Metrics /z[-3 20] put
+Metrics /A[2 20] put
+Metrics /B[0 24] put
+Metrics /C[2 21] put
+Metrics /D[0 23] put
+Metrics /E[0 23] put
+Metrics /F[0 22] put
+Metrics /G[2 22] put
+Metrics /H[0 26] put
+Metrics /I[6 13] put
+Metrics /J[3 18] put
+Metrics /K[0 23] put
+Metrics /L[2 20] put
+Metrics /M[0 27] put
+Metrics /N[0 25] put
+Metrics /O[1 22] put
+Metrics /P[0 23] put
+Metrics /Q[1 22] put
+Metrics /R[0 24] put
+Metrics /S[1 23] put
+Metrics /T[2 21] put
+Metrics /U[0 25] put
+Metrics /V[2 20] put
+Metrics /W[-1 26] put
+Metrics /X[1 22] put
+Metrics /Y[2 21] put
+Metrics /Z[1 22] put
+Metrics /ff [2 26] put
+Metrics /fi [2 24] put
+Metrics /fl [2 24] put
+Metrics /ffi [2 35] put
+Metrics /ffl [2 35] put
+Metrics /dotlessi [-1 13] put
+Metrics /space [64 0] put
+Metrics /parenleft [9 14] put
+Metrics /parenright [9 14] put
+Metrics /bracketleft [9 14] put
+Metrics /bracketright [9 14] put
+Metrics /braceleft [9 14] put
+Metrics /braceright [9 14] put
+Metrics /zero [2 20] put
+Metrics /one [2 20] put
+Metrics /two [2 20] put
+Metrics /three [2 20] put
+Metrics /four [2 20] put
+Metrics /five [2 20] put
+Metrics /six [2 20] put
+Metrics /seven [2 20] put
+Metrics /eight [2 20] put
+Metrics /nine [2 20] put
+Metrics /period [-4 10] put
+Metrics /comma [-4 10] put
+Metrics /colon [0 10] put
+Metrics /semicolon [0 10] put
+Metrics /exclam [7 10] put
+Metrics /question [3 18] put
+Metrics /quoteright [8 8] put
+Metrics /quotedbl [4 16] put
+Metrics /ring [5 14] put
+Metrics /asterisk [4 16] put
+Metrics /slash [5 22] put
+Metrics /parenleft [9 14] put
+Metrics /parenright [9 14] put
+Metrics /bracketleft [9 14] put
+Metrics /bracketright [9 14] put
+Metrics /braceleft [9 14] put
+Metrics /braceright [9 14] put
+Metrics /angleleft [9 14] put
+Metrics /angleright [9 14] put
+Metrics /bar [12 8] put
+Metrics /minus [-4 26] put
+Metrics /plus [-4 26] put
+Metrics /equal [-4 26] put
+Metrics /less [-3 24] put
+Metrics /greater [-3 24] put
+Metrics /asciicircum [-3 22] put
+Metrics /quoteleft [7 10] put
+Metrics /quoteright [7 10] put
+Metrics /percent [0 24] put
+Metrics /ampersand [0 25] put
+Metrics /at [-1 27] put
+Metrics /dollar [6 20] put
+Metrics /numbersign [2 21] put
+Metrics /space [0 20] put
+Metrics /.notdef [3 18] put
+Metrics /hyphen [-3 14] put
+Metrics /underscore [0 16] put
+Metrics /backslash [-4 26] put
+Metrics /asciitilde [-3 24] put

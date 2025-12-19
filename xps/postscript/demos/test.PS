@@ -1,0 +1,496 @@
+%!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Do not edit this prologue file; edit tex.pro instead!
+/TeXDict 200 dict def
+TeXDict begin
+/Resolution 300 def
+/Inch{Resolution mul}def
+/Mtrx matrix def
+/a4const 340 def
+/usletterconst 310 def
+/a4{}def
+/letter{}def
+/note{}def
+/legal{}def
+/@a4
+{a4 initmatrix
+72 Resolution div dup neg scale
+270 -3215 translate
+Mtrx currentmatrix pop
+}def
+/@letter
+{letter initmatrix
+72 Resolution div dup neg scale
+usletterconst -3005 translate
+Mtrx currentmatrix pop
+}def
+/@note
+{note initmatrix
+72 Resolution div dup neg scale
+usletterconst -3005 translate
+Mtrx currentmatrix pop
+}def
+/@landscape
+{letter initmatrix
+72 Resolution div dup neg scale
+Mtrx currentmatrix 0 0.0 put
+Mtrx 1 -1.0 put
+Mtrx 2 1.0 put
+Mtrx 3 0.0 put
+Mtrx  setmatrix
+300 usletterconst  translate
+Mtrx currentmatrix pop
+}def
+/@legal
+{legal initmatrix
+72 Resolution div dup neg scale
+295 -3880 translate
+Mtrx currentmatrix pop
+}def
+/@manualfeed
+{statusdict /manualfeed true put
+}def
+/@copies
+{/#copies exch def
+}def
+/@restore /restore load def
+/restore
+{vmstatus pop
+dup @VMused lt{pop @VMused}if
+exch pop exch @restore /@VMused exch def
+}def
+/@pri
+{
+( ) print
+(                                       ) cvs print
+}def
+/@FontMatrix [1 0 0 -1 0 0] def
+/@FontBBox [0 0 1 1] def
+/@faceup{statusdict /setoutputtray known
+{statusdict begin end}if} def
+/@newfont
+{/newname exch def
+newname 7 dict def
+newname load begin
+/FontType 3 def
+/FontMatrix @FontMatrix def
+/FontBBox @FontBBox def
+/BitMaps 128 array def
+/BuildChar{CharBuilder}def
+/Encoding 128 array def
+0 1 127{Encoding exch /.undef put}for
+end
+newname newname load definefont pop
+}def
+/ch-image{ch-data 0 get}def
+/ch-width{ch-data 1 get}def
+/ch-height{ch-data 2 get}def
+/ch-xoff{ch-data 3 get}def
+/ch-yoff{ch-data 4 get}def
+/ch-tfmw{ch-data 5 get}def
+/CharBuilder
+{save 3 1 roll exch /BitMaps get exch get /ch-data exch def
+ch-data null ne
+{ch-tfmw 0 ch-xoff neg ch-yoff neg ch-width ch-xoff sub ch-height ch-yoff sub
+setcachedevice
+ch-width ch-height true [1 0  0 1  ch-xoff ch-yoff]
+{ch-image}imagemask
+}if
+restore
+}def
+/@sf
+{dup
+/FontName known
+{dup /FontName get tempstring cvs (SmallCaps) search
+{/smallcaps true def pop pop pop}
+{/smallcaps false def pop}
+ifelse
+}
+{/smallcaps false def}
+ifelse
+setfont
+}def
+/@dc
+{/ch-code exch def
+dup 0 get
+length 2 lt
+{pop [ <00> 1 1 0 0 8.00 ]}
+if
+/ch-data exch def
+currentfont /BitMaps get ch-code ch-data put
+currentfont /Encoding get ch-code
+dup (   ) cvs cvn
+put
+}def
+/@pc
+{pop
+/ch-data exch def
+currentpoint translate
+ch-width ch-height true [1 0 0 -1 ch-xoff ch-yoff]
+{ch-image}imagemask
+}def
+/@bop0
+{pop
+}def
+/@bop1
+{pop
+erasepage initgraphics
+Mtrx setmatrix
+/SaveImage save def
+}def
+/@eop
+{showpage
+SaveImage restore
+}def
+/@start
+{@letter
+vmstatus pop /@VMused exch def pop
+}def
+/@end
+{(VM used: ) print @VMused @pri
+(. Unused: ) print vmstatus @VMused sub @pri pop pop
+(\n) print flush
+end
+}def
+/p
+{moveto
+}def
+/r
+{0 rmoveto
+}def
+/s
+{smallcaps {SmallCapShow}{show} ifelse
+}def
+/c
+{c-string exch 0 exch put
+c-string s
+}def
+/c-string ( ) def
+/ru
+{/dy exch neg def
+/dx exch def
+/x currentpoint /y exch def def
+newpath x y moveto
+dx 0 rlineto
+0 dy rlineto
+dx neg 0 rlineto
+closepath fill
+x y moveto
+}def
+/@SpecialDefaults
+{/hs 8.5 Inch def
+/vs 11 Inch def
+/ho 0 def
+/vo 0 def
+/hsc 1 def
+/vsc 1 def
+/CLIP false def
+}def
+/@hsize{/hs exch def /CLIP true def}def
+/@vsize{/vs exch def /CLIP true def}def
+/@hoffset{/ho exch def}def
+/@voffset{/vo exch def}def
+/@hscale{/hsc exch def}def
+/@vscale{/vsc exch def}def
+/@setclipper
+{hsc vsc scale
+CLIP
+{newpath 0 0 moveto hs 0 rlineto 0 vs rlineto hs neg 0 rlineto closepath clip}
+if
+}def
+/@beginspecial
+{gsave /SpecialSave save def
+currentpoint transform initgraphics itransform translate
+@SpecialDefaults
+/showpage{}def
+}def
+/@setspecial
+{
+MacDrwgs
+{md begin /pxt ho def /pyt vo neg def end}
+{ho vo translate @setclipper}
+ifelse
+}def
+/@endspecial
+{SpecialSave restore
+grestore
+}def
+/ReEncodeForTeX
+{/newfontname exch def
+/basefontname exch def
+/TeXstr 30 string def
+/basefontdict basefontname findfont def
+/newfont basefontdict maxlength dict def
+basefontdict
+{exch dup /FID ne
+{dup /Encoding eq
+{exch dup length array copy
+newfont 3 1 roll put}
+{exch newfont 3 1 roll put}
+ifelse
+}
+{pop pop}
+ifelse
+}forall
+basefontname TeXstr cvs (Dingbat) search
+{pop pop pop}
+{pop
+/TeXvec basefontname TeXstr cvs (Courier) search
+{pop pop pop TeXcourvec}
+{pop TeXnormalvec}
+ifelse def
+TeXvec aload pop
+TeXvec length 2 idiv
+{newfont /Encoding get 3 1 roll put}
+repeat
+}
+ifelse
+newfontname newfont definefont pop
+}def
+/TeXnormalvec
+[ 8#014 /fi 8#015 /fl 8#020 /dotlessi 8#022 /grave 8#023 /acute
+8#024 /caron 8#025 /breve 8#026 /macron 8#027 /ring 8#030 /cedilla
+8#031 /germandbls 8#032 /ae 8#033 /oe 8#034 /oslash 8#035 /AE
+8#036 /OE 8#037 /Oslash 8#042 /quotedblright 8#074 /exclamdown
+8#076 /questiondown 8#134 /quotedblleft 8#136 /circumflex
+8#137 /dotaccent 8#173 /endash 8#174 /emdash 8#175 /quotedbl
+8#176 /tilde 8#177 /dieresis ] def
+/TeXcourvec
+[ 8#016 /exclamdown 8#017 /questiondown 8#020 /dotlessi 8#022 /grave
+8#023 /acute 8#024 /caron 8#025 /breve 8#026 /macron 8#027 /ring
+8#030 /cedilla 8#031 /germandbls 8#032 /ae 8#033 /oe 8#034 /oslash
+8#035 /AE 8#036 /OE 8#037 /Oslash 8#074 /less 8#076 /greater
+8#134 /backslash 8#136 /circumflex 8#137 /underscore 8#173 /braceleft
+8#174 /bar 8#175 /braceright 8#176 /tilde 8#177 /dieresis ] def
+/TeXPSmakefont{
+/TeXsize exch def
+findfont 
+[ TeXsize 0 0 TeXsize neg 0 0 ] makefont
+}def
+/ObliqueFont{
+/ObliqueAngle exch def
+/ObliqueBaseName exch def
+/ObliqueFontName exch def
+/ObliqueTransform [1 0 ObliqueAngle sin ObliqueAngle cos div 1 0 0] def
+/basefontdict ObliqueBaseName findfont ObliqueTransform makefont def
+/newfont basefontdict maxlength dict def
+basefontdict
+{exch dup /FID ne
+{dup /Encoding eq
+{exch dup length array copy
+newfont 3 1 roll put}
+{exch newfont 3 1 roll put}
+ifelse
+}
+{pop pop}
+ifelse
+}forall
+newfont /FontName ObliqueFontName put
+ObliqueFontName newfont definefont
+pop
+}def
+/Times-Oblique /Times-Roman 15.5 ObliqueFont
+/Times-BoldOblique /Times-Bold 15 ObliqueFont
+/Times-ItalicUnslanted /Times-Italic -15.15 ObliqueFont
+/SmallCapsFont{
+/SmallCapsBaseName exch def
+/SmallCapsFontName exch def
+/basefontdict SmallCapsBaseName findfont def
+/newfont basefontdict maxlength dict def
+basefontdict
+{exch dup /FID ne
+{dup /Encoding eq
+{exch dup length array copy
+newfont 3 1 roll put}
+{exch newfont 3 1 roll put}
+ifelse
+}
+{pop pop}
+ifelse
+}forall
+newfont /FontName SmallCapsFontName put
+SmallCapsFontName newfont definefont
+pop
+}def
+/Times-SmallCaps /Times-Roman SmallCapsFont
+FontDirectory /Palatino-Roman known
+{
+/Palatino-Oblique /Palatino-Roman 10 ObliqueFont
+/Palatino-BoldOblique /Palatino-Bold 10 ObliqueFont
+/Palatino-SmallCaps /Palatino-Roman SmallCapsFont
+}if
+FontDirectory /NewCenturySchlbk-Roman known
+{
+/NewCenturySchlbk-Oblique /NewCenturySchlbk-Roman 16 ObliqueFont
+/NewCenturySchlbk-ItalicUnslanted /NewCenturySchlbk-Italic -16 ObliqueFont
+/NewCenturySchlbk-SmallCaps /NewCenturySchlbk-Roman SmallCapsFont
+}if
+/SmallCapShow{
+/achar (A) def
+/xfac 0.8 def
+/yfac 0.8 def
+/xrec 1 xfac div def
+/yrec 1 yfac div def
+{dup dup
+8#141 ge exch 8#172 le and 
+{8#40 sub achar exch 0 exch put achar
+xfac yfac scale show xrec yrec scale}
+{achar exch 0 exch put achar show}
+ifelse
+}forall
+}def
+/tempstring 100 string def
+/MacDrwgs false def
+/@MacSetUp
+{userdict /md known
+{userdict /md get type /dicttype eq
+{/MacDrwgs true def
+md begin
+/psu
+/psu load
+{/letter {}def
+/note{}def
+/legal{}def
+statusdict /waittimeout 300 put
+/page{pop}def
+/pyt vo neg def
+/pxt ho def
+}
+concatprocs
+def
+/od
+/od load
+{@setclipper}
+concatprocs
+def
+end}
+if}
+if
+}def
+/concatprocs
+{/p2 exch cvlit def
+/p1 exch cvlit def
+/p p1 length p2 length add array def
+p 0 p1 putinterval
+p p1 length p2 putinterval
+p cvx
+}def
+end
+statusdict /waittimeout 300 put
+TeXDict begin
+@faceup @start
+%%Title: test.dvi
+%%Creator: dvi2ps
+%%EndProlog
+1 @bop0
+/cmr10.300 @newfont
+cmr10.300 @sf
+[<07FFFC0007FFFC00001F0000001F0000001F0000001F0000001F0000001F0000001F0000001F0000001F0000001F0000001F
+  0000001F0000001F0000001F0000001F0000001F0000C01F0060C01F0060C01F0060C01F0060E01F00E0601F00C0701F01C0
+  781F03C07FFFFFC07FFFFFC0> 27 28 -1 0 30] 84 @dc
+[<FFCFF0FFCFF01E07801E07801E07801E07801E07801E07801E07801E07801E07801E07801E07801E07801F07801F8F001EFF
+  001E7E001E00001E00001E00001E00001E00001E00001E00001E00001E0000FE0000FE0000> 20 29 -1 0 23] 104 @dc
+[<FFC0FFC01E001E001E001E001E001E001E001E001E001E001E001E001E001E00FE00FE000000000000000000000000001C00
+  3E003E003E001C00> 10 29 0 0 11] 105 @dc
+[<8F80FFE0F070E038C038C038007807F81FF07FE07FC0FE00F000E030E03070703FF01FB0> 13 18 -1 0 16] 115 @dc
+[<0F8F803FFFC0787FE0F03E60F01E60F01E60F01E00781E003C1E001FFE0007FE00001E00381E007C1E007C1E007C3C003FF8
+  001FE000> 19 18 -1 0 21] 97 @dc
+[<03C00FE00E601E301E301E301E301E301E001E001E001E001E001E001E001E00FFE0FFE03E001E000E000E00060006000600
+  0600> 12 26 -1 0 16] 116 @dc
+[<03E00FF81E0C3C0678067000F000F000F000F000FFFEFFFE700E781E381C1C380FF003E0> 15 18 -1 0 18] 101 @dc
+[<03F0000FFC001E1E00380700780780700380F003C0F003C0F003C0F003C0F003C0F003C07003807807803807001E1E000FFC
+  0003F000> 18 18 -1 0 21] 111 @dc
+[<7FF07FF00F000F000F000F000F000F000F000F000F000F000F000F000F000F00FFE0FFE00F000F000F000F000F000F0E0F1F
+  079F03DF01FE007C> 16 29 0 0 13] 102 @dc
+[<FFFFF0FFFFF00F81F00F80700F80700F80300F80380F80180F80180F80180F80180F80000F80000F80000F80000F80000F80
+  000F80000F80000F80000F80000F80000F80000F80000F80000F8000FFFC00FFFC00> 21 28 -2 0 26] 76 @dc
+/cmcsc10.300 @newfont
+cmcsc10.300 @sf
+[<FF1FF8FF1FF83C03C01C07800C07800FFF8007FF00060F00060F00031E00031E00031E0001BC0001BC0001BC0000F80000F8
+  0000F800007000007000007000> 21 21 -1 0 25] 97 @dc
+cmr10.300 @sf
+[<FFFFFCFFFFFC0F807C0F801E0F800E0F80060F80060F80060F80030F83030F83030F83000F83000F87000FFF000FFF000F87
+  000F83000F83060F83060F83060F80060F800E0F800C0F801C0F803CFFFFFCFFFFFC> 24 28 -2 0 28] 69 @dc
+[<FFE1FFF0FFE1FFF00F803F0003003E0003807E000180FC0001C0F80000C1F8000061F0000073F0000033E000003FE000001F
+  C000000F8000001F8000001F0000003F0000007F0000007D800000FDC00000F8C00001F8600001F0600003F0300007E03800
+  07E07C007FF9FFC07FF9FFC0> 28 28 -1 0 31] 88 @dc
+[<FFCFF0FFCFF01E07801E07801E07801E07801E07801E07801E07801E07801E07801E07801E07801E07801F07801F8F00FEFF
+  00FE7E00> 20 18 -1 0 23] 110 @dc
+[<07E7F00FF7F01E1F80380F80780780700780F00780F00780F00780F00780F00780F007807007807807803807801E1F800FFF
+  8003E780000780000780000780000780000780000780000780000780000780003F80003F80> 20 29 -1 0 23] 100 @dc
+[<00C0600001C0700001E0F00001E0F00003E0F80003F1F80003F1F80007B1CC00079BCC00079BCC000F1B86000F0F86000F0F
+  86001E0F03001E0F03001E0F0780FF3FCFE0FF3FCFE0> 27 18 -1 0 30] 119 @dc
+[<03E7F00FF7F00E1F801E0F801E07801E07801E07801E07801E07801E07801E07801E07801E07801E07801E07801E0780FE3F
+  80FE3F80> 20 18 -1 0 23] 117 @dc
+[<FFC000FFC0001E00001E00001E00001E00001E00001E00001E7C001FFF001F87801E03C01E01E01E01E01E00F01E00F01E00
+  F01E00F01E00F01E00F01E01E01E01E01E03C01F8780FFFF00FE7E00> 20 26 -1 8 23] 112 @dc
+[<07F8001FFE003C0F00700380E001C0E001C0E001C0E001C07007C03FFF801FFF003FFE003FF80070000070000037E0003FF0
+  003C3C00381C00781E00781E00781E00781E00381D803C3DC00FFFC007E380> 18 27 -1 9 21] 103 @dc
+[<FFE0FFE01E001E001E001E001E001E001E001E001E001E001E701EF81EF81FF8FFF0FFE0> 13 18 -1 0 16] 114 @dc
+[<187C001DFF001F87801E01C01E01E01E00E01E00F01E00F01E00F01E00F01E00F01E00F01E00E01E01E01E01C01F87801FFF
+  001E7E001E00001E00001E00001E00001E00001E00001E00001E00001E0000FE0000FE0000> 20 29 -1 0 23] 98 @dc
+[<3C00007E0000C70000C18000F9800070C00000C00000C00000E00000E00000E00001F00001F00003F80003D80003D80007DC
+  00078C00078C000F06000F06000F06001E03001E0780FF8FE0FF8FE0> 19 26 -1 8 22] 121 @dc
+[<00E00000E00000E00001F00001F00003F80003D80003D80007DC00078C00078C000F06000F06000F06001E03001E0780FF8F
+  E0FF8FE0> 19 18 -1 0 22] 118 @dc
+[<FFFEFFFE7FFE3FFE18071C030E030703038001C000E000F00078003C003C001E001E001F780FFC0FFC1FFC1FFC1E783E307C
+  1FF807E0> 16 27 -2 0 21] 50 @dc
+[<FFC0FFC01E001E001E001E001E001E001E001E001E001E001E001E001E001E001E001E001E001E001E001E001E001E001E00
+  1E001E00FE00FE00> 10 29 0 0 11] 108 @dc
+[<FF9FE0FF9FE01E1F001E1E001E3E001E3C001E7C001E78001FF0001FF0001FE0001EE0001E60001E30001E18001E3E001E7F
+  C01E7FC01E00001E00001E00001E00001E00001E00001E00001E00001E0000FE0000FE0000> 19 29 -1 0 22] 107 @dc
+[<FF9FF8FF9FF80F0780070F00031F00019E0001FC0000FC0000780000F00000F00001F80003DC0003CC000786000F87807FCF
+  F07FCFF0> 21 18 0 0 22] 120 @dc
+[<70F8F8F870> 5 5 -3 0 12] 46 @dc
+[<FFF800FFF8000F80000F80000F80000F80000F80000F80000F80000F80000F80000F80000FFF800FFFE00F80F00F80780F80
+  3C0F803E0F803E0F803E0F803E0F803E0F803E0F803C0F80780F80F0FFFFE0FFFF80> 23 28 -2 0 28] 80 @dc
+[<FFFCFFFC07800780078007800780078007800780078007800780078007800780078007800780078007800780E780FF801F80
+  03800180> 14 27 -3 0 21] 49 @dc
+1 @bop1
+cmr10.300 @sf
+324 307 p (This) s
+14 r (is) s
+15 r 97 c
+13 r (test) s
+15 r (of) s
+13 r 76 c
+cmcsc10.300 @sf
+634 303 p 97 c
+cmr10.300 @sf
+652 307 p 84 c
+676 320 p 69 c
+698 307 p 88 c
+14 r (and) s
+13 r (ho) s
+119 c
+12 r (the) s
+15 r (output) s
+13 r (generated) s
+15 r 98 c
+121 c
+13 r (dvi2ps) s
+14 r (lo) s
+1 r (oks) s
+14 r (when) s
+262 357 p (displa) s
+121 c
+(ed) s
+13 r 98 c
+121 c
+12 r (xps.) s
+19 r 80 c
+(erhaps) s
+14 r (this) s
+15 r (test) s
+15 r (will) s
+15 r 119 c
+(ork) s
+13 r (where) s
+15 r (others) s
+14 r (ha) s
+118 c
+101 c
+12 r (failed.) s
+967 2574 p 49 c
+@eop
+@end

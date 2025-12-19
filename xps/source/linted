@@ -1,0 +1,457 @@
+lint -DX11 array.c boolean.c cache.c colour.c config.c control.c device.c  dictionary.c file.c fill.c font.c gsave.c image.c integer.c  main.c mat.c math.c matrix.c misc.c name.c operator.c  pat.c path.c poly.c property.c real.c stack.c state.c  string.c stroke.c unix.c  X11.c -lX11 -lm
+array.c:
+boolean.c:
+cache.c:
+colour.c:
+config.c:
+control.c:
+device.c:
+dictionary.c:
+file.c:
+fill.c:
+fill.c(584): static variable edgecmp unused
+fill.c(327): static variable Trapezoids unused
+fill.c(616): static variable BuildEdgeList unused
+fill.c(572): static variable FindInfinity unused
+fill.c(525): static variable AddInteresting unused
+fill.c(446): static variable RemoveEdges unused
+font.c:
+gsave.c:
+image.c:
+integer.c:
+integer.c(88): warning: comparison of unsigned with negative constant
+main.c:
+mat.c:
+math.c:
+math.c(125): warning: old-fashioned assignment operator
+math.c(125): operands of *= have incompatible types
+matrix.c:
+misc.c:
+name.c:
+operator.c:
+pat.c:
+path.c:
+poly.c:
+property.c:
+real.c:
+stack.c:
+state.c:
+string.c:
+string.c(453): warning: length unused in function ParseString
+stroke.c:
+stroke.c(32): warning: new unused in function Stroke
+stroke.c(478): warning: last_angle may be used before set
+unix.c:
+X11.c:
+X11.c(330): warning: argument width unused in function DeviceMatrix
+X11.c(447): warning: grayhard unused in function Paint
+X11.c(447): warning: hard unused in function Paint
+X11.c(478): warning: argument rule unused in function FillPath
+X11.c(883): warning: gray unused in function ModifyGC
+X11.c(880): warning: temphard unused in function ModifyGC
+X11.c(1323): warning: argument rot unused in function ScreenSize
+X11.c(1331): warning: argument rotation unused in function BuildScreen
+X11.c(1357): warning: count unused in function screen_cmp
+X11.c(1363): warning: argument rotation unused in function SetScreen
+X11.c(1469): warning: argument on unused in function UpdateControl
+X11.c(1468): warning: argument h unused in function UpdateControl
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  boolean.c(39)
+Bcopy, arg. 2 used inconsistently	string.c(669)  ::  boolean.c(77)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  boolean.c(120)
+fread, arg. 2 used inconsistently	llib-lc(409)  ::  cache.c(514)
+HardwareFromString, arg. 1 used inconsistently	X11.c(1279)  ::  cache.c(517)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  cache.c(527)
+fwrite, arg. 1 used inconsistently	llib-lc(415)  ::  cache.c(602)
+fwrite, arg. 2 used inconsistently	llib-lc(415)  ::  cache.c(602)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  config.c(97)
+EmptyDict value declared inconsistently	dictionary.c(98)  ::  config.c(37)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  control.c(233)
+free, arg. 1 used inconsistently	llib-lc(229)  ::  device.c(77)
+MakeInteger, arg. 1 used inconsistently	integer.c(126)  ::  device.c(128)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  dictionary.c(243)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  dictionary.c(279)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  file.c(119)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  file.c(120)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  file.c(121)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  file.c(122)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  file.c(123)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  file.c(124)
+ungetc, arg. 1 used inconsistently	llib-lc(441)  ::  file.c(300)
+ioctl, arg. 3 used inconsistently	llib-lc(84)  ::  file.c(371)
+ioctl, arg. 3 used inconsistently	llib-lc(84)  ::  file.c(377)
+popen, arg. 1 used inconsistently	llib-lc(423)  ::  file.c(389)
+popen, arg. 2 used inconsistently	llib-lc(423)  ::  file.c(389)
+fopen, arg. 1 used inconsistently	llib-lc(404)  ::  file.c(401)
+fopen, arg. 2 used inconsistently	llib-lc(404)  ::  file.c(401)
+Bcopy, arg. 1 used inconsistently	string.c(669)  ::  file.c(491)
+Bcopy, arg. 1 used inconsistently	string.c(669)  ::  file.c(539)
+putc, arg. 1 used inconsistently	llib-lc(428)  ::  file.c(773)
+qsort, arg. 2 used inconsistently	llib-lc(316)  ::  fill.c(316)
+qsort, arg. 2 used inconsistently	llib-lc(316)  ::  fill.c(568)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(63)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(64)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(65)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(66)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(67)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(68)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(69)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(70)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(71)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(72)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(467)
+MakeInteger, arg. 1 used inconsistently	integer.c(126)  ::  font.c(574)
+MakeInteger, arg. 1 used inconsistently	integer.c(126)  ::  font.c(628)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  font.c(714)
+SetClipHardware value declared inconsistently	X11.c(1436)  ::  gsave.c(78)
+HardwareFromString, arg. 1 used inconsistently	X11.c(1279)  ::  image.c(147)
+BitBlt, arg. 1 used inconsistently	X11.c(386)  ::  image.c(285)
+Bcopy, arg. 2 used inconsistently	string.c(669)  ::  integer.c(161)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  main.c(86)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  main.c(90)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  main.c(112)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  main.c(116)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  main.c(157)
+Fopen, arg. 1 used inconsistently	file.c(386)  ::  main.c(190)
+Fopen, arg. 2 used inconsistently	file.c(386)  ::  main.c(190)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  main.c(203)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(318)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(319)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(320)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(321)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(322)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(323)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(324)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(325)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(326)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(327)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(328)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(329)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(330)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(331)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(332)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(333)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(334)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(335)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(336)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(337)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(338)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(339)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(340)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(341)
+InsErr, arg. 2 used inconsistently	main.c(380)  ::  main.c(342)
+MakeOp, arg. 1 used inconsistently	operator.c(35)  ::  main.c(383)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  main.c(394)
+bzero, arg. 1 used inconsistently	llib-lc(190)  ::  math.c(106)
+srand, arg. 1 used inconsistently	llib-lc(355)  ::  math.c(209)
+times value declared inconsistently	llib-lc(383)  ::  misc.c(38)
+strncmp, arg. 1 used inconsistently	llib-lc(366)  ::  name.c(97)
+strncmp, arg. 2 used inconsistently	llib-lc(366)  ::  name.c(97)
+Bcopy, arg. 1 used inconsistently	string.c(669)  ::  name.c(108)
+strncmp, arg. 1 used inconsistently	llib-lc(366)  ::  name.c(171)
+strncmp, arg. 2 used inconsistently	llib-lc(366)  ::  name.c(171)
+strlen, arg. 1 used inconsistently	llib-lc(364)  ::  name.c(200)
+Ungetch, arg. 2 used inconsistently	file.c(294)  ::  name.c(244)
+Ungetch, arg. 2 used inconsistently	file.c(294)  ::  name.c(258)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  operator.c(43)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  operator.c(73)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  operator.c(117)
+strncpy, arg. 1 used inconsistently	llib-lc(367)  ::  operator.c(149)
+strncpy, arg. 2 used inconsistently	llib-lc(367)  ::  operator.c(149)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  operator.c(157)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  operator.c(266)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  path.c(369)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  path.c(376)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  path.c(389)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  path.c(393)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  poly.c(20)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  poly.c(21)
+Ungetch, arg. 2 used inconsistently	file.c(294)  ::  poly.c(42)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  property.c(23)
+NameFrom, arg. 1 used inconsistently	name.c(196)  ::  property.c(52)
+StringFrom, arg. 1 used inconsistently	string.c(213)  ::  property.c(57)
+Bcopy, arg. 2 used inconsistently	string.c(669)  ::  property.c(113)
+Bcopy, arg. 2 used inconsistently	string.c(669)  ::  real.c(99)
+Paint, arg. 1 used inconsistently	X11.c(446)  ::  state.c(130)
+malloc, arg. 1 used inconsistently	llib-lc(287)  ::  state.c(338)
+malloc, arg. 1 used inconsistently	llib-lc(287)  ::  state.c(339)
+malloc, arg. 1 used inconsistently	llib-lc(287)  ::  state.c(341)
+malloc, arg. 1 used inconsistently	llib-lc(287)  ::  state.c(342)
+malloc, arg. 1 used inconsistently	llib-lc(287)  ::  state.c(362)
+malloc, arg. 1 used inconsistently	llib-lc(287)  ::  state.c(415)
+strlen, arg. 1 used inconsistently	llib-lc(364)  ::  string.c(218)
+strncmp, arg. 1 used inconsistently	llib-lc(366)  ::  string.c(235)
+strncmp, arg. 2 used inconsistently	llib-lc(366)  ::  string.c(235)
+strncmp, arg. 1 used inconsistently	llib-lc(366)  ::  string.c(243)
+strncmp, arg. 2 used inconsistently	llib-lc(366)  ::  string.c(243)
+strncmp, arg. 1 used inconsistently	llib-lc(366)  ::  string.c(255)
+strncmp, arg. 2 used inconsistently	llib-lc(366)  ::  string.c(255)
+strncmp, arg. 1 used inconsistently	llib-lc(366)  ::  string.c(263)
+strncmp, arg. 2 used inconsistently	llib-lc(366)  ::  string.c(263)
+strncmp, arg. 1 used inconsistently	llib-lc(366)  ::  string.c(275)
+strncmp, arg. 2 used inconsistently	llib-lc(366)  ::  string.c(275)
+strncpy, arg. 2 used inconsistently	llib-lc(367)  ::  unix.c(39)
+wait, arg. 1 used inconsistently	llib-lc(163)  ::  unix.c(62)
+strncpy, arg. 2 used inconsistently	llib-lc(367)  ::  unix.c(88)
+strncpy, arg. 2 used inconsistently	llib-lc(367)  ::  unix.c(95)
+strncpy, arg. 2 used inconsistently	llib-lc(367)  ::  unix.c(114)
+MakeInteger, arg. 1 used inconsistently	integer.c(126)  ::  unix.c(126)
+signal, arg. 2 used inconsistently	llib-lc(139)  ::  unix.c(126)
+XOpenDisplay value used inconsistently	llib-lX11:XOpenDis.c(35)  ::  X11.c(132)
+XCreateGC, arg. 1 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(160)
+XCreateGC value used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(160)
+NewHardware: variable # of args.	X11.c(170)  ::  X11.c(165)
+NewHardware, arg. 1 used inconsistently	X11.c(170)  ::  X11.c(165)
+XCreatePixmap, arg. 1 used inconsistently	llib-lX11:XCrPixmap.c(12)  ::  X11.c(209)
+XCreatePixmap, arg. 3 used inconsistently	llib-lX11:XCrPixmap.c(12)  ::  X11.c(209)
+XCreatePixmap, arg. 4 used inconsistently	llib-lX11:XCrPixmap.c(12)  ::  X11.c(209)
+XCreateGC, arg. 1 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(219)
+XCreateGC value used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(219)
+XFillRectangle, arg. 1 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(223)
+XFillRectangle, arg. 3 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(223)
+XFillRectangle, arg. 6 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(223)
+XFillRectangle, arg. 7 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(223)
+XSynchronize, arg. 1 used inconsistently	llib-lX11:XSynchro.c(18)  ::  X11.c(253)
+XCreateWindow, arg. 1 used inconsistently	llib-lX11:XWindow.c(25)  ::  X11.c(259)
+XCreateWindow, arg. 5 used inconsistently	llib-lX11:XWindow.c(25)  ::  X11.c(259)
+XCreateWindow, arg. 6 used inconsistently	llib-lX11:XWindow.c(25)  ::  X11.c(259)
+XChangeProperty, arg. 1 used inconsistently	llib-lX11:XChProp.c(16)  ::  X11.c(262)
+XChangeProperty, arg. 7 used inconsistently	llib-lX11:XChProp.c(16)  ::  X11.c(262)
+XSetNormalHints, arg. 1 used inconsistently	llib-lX11:XSetHints.c(112)  ::  X11.c(264)
+XSelectInput, arg. 1 used inconsistently	llib-lX11:XSelInput.c(12)  ::  X11.c(266)
+XMapWindow, arg. 1 used inconsistently	llib-lX11:XMapWindow.c(10)  ::  X11.c(267)
+XSync, arg. 1 used inconsistently	llib-lX11:XSync.c(17)  ::  X11.c(268)
+XNextEvent, arg. 1 used inconsistently	llib-lX11:XNextEvent.c(19)  ::  X11.c(269)
+XNextEvent, arg. 2 used inconsistently	llib-lX11:XNextEvent.c(19)  ::  X11.c(269)
+XSelectInput, arg. 1 used inconsistently	llib-lX11:XSelInput.c(12)  ::  X11.c(270)
+XSelectInput, arg. 3 used inconsistently	llib-lX11:XSelInput.c(12)  ::  X11.c(270)
+XDestroyWindow, arg. 1 used inconsistently	llib-lX11:XDestWind.c(10)  ::  X11.c(305)
+XFreePixmap, arg. 1 used inconsistently	llib-lX11:XFreePix.c(12)  ::  X11.c(308)
+free, arg. 1 used inconsistently	llib-lc(229)  ::  X11.c(309)
+XFillRectangle, arg. 1 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(402)
+XFillRectangle, arg. 3 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(402)
+XFillRectangle, arg. 6 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(402)
+XFillRectangle, arg. 7 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(402)
+XCopyArea, arg. 1 used inconsistently	llib-lX11:XCopyArea.c(18)  ::  X11.c(409)
+XCopyArea, arg. 4 used inconsistently	llib-lX11:XCopyArea.c(18)  ::  X11.c(409)
+XCopyArea, arg. 7 used inconsistently	llib-lX11:XCopyArea.c(18)  ::  X11.c(409)
+XCopyArea, arg. 8 used inconsistently	llib-lX11:XCopyArea.c(18)  ::  X11.c(409)
+XCopyPlane, arg. 1 used inconsistently	llib-lX11:XCopyPlane.c(19)  ::  X11.c(415)
+XCopyPlane, arg. 4 used inconsistently	llib-lX11:XCopyPlane.c(19)  ::  X11.c(415)
+XCopyPlane, arg. 7 used inconsistently	llib-lX11:XCopyPlane.c(19)  ::  X11.c(415)
+XCopyPlane, arg. 8 used inconsistently	llib-lX11:XCopyPlane.c(19)  ::  X11.c(415)
+XCopyPlane, arg. 11 used inconsistently	llib-lX11:XCopyPlane.c(19)  ::  X11.c(415)
+XFillRectangle, arg. 1 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(422)
+XFillRectangle, arg. 3 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(422)
+XFillRectangle, arg. 6 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(422)
+XFillRectangle, arg. 7 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(422)
+XCopyArea, arg. 1 used inconsistently	llib-lX11:XCopyArea.c(18)  ::  X11.c(429)
+XCopyArea, arg. 4 used inconsistently	llib-lX11:XCopyArea.c(18)  ::  X11.c(429)
+XCopyArea, arg. 7 used inconsistently	llib-lX11:XCopyArea.c(18)  ::  X11.c(429)
+XCopyArea, arg. 8 used inconsistently	llib-lX11:XCopyArea.c(18)  ::  X11.c(429)
+XFreeGC, arg. 1 used inconsistently	llib-lX11:XFreeGC.c(11)  ::  X11.c(438)
+XFreeGC, arg. 2 used inconsistently	llib-lX11:XFreeGC.c(11)  ::  X11.c(438)
+XSync, arg. 1 used inconsistently	llib-lX11:XSync.c(17)  ::  X11.c(439)
+XFillRectangle, arg. 1 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(465)
+XFillRectangle, arg. 3 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(465)
+XFillRectangle, arg. 6 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(465)
+XFillRectangle, arg. 7 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(465)
+XSync, arg. 1 used inconsistently	llib-lX11:XSync.c(17)  ::  X11.c(471)
+XFillPolygon, arg. 1 used inconsistently	llib-lX11:XFillPoly.c(16)  ::  X11.c(513)
+XFillPolygon, arg. 3 used inconsistently	llib-lX11:XFillPoly.c(16)  ::  X11.c(513)
+XFillPolygon, arg. 1 used inconsistently	llib-lX11:XFillPoly.c(16)  ::  X11.c(524)
+XFillPolygon, arg. 3 used inconsistently	llib-lX11:XFillPoly.c(16)  ::  X11.c(524)
+XCreateGC, arg. 1 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(695)
+XCreateGC, arg. 3 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(695)
+XCreateGC value used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(695)
+XFillPolygon, arg. 1 used inconsistently	llib-lX11:XFillPoly.c(16)  ::  X11.c(699)
+XFillPolygon, arg. 3 used inconsistently	llib-lX11:XFillPoly.c(16)  ::  X11.c(699)
+XDrawLine, arg. 1 used inconsistently	llib-lX11:XDrLine.c(17)  ::  X11.c(735)
+XDrawLine, arg. 3 used inconsistently	llib-lX11:XDrLine.c(17)  ::  X11.c(735)
+XDrawLine, arg. 1 used inconsistently	llib-lX11:XDrLine.c(17)  ::  X11.c(739)
+XDrawLine, arg. 3 used inconsistently	llib-lX11:XDrLine.c(17)  ::  X11.c(739)
+XCreateGC, arg. 1 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(838)
+XCreateGC, arg. 3 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(838)
+XCreateGC value used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(838)
+XChangeGC, arg. 1 used inconsistently	llib-lX11:XChGC.c(13)  ::  X11.c(840)
+XChangeGC, arg. 2 used inconsistently	llib-lX11:XChGC.c(13)  ::  X11.c(840)
+XChangeGC, arg. 3 used inconsistently	llib-lX11:XChGC.c(13)  ::  X11.c(840)
+XFillRectangle, arg. 1 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(843)
+XFillRectangle, arg. 3 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(843)
+XFillRectangle, arg. 6 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(843)
+XFillRectangle, arg. 7 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(843)
+XCreateGC, arg. 1 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(847)
+XCreateGC, arg. 3 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(847)
+XCreateGC value used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(847)
+XChangeGC, arg. 1 used inconsistently	llib-lX11:XChGC.c(13)  ::  X11.c(849)
+XChangeGC, arg. 2 used inconsistently	llib-lX11:XChGC.c(13)  ::  X11.c(849)
+XChangeGC, arg. 3 used inconsistently	llib-lX11:XChGC.c(13)  ::  X11.c(849)
+XFillRectangle, arg. 1 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(852)
+XFillRectangle, arg. 3 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(852)
+XFillRectangle, arg. 6 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(852)
+XFillRectangle, arg. 7 used inconsistently	llib-lX11:XFillRect.c(18)  ::  X11.c(852)
+XCreateGC, arg. 1 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1106)
+XCreateGC, arg. 3 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1106)
+XCreateGC value used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1106)
+XChangeGC, arg. 1 used inconsistently	llib-lX11:XChGC.c(13)  ::  X11.c(1109)
+XChangeGC, arg. 2 used inconsistently	llib-lX11:XChGC.c(13)  ::  X11.c(1109)
+XChangeGC, arg. 3 used inconsistently	llib-lX11:XChGC.c(13)  ::  X11.c(1109)
+XCreateGC, arg. 1 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1135)
+XCreateGC value used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1135)
+XGetImage, arg. 1 used inconsistently	llib-lX11:XGetImage.c(31)  ::  X11.c(1258)
+XGetImage, arg. 5 used inconsistently	llib-lX11:XGetImage.c(31)  ::  X11.c(1258)
+XGetImage, arg. 6 used inconsistently	llib-lX11:XGetImage.c(31)  ::  X11.c(1258)
+XGetImage, arg. 7 used inconsistently	llib-lX11:XGetImage.c(31)  ::  X11.c(1258)
+XGetImage value used inconsistently	llib-lX11:XGetImage.c(31)  ::  X11.c(1258)
+malloc, arg. 1 used inconsistently	llib-lc(287)  ::  X11.c(1259)
+XCreateImage, arg. 1 used inconsistently	llib-lX11:XImUtil.c(236)  ::  X11.c(1289)
+XCreateImage, arg. 6 used inconsistently	llib-lX11:XImUtil.c(236)  ::  X11.c(1289)
+XCreateImage, arg. 7 used inconsistently	llib-lX11:XImUtil.c(236)  ::  X11.c(1289)
+XCreateImage, arg. 8 used inconsistently	llib-lX11:XImUtil.c(236)  ::  X11.c(1289)
+XCreateImage value used inconsistently	llib-lX11:XImUtil.c(236)  ::  X11.c(1289)
+XPutImage, arg. 1 used inconsistently	llib-lX11:XPutImage.c(669)  ::  X11.c(1292)
+XPutImage, arg. 3 used inconsistently	llib-lX11:XPutImage.c(669)  ::  X11.c(1292)
+XPutImage, arg. 4 used inconsistently	llib-lX11:XPutImage.c(669)  ::  X11.c(1292)
+XPutImage, arg. 9 used inconsistently	llib-lX11:XPutImage.c(669)  ::  X11.c(1292)
+XPutImage, arg. 10 used inconsistently	llib-lX11:XPutImage.c(669)  ::  X11.c(1292)
+XCreateGC, arg. 1 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1408)
+XCreateGC, arg. 3 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1408)
+XCreateGC value used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1408)
+XCreateGC, arg. 1 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1421)
+XCreateGC, arg. 3 used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1421)
+XCreateGC value used inconsistently	llib-lX11:XCrGC.c(39)  ::  X11.c(1421)
+XFlush: variable # of args.	llib-lX11:XFlush.c(13)  ::  X11.c(1454)
+XFlush, arg. 1 used inconsistently	llib-lX11:XFlush.c(13)  ::  X11.c(1454)
+XSetNormalHints value declared inconsistently	llib-lX11:XSetHints.c(112)  ::  X11.c(264)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:Context.c(248)
+exit value declared inconsistently	llib-lc(226)  ::  llib-lX11:ParseCmd.c(50)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:Quarks.c(161)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XChKeyCon.c(56)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XChProp.c(44)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XConnDis.c(384)
+inet_addr value declared inconsistently	llib-lc(273)  ::  llib-lX11:XConnDis.c(167)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XCrGC.c(132)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XDrArcs.c(28)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XDrLines.c(29)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XDrPoints.c(32)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XDrRects.c(28)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XDrSegs.c(28)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XEvToWire.c(116)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XFetchName.c(68)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XFillArcs.c(29)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XFillPoly.c(36)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XFillRects.c(29)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XFont.c(24)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XFont.c(60)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XFontInfo.c(105)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XFontNames.c(59)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XFreeCols.c(31)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XFreeEData.c(17)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XFreeGC.c(17)
+getuid value declared inconsistently	llib-lc(83)  ::  llib-lX11:XGetDflt.c(53)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XGetFPath.c(52)
+strcpy value declared inconsistently	llib-lc(361)  ::  llib-lX11:XGetHints.c(250)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XGetHints.c(254)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XGetPntMap.c(34)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XGetStCmap.c(65)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XHost.c(38)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XImText.c(64)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XImText.c(48)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XImText16.c(65)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XImText16.c(48)
+exit value declared inconsistently	llib-lc(226)  ::  llib-lX11:XImUtil.c(692)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XImUtil.c(301)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XKeyBind.c(299)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XKeyBind.c(148)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XListExt.c(53)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XLoadFont.c(20)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XLookupCol.c(25)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XModMap.c(53)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XModMap.c(82)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XOpenDis.c(477)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XParseCol.c(29)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XPolyReg.c(586)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XPolyTxt.c(177)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XPolyTxt16.c(177)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XPutImage.c(534)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XPutImage.c(495)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XQuColors.c(29)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XQuColors.c(47)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XQuTextE16.c(37)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XQuTextExt.c(37)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XRdBitF.c(19)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XReconfWin.c(58)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XRegion.c(431)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XRegion.c(1002)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XRotProp.c(27)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XSetCRects.c(45)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XSetDashes.c(25)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XSetFPath.c(35)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XSetHints.c(246)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XSetPntMap.c(50)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XStBytes.c(47)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XStColors.c(34)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XStNColor.c(26)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XText.c(70)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XText16.c(70)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XTextExt.c(205)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XTextExt16.c(206)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XVisUtil.c(138)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XWindow.c(118)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XWrBitF.c(117)
+exit value declared inconsistently	llib-lc(226)  ::  llib-lX11:XlibInt.c(1016)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:XlibInt.c(671)
+perror value declared inconsistently	llib-lc(314)  ::  llib-lX11:XlibInt.c(949)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:XlibInt.c(1067)
+bcopy value declared inconsistently	llib-lc(189)  ::  llib-lX11:Xrm.c(189)
+free value declared inconsistently	llib-lc(229)  ::  llib-lX11:Xrm.c(184)
+bzero value declared inconsistently	llib-lc(190)  ::  llib-lX11:Xrm.c(158)
+SetCacheDevice returns value which is sometimes ignored
+LinkDevice returns value which is sometimes ignored
+edgecmp defined( fill.c(585) ), but never used
+MoveTo returns value which is sometimes ignored
+printMatrix defined( cache.c(252) ), but never used
+FindCache returns value which is always ignored
+fflush returns value which is always ignored
+CacheShow returns value which is sometimes ignored
+sprintf returns value which is always ignored
+GSave returns value which is always ignored
+GRestore returns value which is always ignored
+fclose returns value which is always ignored
+ExtractMatrix returns value which is sometimes ignored
+CheckHershey defined( font.c(236) ), but never used
+ExtractBBox returns value which is sometimes ignored
+putc returns value which is always ignored
+ShowStopAux returns value which is sometimes ignored
+InitGraphics returns value which is always ignored
+UnpaddedHardwareFromString defined( image.c(157) ), but never used
+kill returns value which is sometimes ignored
+OpInterp defined( main.c(30) ), but never used
+PStopped returns value which is always ignored
+Black defined( device.c(22) ), but never used
+Protect defined( main.c(130) ), but never used
+Unprotect defined( main.c(135) ), but never used
+ErasePage returns value which is always ignored
+HereTranslate defined( mat.c(41) ), but never used
+LineTo returns value which is sometimes ignored
+ClosePath returns value which is sometimes ignored
+InitClip returns value which is always ignored
+IsCache defined( device.c(215) ), but never used
+DeviceToHard defined( device.c(266) ), but never used
+srand returns value which is always ignored
+PointTranslate defined( matrix.c(431) ), but never used
+times returns value which is always ignored
+ConvertToDevicePoint defined( X11.c(1476) ), but never used
+PathRemove defined( pat.c(130) ), but never used
+Arc returns value which is sometimes ignored
+Close returns value which is always ignored
+ioctl returns value which is always ignored
+pclose returns value which is always ignored
+PFlattenPath returns value which is sometimes ignored
+putIString returns value which is always ignored
+NoStringVal defined( property.c(107) ), but never used
+putArray returns value which is always ignored
+Magnitude defined( stroke.c(53) ), but never used
+leftof defined( stroke.c(172) ), but never used
+execv value is used, but none returned
+XSynchronize returns value which is always ignored
+EqVector defined( cache.c(176) ), but never used

@@ -1,0 +1,693 @@
+/*
+
+I received this from Terry Weissman. It's a driver for RALpage
+to enable it to run on X11. I'm posting it as is, to get
+lots of people off the ground ASAP. It has some minor problems, but I
+think these would be easy to fix.
+Thanks Terry!
+
+- Crispin Goswell
+
+From weissman%com.dec.decwrl@sonora.dec.com Wed Dec  2 09:03:15 1987
+From: weissman@decwrl.dec.com
+
+
+weissman = Terry Weissman of DEC.
+caag = Crispin Goswell of RAL
+
+Known bugs and limitations:
+
+It displays white on black, rather than black on white.
+
+[This only happens on machines where 1=Black, 0=White. It's OK on suns - caag.]
+
+It doesn't seem to work on color displays, I'm not sure why.
+
+It doesn't understand expose events.  If you obscure or iconify the
+window, that data won't ever be repainted.  This is
+partially because I didn't see any straightforward way to put in an
+event-handling loop, and mostly because I was too lazy.
+
+[There *is* no straight-forward way of putting in an event-handling loop.
+ RALpage is not designed to handle asynchronous input.
+ I believe the only correct solution to this is to demand backing store
+ from the X server. Some images take minutes or hours to
+ compute. Requiring this to happen just because the user removes an
+ obscuring window is just *wrong*. I think you've done the right
+ thing by not attempting to fix this one. - caag]
+
+It could be faster.  In particular, I used the canonical routines as
+much as possible, and that makes things a bit inefficient.
+
+To compile it:
+
+- Add to the makefile something like:
+
+XLIB= /usr/src/X11/lib/X/libX11.a
+
+xps: $(OBJECTS) $(GRAPHICS) X11.o canon.a $(XLIB) makefile
+	rm -f xps
+	cc -o xps $(OBJECTS) $(GRAPHICS) X11.o canon.a -lm $(XLIB)
+
+- And type "make xps".
+
+
+Enjoy!
+
+- Terry
+
+
+Here's X11.c:
+
+*/
+
+#include "main.h"
+#include "graphics.h"
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <stdio.h>
+#include "canon.h"
+
+static void Punt(str)
+char *str;
+{
+    fprintf(stderr, "%s\n", str);
+    exit(1);
+}
+
+
+
+static Display *dpy;
+
+typedef struct _HardwareRec {
+    Drawable w;
+} HardwareRec, *Hardware;
+
+#ifdef CANON
+struct hardware
+{
+    /*
+     * Each driver is expected to provide its own definition of this
+     * structure.  It is only ever used as a pointer and is never dereferenced
+     * outside the driver.
+     */
+    int pad;
+};
+#endif CANON
+
+/*
+ * This file describes the interface that RALpage requires to the graphics
+ * system at Version 1.4.
+ * 	
+ * ''Hardware'' in this context refers to a pointer to windows and/or bitmaps
+ * and is the lowest level of access that RALpage is interested in. Any
+ * Hardware parameter may be expected to be NULL.
+ */
+
+/********************* CREATION OF WINDOWS AND BITMAPS *******************/
+
+#define SCREEN 0		/* What to use as our screen number. */
+#define MIN(x, y)	(((x) < (y)) ? (x) : (y))
+
+static GC fillgc[16];
+
+struct hardware *InitHardware ()
+{
+    XGCValues values;
+    int i;
+    if ((dpy = XOpenDisplay(dpy)) == NULL)
+	Punt("Could not open display");
+    InitTransfer(DisplayHeight(dpy, SCREEN) / 11);
+    /* This defines our screen as being 11 inches high, no matter what its */
+    /* real size.  What a hack. */
+    values.foreground = AllPlanes;
+    for (i=0 ; i<16 ; i++) {
+	values.function = i;
+	fillgc[i] = XCreateGC(dpy, RootWindow(dpy, SCREEN),
+			      GCFunction | GCForeground, &values);
+    }
+}
+/*
+ * InitHardware () returns a default device which RALpage may use
+ * immediately (or NULL if not appropriate).  Its size and shape are not
+ * defined. Most typically the user will want to start up another device
+ * before it is used anyway. No attempt will be made by RALpage to Destroy
+ * the resulting device.
+ */
+
+static struct hardware *NewHardware(width, height)
+int width, height;
+{
+    struct hardware *to;
+    Hardware hard;
+    to = (struct hardware *) malloc(sizeof(struct hardware));
+    hard = (Hardware) malloc(sizeof(HardwareRec));
+    to->hard.addr = (char *) hard;
+    to->flags = 0;
+    to->aux = to->clip = NULL;
+    to->extent = NewDevicePoint(width, height);
+    hard->w = NULL;
+    return to;
+}
+
+
+struct hardware *NewBitmapHardware (width, height)
+int width, height;
+{
+    struct hardware *to = NewHardware(width, height);
+    Hardware hard = (Hardware) to->hard.addr;
+    to->flags = NULL;
+    hard->w = XCreatePixmap(dpy, RootWindow(dpy, SCREEN), width, height,
+			    DefaultDepth(dpy, SCREEN));
+    XFillRectangle(dpy, hard->w, fillgc[GXclear], 0, 0, width, height);
+
+/*    {
+	static int y = 0;
+	XSetWindowAttributes attributes;
+	hard->w = XCreateSimpleWindow(dpy, RootWindow(dpy, SCREEN), 700, y,
+				  width, height, 1, BlackPixel(dpy, SCREEN),
+				  WhitePixel(dpy, SCREEN));
+	attributes.override_redirect = TRUE;
+	XChangeWindowAttributes(dpy, hard->w, CWOverrideRedirect, &attributes);
+	XMapWindow(dpy, hard->w);
+	y+=30;
+    }*/
+    return to;
+}
+
+struct hardware *NewWindowHardware (width, height)
+int width, height;
+{
+    struct hardware *to = NewHardware(width, height);
+    Hardware hard = (Hardware) to->hard.addr;
+    XEvent event;
+    to->flags = ISWIN;
+    hard->w = XCreateSimpleWindow(dpy, RootWindow(dpy, SCREEN), 0, 0,
+				  width, height, 1, BlackPixel(dpy, SCREEN),
+				  0);
+    XSelectInput(dpy, hard->w, ExposureMask);
+    XMapWindow(dpy, hard->w);
+    XNextEvent(dpy, &event);
+    XSelectInput(dpy, hard->w, 0);
+    return to;
+}
+/*
+ * NewBitmapHardware () is expected to create a new bitmap. Only one plane
+ * will be needed.
+ * 	
+ * NewWindowHardware () is expected to create a window on the screen. On a
+ * colour system this will be expected to support full colour.
+ */
+
+#ifdef CANON
+int IsWindowHardware (h)
+struct hardware *h;
+{}
+#endif CANON
+/*
+ * IsWindowHardware () should return TRUE if the hardware is a window, FALSE
+ * otherwise.  NULL is a window.
+ */
+
+void DestroyHardware (h)
+struct hardware *h;
+{
+    if (h) {
+	Hardware hard = (Hardware) h->hard.addr;
+	if (IsWindowHardware(h))
+	    XDestroyWindow(dpy, hard->w);
+	else
+	    XFreePixmap(dpy, hard->w);
+    }
+}
+/*
+ * 	
+ * DestroyHardware () should release the resources required by the hardware,
+ * bitmap or window.  This should cause a window device to vanish. NULL is not
+ * an error (does nothing).
+ */
+
+
+#ifdef CANON
+Matrix DeviceMatrix (width, height)
+int width, height;
+{}
+#endif CANON
+
+/*
+ *
+ * DeviceMatrix () should return a matrix appropriate to a device of the given
+ * height and width.  For a typical display with a graphics origin at the top
+ * left of a window, an appropriate definition would be:
+ * 	
+ * Matrix DeviceMatrix (width, height)
+ * int width, height;
+ * {
+ *     return NewMatrix (PIXELS_PER_INCH / 72.0, 0.0, 0.0,
+ * 		         -PIXELS_PER_INCH / 72.0, 0.0, (float) height);
+ * }
+ */
+
+#ifdef CANON
+DevicePoint HardwareExtent (h)
+struct hardware *h;
+{}
+#endif
+/*
+ * HardwareExtent () returns a DevicePoint describing the width and height of
+ * the argument.  NULL has extent NewDevicePoint (0, 0).
+ */
+
+/*************************** OUTPUT PRIMITIVES ******************************/	
+
+void BitBlt (from, to, fromPoint, toPoint, extent, rop)
+struct hardware *from, *to;
+DevicePoint toPoint, fromPoint, extent;
+int rop;
+{
+    Hardware fromhard, tohard;
+    static int count = 0;
+    if (to == NULL) return;
+    tohard = (Hardware) to->hard.addr;
+    if (from == NULL) {
+	XFillRectangle(dpy, tohard->w, fillgc[rop], toPoint.dx, toPoint.dy,
+		       extent.dx, extent.dy);
+    } else {
+	fromhard = (Hardware) from->hard.addr;
+	XCopyArea(dpy, fromhard->w, tohard->w, fillgc[rop], fromPoint.dx,
+		  fromPoint.dy, extent.dx, extent.dy, toPoint.dx, toPoint.dy);
+    }
+    if (count++ % 50 == 0) XSync(dpy, 0);
+}
+
+#ifdef CANON
+void Paint (from, to, fromPoint, toPoint, extent, colour)
+struct hardware *from, *to;
+DevicePoint toPoint, fromPoint, extent;
+Colour colour;
+{}
+#endif
+
+/*
+ * 	
+ * BitBlt () is a full function RasterOp. The 'rop' argument will have values
+ * as described in the header file hard.h. If the from argument is NULL it is
+ * taken to be a bitmap full of ones the shape of the fromPoint and extent. If
+ * the to argument is NULL, this is a no-op.
+ *
+ * Paint () is an addition to BitBlt. Bits that are set in the source are
+ * Painted into the destination in the given colour with a copying rasterop so
+ * that they replace pixels previously there. If the machine does not support
+ * colour windows, half-toning should be performed.  Colour values have hue,
+ * saturation and brightness components. on a black and white or greyscale
+ * system the brightness value will be a FP value between 0.0 (black) and 1.1
+ * (white), which can be used as a grey level.
+ * 	
+ * Paint is expected to mask with the clip mask. BitBlt is not,
+ */
+
+#ifdef CANON
+void BitBltTrapezoid(to, lefttop, leftbottom, righttop, rightbottom,
+		     top, bottom, rop)
+struct hardware *to;
+DevicePoint lefttop, leftbottom, righttop, rightbottom;
+int top, bottom, rop;
+{}
+#endif CANON
+
+#ifdef CANON
+void PaintTrapezoid (to, lefttop, leftbottom, righttop, rightbottom,
+		     top, bottom, colour)
+struct hardware *to;
+DevicePoint lefttop, leftbottom, righttop, rightbottom;
+int top, bottom;
+Colour colour;
+{}
+#endif CANON
+
+/*
+ * BitBltTrapezoid () and PaintTrapezoid () render a complete trapezoidal
+ * shape.  The corners of the trapezoid may lie far outside the range of
+ * interesting scan-lines, but the slope of the line should be clipped by the
+ * top and bottom. The coordinates are half-open.
+ */
+
+void BitBltLine (h, fromPoint, toPoint, rop)
+struct hardware *h;
+DevicePoint fromPoint, toPoint;
+int rop;
+{
+    if (h) {
+	Hardware hard = (Hardware) h->hard.addr;
+	XDrawLine(dpy, hard->w, fillgc[rop], fromPoint.dx, fromPoint.dy,
+		  toPoint.dx, toPoint.dy);
+    }
+}
+
+#ifdef CANON
+void PaintLine (h, fromPoint, toPoint, colour)
+struct hardware *h;
+DevicePoint fromPoint, toPoint;
+Colour colour;
+{}
+#endif CANON
+
+/*
+ * 	
+ * 	BitBltLine () is expected to draw a line between the given points
+ * 	with the given RasterOp and colour masking.
+ * 	The line should be one pixel wide and half-open.
+ * 	[Thicker lines are done with BitBlt.]
+ * 	
+ * 	PaintLine () is expected to Paint a line by analogy with Paint
+ * 	and BitBlt.
+ */
+
+void BitBltBlob (to, top, height, left, right, rop)
+struct hardware *to;
+int top, height, *left, *right, rop;
+{
+    int i;
+    DevicePoint p1, p2;
+    for (i=0 ; i<height ; i++) {
+	p1.dx = left[i];
+	p2.dx = right[i];
+	p1.dy = p2.dy = top + i;
+	BitBltLine(to, p1, p2, rop);
+    }
+}
+
+ /*
+  * BitBltBlob () takes a set of pixel coordinates and fills the trapezon
+  * figure half open.
+  */
+
+#ifdef SLOWANDWRONG
+void RasterTile (from, to, toPoint, extent, rop)
+struct hardware *from, *to;
+DevicePoint toPoint, extent;
+int rop;
+{
+    Hardware fromhard, tohard;
+    DevicePoint p1, p2, p3;
+    int x, y;
+    if (to == NULL) return;
+    if (from == NULL)
+	Punt("Can only RasterTile from Hardware.");
+    fromhard = (Hardware) from->hard.addr;
+    tohard = (Hardware) to->hard.addr;
+    p1.dx = p1.dy = 0;
+    for (x=toPoint.dx ; x < toPoint.dx + extent.dx ; x+=from->extent.dx) {
+	for (y=toPoint.dy ; y < toPoint.dy + extent.dy ; y+=from->extent.dy) {
+	    p2.dx = x;
+	    p2.dy = y;
+	    p3.dx = MIN(toPoint.dx + extent.dx - x, from->extent.dx);
+	    p3.dy = MIN(toPoint.dy + extent.dy - y, from->extent.dy);
+	    BitBlt(from, to, p1, p2, p3, rop);
+	}
+    }
+}
+#endif SLOWANDWRONG
+
+
+void RasterTile (from, to, toPoint, extent, rop)
+struct hardware *from, *to;
+DevicePoint toPoint, extent;
+int rop;
+{
+    Hardware fromhard, tohard;
+    static GC gc = NULL;
+    XGCValues values;
+    int valuemask;
+    if (to == NULL) return;
+    if (from == NULL || IsWindowHardware(from))
+	Punt("Can only RasterTile from Bitmap.");
+    fromhard = (Hardware) from->hard.addr;
+    tohard = (Hardware) to->hard.addr;
+    values.tile = fromhard->w;
+    values.fill_style = FillTiled;
+    values.function = rop;
+    valuemask = GCFunction | GCTile | GCFillStyle;
+    if (gc == NULL)
+	gc = XCreateGC(dpy, RootWindow(dpy, SCREEN), valuemask, &values);
+    else
+	XChangeGC(dpy, gc, valuemask, &values);
+    XFillRectangle(dpy, tohard->w, gc, toPoint.dx, toPoint.dy,
+		   extent.dx, extent.dy);
+}
+
+/*
+ * RasterTile () replicates the whole of ``from'' over ``to'', but clipped by
+ * the rectangle bounded by ``toPoint'' and ``extent''.
+ */
+
+/******************* BRIGHTNESS TRANSFER FUNCTION ************************/
+
+#ifdef CANON
+int TransferSize ()
+{}
+#endif CANON
+
+#ifdef CANON
+void SetTransfer (vec)
+float *vec;
+{}
+#endif CANON
+/*
+ * 	
+ * TransferSize () and SetTransfer () control the mapping function between
+ * user brightnesses and device brightnesses. The interface is expected to
+ * perform this mapping of brightnesses to a sufficient resolution.
+ * SetTransfer takes a table of floating point numbers between 0 and 1. User
+ * brightnesses are scaled to the size of this table and mapped through it.
+ * The argument table given to SetTransfer () will be deleted after use.
+ * TransferSize () simply enquires the required size of the table.
+ * 	
+ * It may be appropriate to half-tone on a grayscale or colour device to
+ * improve rendering if it is not too expensive. TransferSize () returns the
+ * size of the pattern table.
+ */
+
+/********************** BITMAP CONVERSION ********************************/
+
+char *StringFromHardware (h)
+struct hardware *h;
+{
+    XImage *image;
+    Hardware hard;
+    unsigned char *result, *ptr, c;
+    int x, y, i;
+    if (h == NULL) return NULL;
+    hard = (Hardware) h->hard.addr;
+    image = XGetImage(dpy, hard->w, 0, 0, h->extent.dx, h->extent.dy,
+		      AllPlanes, ZPixmap);
+    result = (unsigned char *) malloc(((h->extent.dx + 7) / 8) * h->extent.dy);
+    ptr = result;
+    for (y=0 ; y<h->extent.dy ; y++) {
+	for (x=0 ; x<h->extent.dx ; x+=8) {
+	    c = 0;
+	    for (i=0 ; i<8 ; i++) {
+		c = c << 1;
+		if (x+i < h->extent.dx)
+		    c |= XGetPixel(image, x+i, y);
+	    }
+	}
+	*ptr++ = c;
+    }
+    free((char *) image);
+    return (char *) result;
+}
+
+struct hardware *HardwareFromString (s, width, height)
+char *s;
+int width, height;
+{
+    struct hardware *h = NewBitmapHardware(width, height);
+    Hardware hard = (Hardware) h->hard.addr;
+    XImage *image;
+    if (s == NULL) Punt("HardwareFromString called with NULL string!");
+    image = XCreateImage(dpy, DefaultVisual(dpy, SCREEN),
+			 DefaultDepth(dpy, SCREEN), ZPixmap, 0, s,
+			 width, height, 8, 0);
+    image->bitmap_bit_order = MSBFirst;
+    XPutImage(dpy, hard->w, fillgc[GXcopy], image, 0, 0, 0, 0, width, height);
+    free((char *) image);
+    return h;
+}
+/*
+ * 	
+ * StringFromHardware () produces a string from its argument which describes
+ * the bitmap.  The bitmap is returned in row-major order with the leftmost
+ * bit of each byte in the most significant position. Rows are padded to byte
+ * boundaries. Only single plane bitmaps are used.
+ * 	
+ * HardwareFromString () performs the inverse mapping, generating a bitmap
+ * from a set of bits, given a width and height. Only single plane bitmaps are
+ * used.
+ */
+
+/************************* HALF-TONE SCREEN *******************************/
+
+#ifdef CANON
+int ScreenSize (freq, rotation)
+float freq, rotation;
+{}
+#endif CANON
+
+#ifdef CANON
+void BuildScreen (freq, rotation, x, y)
+float freq, rotation, *x, *y;
+{}
+#endif CANON
+
+#ifdef CANON
+void SetScreen (freq, rotation, thresh)
+float freq, rotation, *thresh;
+{}
+#endif CANON
+/*
+ * ScreenSize () allows RALpage to determine how large an array of sample
+ * points to expect.  It should return the length of the side of the sample
+ * square.
+ * 	
+ * BuildScreen () returns a set of sampling coordinates to RALpage to hand
+ * to the users spot-function
+ * 	
+ * SetScreen () allows RALpage to set the thresholds for each sample point
+ * so that half-tone bitmaps can be made.
+ */
+
+/************************* CLIPPING ******************************************/
+
+#ifdef CANON
+void SetClipHardware (h, clip)
+struct hardware *h, *clip;
+{}
+#endif
+/*
+ * 	
+ * SetClipHardware sets hardware which is a clip mask for BitBlt. This mask
+ * should be ANDed with any output operation. If clip is NULL, masking will
+ * not be needed.
+ */
+
+/************************ UPDATE CONTROLS **********************************/
+
+void HardUpdate ()
+{
+    XFlush(dpy, 0);
+}
+/*
+ * HardUpdate is a hook to allow devices which do output buffering to flush
+ * that buffering when appropriate.  This allows an interactive user to see
+ * completed graphics between prompts (it is called as a side-effect of the
+ * flush operator). Typically is is a no-op.
+ */
+
+void UpdateControl (h, on)
+struct hardware *h;
+int on;
+{}
+/*
+ * This call can be used to enable batching of output operations.
+ * UpdateControl (h, FALSE) means ``start of batching'' UpdateControl (h,
+ * TRUE) means ``end of batching''. It is used to improve performance on
+ * machines where screen updates have a high locking overhead. It may be a
+ * no-op.  The operation should nest if batching is already in progress: FALSE
+ * increments a counter, TRUE decrements a counter. Display changes are
+ * allowed when the counter is non-zero.
+ */
+
+/********************************** CANONICAL IMPLEMENTATION LIBRARY
+******************************/
+
+/*
+ * Some parts of the above interface can be supported by a canonical library.
+ * This library contains:
+
+SetClipHardware
+HardUpdate
+IsWindowHardware
+HardwareExtent
+
+PaintTrapezoid
+BitBltTrapezoid
+
+Paint
+PaintLine
+
+DeviceMatrix
+InitTransfer
+TransferSize
+SetTransfer
+ScreenSize
+BuildScreen
+SetScreen
+
+ *
+ * As the driver matures, the user may provide his own versions of the
+ * canonical routines.  This leaves the following for implementation by 
+ * the user.
+ *
+
+InitHardware
+NewBitmapHardware
+NewWindowHardware
+DestroyHardware
+HardwareFromString
+StringFromHardware
+UpdateControl
+RasterTile
+BitBlt
+BitBltLine
+BitBltBlob
+
+ * There is a pedagogical implementation in null.c
+ *	
+ * There are a number of interface issues concerning the canonical driver.
+ * Firstly, a canonical struct hardware is defined, which contains a union of
+ * a char * and an int handle. The remainder are expected to use this to store
+ * device specific information.
+ *
+ * InitTransfer() should be called during InitHardware with the number of 
+ * pixels per inch on the display as an argument.
+ */
+
+/* I tacked this lot on the end to avoid altering canon.c - CAAG */
+
+int pixels_per_inch;
+
+int single_rop [] =
+ {
+	ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE,
+	ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE,
+	ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE,
+	ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE
+ };
+
+/*ARGSUSED*/
+Matrix DeviceMatrix (width, height) int width, height;
+ {
+ 	return NewMatrix (pixels_per_inch / 72.0, 0.0, 0.0, -pixels_per_inch / 72.0, 0.0, (float) height);
+ }
+
+int IsWindowHardware (h) struct hardware *h;
+ {
+ 	return h->flags & ISWIN;
+ }
+
+#define IsWindowHardware(h) ((h)->flags & ISWIN)
+
+DevicePoint HardwareExtent (h) struct hardware *h;
+ {
+ 	if (h)
+ 		return h->extent;
+ 	else
+ 		return NewDevicePoint (0, 0);
+ }
+
+void SetClipHardware (h, clip) struct hardware *h, *clip;
+ {
+ 	if (h)
+		h->clip = clip;
+ }

@@ -1,0 +1,5 @@
+#!/bin/sh
+awk -e '/^C / {
+	if ($2 != -1)
+		printf "Metrics /%s %d hershey-factor idiv put\n", $8, $5;
+}' $*

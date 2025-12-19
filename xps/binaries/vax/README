@@ -1,0 +1,18 @@
+
+In order to run xps, you need to set the environment variable:
+
+setenv POSTSCRIPTLIB /priam/mit/opus/postscript/postscript
+
+Then you can run xps.
+
+xps filename.ps
+
+will run the file, and will wait for you to hit return everywhere
+there is a 'showpage' command.  If the file does not have a
+'showpage' (usually only with hand-written programs), then the window
+will go away immediately after drawing the picture.  If you find this
+happens, you can type 'xps -i filename.ps'.  This will cause xps to
+give you a PS> prompt after running your program.  Type 'quit' to exit
+the program.
+
+

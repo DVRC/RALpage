@@ -1,0 +1,9 @@
+cache.c
+device.c
+fill.c
+font.c
+image.c
+pat.c
+path.c
+point.h
+stroke.c

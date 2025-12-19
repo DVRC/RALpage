@@ -1,0 +1,127 @@
+Here is a patch that makes several bug fixes and enhancements to the Postscript
+interpreter recently posted.  The changes are:
+
+
+Bugs fixed:
+
+Half-implemented the missing operator "vmstatus".  The number of savelevels is
+correct (as far as the broken implementation of "save" and "restore" allow),
+but the amount of memory used and free is a lie.
+
+Implemented the missing operator "noaccess".
+
+Fixed a bug in the operator "stopped".  Previously it only worked on arrays,
+but now it works on any executable object.
+
+Fixed the parsing bug for reals with a trailing period (e.g. "4.") which
+resulted in the "undefined in operater exec" errors reported to the net.
+
+Changed an occurance of the variable "signed" to "signedp" as the former is an
+ANSI C keyword.
+
+Added a version of the missing file postscript/demos/buildcachefont.ps
+
+
+Enhancements made:
+
+Macroized PanicIf()
+
+Changed "undefined in operator exec" errors to instead report 
+"undefined in operator foo", where "foo" is the operator that was undefined.
+
+Fixed imagemask to deal better with images that have to be shrunk.  Bitmapped
+fonts intended for 300 dpi printers look much better now.
+(Change courtesy of Christopher Cox, cc4b@andrew.cmu.edu)
+
+Tweaked makefile to deal better with sun3.
+
+Added "getenv" operator.  The syntax is:
+	<string> getenv <string> <true>
+if the environment variable exists, or
+	<string> getenv <false>
+if it does not.
+
+
+				John G. Myers
+				jm36@andrew.cmu.edu
+				jgm@k.gp.cs.cmu.edu
+These patches make several bug fixes and enhancements to the Postscript
+interpreter recently posted.  The changes are:
+
+			      Version 1:
+
+Bugs fixed:
+
+Half-implemented the missing operator "vmstatus".  The number of savelevels is
+correct (as far as the broken implementation of "save" and "restore" allow),
+but the amount of memory used and free is a lie.
+
+Implemented the missing operator "noaccess".
+
+Fixed a bug in the operator "stopped".  Previously it only worked on arrays,
+but now it works on any executable object.
+
+Fixed the parsing bug for reals with a trailing period (e.g. "4.") which
+resulted in the "undefined in operater exec" errors reported to the net.
+
+Changed an occurance of the variable "signed" to "signedp" as the former is an
+ANSI C keyword.
+
+Added a version of the missing file postscript/demos/buildcachefont.ps
+
+
+Enhancements made:
+
+Macroized PanicIf()
+
+Changed "undefined in operator exec" errors to instead report 
+"undefined in operator foo", where "foo" is the operator that was undefined.
+
+Fixed imagemask to deal better with images that have to be shrunk.  Bitmapped
+fonts intended for 300 dpi printers look much better now.
+(Change courtesy of Christopher Cox, cc4b@andrew.cmu.edu)
+
+Tweaked makefile to deal better with sun3.
+
+Added "getenv" operator.  The syntax is:
+	<string> getenv <string> <true>
+if the environment variable exists, or
+	<string> getenv <false>
+if it does not.
+
+			      Version 2:
+
+Bugs fixed:
+
+Fixed operators kshow, translate, scale, rotate, reversepath
+
+Casted NULL to appropriate type when it was passed as a parameter.
+
+Removed unused variables.
+
+Enhancements made:
+
+Each driver must now define the character pointer "DriverType".  The
+value of this variable is placed in the string produced by the
+"version" operator.
+
+Added operators letter, note, and legal.
+
+			      Version 3:
+
+Bugs fixed:
+
+The fourth parameter to the "framedevice" is no longer ignored.  psrc
+has been modified so that if a driver defines the postscript operator
+"outputpage", it will be called instead of the "beep and wait for
+input" routine when the copypage or showpage command is executed.
+
+Enhancements made:
+
+Barry Shein's speedups have been incorporated.
+
+A version of the X11 driver is included.
+
+				John G. Myers
+				jm36@andrew.cmu.edu
+				jgm@k.gp.cs.cmu.edu

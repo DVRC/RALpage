@@ -1,0 +1,73 @@
+OBJECTS=array.o boolean.o config.o control.o dictionary.o file.o\
+integer.o main.o math.o misc.o name.o operator.o\
+poly.o property.o real.o save.o stack.o string.o unix.o
+LIBS=libww.a -lsuntool -lsunwindow -lpixrect
+sunPSLIBS=-lsuntool -lsunwindow -lpixrect
+GRAPHICS=cache.o colour.o device.o fill.o font.o gsave.o image.o mat.o matrix.o\
+pat.o path.o state.o stroke.o
+CFLAGS=-O -s
+
+sunPS:	$(OBJECTS) $(GRAPHICS) hard.o canon.a sunview
+	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) hard.o canon.a -lm $(sunPSLIBS) -o sunPS
+
+PS:	$(OBJECTS) $(GRAPHICS) hard.o canon.a
+	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) hard.o canon.a -lm `libs` -o PS
+
+CPS:	$(OBJECTS) $(GRAPHICS) colour-ww.o trapezoid.o canon.o
+	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) colour-ww.o canon.o trapezoid.o -lm `libs` -o CPS
+
+postscript:	$(OBJECTS) $(GRAPHICS) adapter.o protocol.o
+	cc $(CFLAGS) $(OBJECTS) $(GRAPHICS) adapter.o protocol.o -lm -o postscript
+
+xps: $(OBJECTS) $(GRAPHICS) X11.o canon.a makefile
+	rm -f xps
+	cc -o xps $(OBJECTS) $(GRAPHICS) X11.o canon.a -lm -lX11
+
+XPS:	$(OBJECTS) $(GRAPHICS) X.o
+	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) X.o -lm -lX -o XPS
+
+canon.a:	canon.o screen.o trapezoid.o paint.o
+	ar ruv canon.a canon.o screen.o trapezoid.o paint.o
+	ranlib canon.a
+
+viewer:	protocol.o viewer.o hard.o canon.a
+	cc ${CFLAGS} protocol.o viewer.o hard.o canon.a `libs` -o viewer
+
+all:	PS postscript viewer
+
+ww:	ww.o wwlib installww
+
+pixrect:	pixrect.o
+	cp pixrect.o hard.o
+
+sunview:	sunview.o
+	cp sunview.o hard.o
+
+sun:	ww wwsun
+
+orion:	orion.o installorion orionlib
+
+X.o:	
+	cc ${CFLAGS} -c X.c
+
+wwlib:
+	if [ -f libww.a ]; \
+	then \
+		echo 'echo libww.a' >lww; \
+	else \
+		echo 'echo -lww' >lww; \
+	fi; \
+	chmod +x lww
+	echo "echo `lww`" >libs; chmod +x libs
+
+wwsun:	
+	echo "echo `lww` -lsuntool -lsunwindow -lpixrect" >libs; chmod +x libs
+
+orionlib:
+	echo 'echo -lG' >libs; chmod +x libs
+
+installww:
+	cp ww.o hard.o
+
+installorion:
+	cp orion.o hard.o

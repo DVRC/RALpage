@@ -1,0 +1,7 @@
+#!/bin/sh
+if 68881
+then
+	exec ${0}+68881 "$@"
+else
+	exec ${0}-no68881 "$@"
+fi

@@ -1,0 +1,67 @@
+.ds Ps P\s-2OST\s+2S\s-2CRIPT\0\s+2
+.na
+.TH RALBROWSE 1 Rutherford
+.SH NAME
+ralbrowse \- Front end for RALpage \- an Interpreter for a subset of the
+.Ps
+page description language
+.SH SYNOPSIS
+ralbrowse [ file ]
+.br
+psroff -t [ macros and files ... ] | ralbrowse
+.SH DESCRIPTION
+.I ralbrowse
+is a front end for the RALpage
+.Ps
+language interpreter.
+It expects a file containing a conforming
+.Ps
+language document, such as that produced by
+.IR psroff (1)
+.PP
+.I ralbrowse
+will read the file (or its standard input, if the file is absent), and start up
+.I ralpage
+which is the interpreter proper.
+.I ralpage 
+will create an A4 window on the left of the screen, so it is advisable to start it from
+a window on the right.
+.I ralpage
+runs asynchronously, so a new prompt will usually appear before a page has finished
+printing, possibly even before it has started printing.
+.PP
+.I ralbrowse
+produces a prompt in the starting window after it has read the file, and then
+expects the user to type RETURN into the starting window to step through pages of the document.
+A page number may be typed to cause the numbered page to be printed.
+Page numbering always starts from one, regardless of what number might be printed
+on the page itself.
+To finish browsing, use "exit", "q" or EOF.
+.SH INVOCATION
+.br
+$ ralbrowse file.ps
+.br
+Type <RETURN> to view sequentially, <number> to view a random page
+.br
+"exit" "quit" "q" or <EOF> to stop
+.br
+Reading - please wait...4 pages.
+.br
+page: 
+.br
+[1]
+.br
+page: 3
+.br
+page: q
+.br
+$
+.PP
+.SH SEE ALSO
+.IR ralpage (1),
+.IR psroff (1).
+.SH AUTHOR
+Crispin A. A. Goswell
+.SH TRADEMARKS
+.Ps
+is a registered trademark of Adobe Systems Incorporated.

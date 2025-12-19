@@ -1,0 +1,1239 @@
+
+canon.h,0
+
+colour.h,0
+
+device.h,0
+
+font.h,0
+
+graphics.h,0
+
+hard.h,0
+
+main.h,299
+#define bcopy(20,631
+#define TypeOf(165,3987
+#define Push(167,4031
+#define Pop(170,4204
+#define Top(172,4270
+#define Height(174,4337
+#define MaxStack(176,4382
+#define BodyFile(180,4452
+#define StatusFile(182,4492
+#define Getch(184,4551
+#define DictLoad(193,4860
+#define PanicIf(196,4998
+
+mat.h,0
+
+orion.h,0
+
+path.h,0
+
+point.h,0
+
+protocol.h,0
+
+rop.h,0
+
+wwinfo.h,0
+
+adapter.c,873
+struct hardware *InitHardware 33,815
+static void GetTransferSize 45,1046
+int TransferSize 52,1169
+void SetTransfer 57,1220
+int ScreenSize 66,1363
+void BuildScreen 76,1530
+void SetScreen 93,1836
+struct hardware *NewWindowHardware 104,2091
+struct hardware *NewBitmapHardware 116,2364
+int IsWindowHardware 129,2648
+void DestroyHardware 136,2752
+void BitBlt 146,2927
+void Paint 163,3269
+Matrix DeviceMatrix 180,3622
+DevicePoint HardwareExtent 199,3974
+struct hardware *HardwareFromString 204,4114
+char *StringFromHardware 218,4460
+void Line 232,4723
+void PaintLine 247,4991
+static struct hardware *alloc_hard 265,5359
+free_hard 286,5760
+int size 294,5867
+int hard_size 299,5953
+void send_hardware 306,6066
+void HardUpdate 311,6157
+void UpdateControl 317,6229
+void SetClipHardware 324,6370
+void PaintTrapezoid 331,6513
+void BitBltTrapezoid 351,7006
+
+apollo-henk.c,500
+#define DeviceBitmap(32,874
+struct hardware *NewHardware 47,1135
+struct hardware *InitHardware 71,1843
+struct hardware *NewBitmapHardware 115,2954
+struct hardware *NewWindowHardware 152,3884
+static void DestroyHard 225,5670
+void DestroyHardware 251,6294
+void BitBlt 271,6783
+void BitBltLine 356,9014
+void BitBltBlob 410,10191
+void RasterTile 464,11339
+char *StringFromHardware 619,15487
+struct hardware *HardwareFromString 650,16306
+void UpdateControl 736,18455
+check_status 816,20411
+
+apollo.c,703
+#define check_status(26,800
+#define SetBitmap(37,1005
+struct hardware *InitHardware 41,1140
+static struct hardware *NewHardware 85,2534
+struct hardware *NewWindowHardware 100,2944
+struct hardware *NewBitmapHardware 161,5284
+static void DestroyBits 195,6266
+void DestroyHardware 200,6412
+struct hardware *HardwareFromString 226,7068
+char *StringFromHardware 263,7890
+void UpdateControl 273,8185
+void RasterTile 321,9397
+void step_place 413,12764
+void step_copy 429,13218
+void steps_across 445,13656
+void step_across 459,14032
+void steps_down 470,14355
+void step_down 484,14751
+void BitBlt 495,15089
+void BitBltLine 552,16418
+void BitBltBlob 588,17250
+static void rasterop 638,18833
+
+array.c,941
+InitArray 30,929
+Object MakeArray 66,2485
+static Object Make 78,2649
+#define Body(89,2814
+Object *BodyArray 91,2845
+static Object ArrayStore 96,2913
+lengthArray 119,3455
+static int Length 124,3516
+#define lengthArray(129,3589
+static int PLength 131,3626
+int ExecArray 136,3732
+static int Get 165,4372
+Object getArray 186,4794
+static int GetInterval 191,4875
+Object getIArray 200,5148
+static int Put 205,5276
+int putArray 215,5502
+static int PutInterval 224,5702
+static int Copy 235,6023
+static Eq 244,6289
+static int ForAll 249,6435
+static forAll 257,6626
+static int PSetAutoBind 275,7071
+static int PGetAutoBind 282,7173
+Object ParseArray 287,7256
+static int PArray 340,8286
+static int PRBracket 355,8600
+static int PAload 371,8857
+static int PAstore 387,9168
+static int PNoAccess 403,9502
+static int PExecOnly 408,9592
+static int PReadOnly 413,9682
+static int PrCheck 418,9772
+static int PwCheck 423,9863
+
+boolean.c,276
+InitBoolean 20,655
+Object MakeBoolean 53,1942
+int BodyBoolean 58,2005
+static int Cvs 63,2064
+static int PEq 74,2396
+static int PNeq 96,3005
+static int EqBoolean 120,3680
+static int Not 125,3804
+static int And 130,3906
+static int Or 135,4023
+static int Xor 140,4139
+
+cache.c,941
+InitCache 53,1473
+static InitCharTable 67,2189
+static struct char_table *CharAddition 76,2389
+CharStore 100,2809
+static struct char_table *CharFind 119,3275
+static struct char_table *CharLoad 141,3717
+static FlushChars 146,3841
+DeviceBBox 159,4092
+int EqVector 172,4531
+static int PCurrentCharWidth 177,4634
+static int PSetCharWidth 184,4802
+SetCharWidth 192,4990
+static int PSetCacheDevice 197,5062
+static int CharTooBig 207,5390
+int SetCacheDevice 212,5494
+printMatrix 246,6566
+int EqFont 254,6714
+int EqFont 269,7484
+struct cache *SearchCache 277,7636
+int FindCache 292,7997
+int CacheShow 329,8997
+static struct cache *NewCache 351,9590
+static DestroyCache 367,9965
+static CacheInsert 373,10051
+static struct cache *CacheRemove 381,10270
+static int SetCacheLimit 390,10468
+static int SetCache 399,10618
+static int CacheStatus 412,10923
+static int LoadDiskCache 425,11281
+static int SaveCurrentFont 485,13153
+
+can-canon.c,0
+
+can-device.c,28
+Matrix DeviceMatrix 18,575
+
+can-extent.c,35
+DevicePoint HardwareExtent 17,562
+
+can-is-window.c,29
+int IsWindowHardware 17,562
+
+can-line.c,23
+void PaintLine 17,562
+
+can-paint.c,19
+void Paint 17,562
+
+can-raster.c,69
+NeedAux 17,562
+void RasterThreeAdd 27,735
+void RasterFour 36,1028
+
+can-screen.c,186
+static int FreqSize 26,690
+struct hardware *GraySync 35,815
+int ScreenSize 42,951
+void BuildScreen 49,1057
+static sgn 60,1330
+static int screen_cmp 70,1434
+void SetScreen 77,1590
+
+can-set-clip.c,29
+void SetClipHardware 17,562
+
+can-transfer.c,99
+void InitTransfer 19,600
+int HardColour 28,736
+int TransferSize 33,855
+void SetTransfer 38,905
+
+can-trap.c,28
+void PaintTrapezoid 17,562
+
+can-trapezoid.c,55
+static int Xvalue 17,562
+void BitBltTrapezoid 22,689
+
+can-update.c,24
+void HardUpdate 17,562
+
+colour-ww.c,790
+struct hardware *InitHardware 27,771
+int HardColour 35,885
+void Paint 56,1390
+void PaintLine 65,1637
+void PaintTrapezoid 74,1846
+void InitTransfer 88,2250
+int TransferSize 97,2386
+void SetTransfer 102,2436
+int ScreenSize 110,2584
+void BuildScreen 115,2647
+void SetScreen 119,2724
+struct hardware *NewWindowHardware 123,2802
+struct hardware *NewBitmapHardware 140,3194
+#define DeviceBitmap(157,3542
+InstallColour 159,3597
+static void DestroyHard 164,3740
+void DestroyHardware 177,3934
+static struct hardware *NewHardware 187,4111
+struct hardware *HardwareFromString 199,4412
+char *StringFromHardware 215,4823
+void UpdateControl 222,4964
+void RasterTile 234,5198
+void BitBlt 246,5695
+void BitBltLine 266,6359
+void BitBltBlob 293,6949
+static void xxrasterop 311,7482
+
+colour.c,200
+Colour NewGray 17,544
+Colour NewColour 22,628
+Colour NewHSBColour 27,710
+Colour NewRGBColour 38,848
+void ColourHSB 73,1424
+float Value 80,1568
+void ColourRGB 94,1849
+float Brightness 110,2197
+
+config.c,14
+Init 28,1072
+
+control.c,427
+InitControl 55,1813
+static int PExec 77,2674
+static int PIf 91,2905
+static int PIfElse 100,3079
+static int PRepeat 108,3298
+static int Repeat 123,3615
+static int PFor 146,3981
+static int PLoop 184,5103
+static int Loop 197,5339
+static int PExit 207,5501
+int PStop 219,5836
+static int Stopped 238,6149
+int PStopped 245,6244
+static int PCountExecStack 253,6395
+static int PQuit 266,6563
+static int PStart 274,6648
+
+device.c,569
+InitDevices 27,855
+static int GrabBits 43,1385
+static int NullDevice 78,2388
+static int FrameDevice 88,2580
+struct device *DeviceFrom 107,3065
+struct device *NewWindowDevice 118,3293
+struct device *NewBitmapDevice 123,3439
+struct device *NewCacheDevice 128,3585
+Path NewClipPath 136,3902
+struct device *NewDevice 154,4354
+SetDevice 166,4634
+int IsCache 174,4791
+struct device *LinkDevice 179,4868
+UnlinkDevice 187,4966
+struct device *UniqueDevice 198,5146
+DevicePoint NewDevicePoint 212,5526
+DevicePoint HardToDevice 221,5642
+DevicePaintLine 226,5741
+
+dictionary.c,1351
+InitDictionary 39,1234
+Type MakeType 77,2925
+static Type MakeDictBody 87,3077
+void EmptyDict 105,3526
+Type TypeOf 115,3715
+Object MakeDict 121,3794
+Object DictFrom 130,3935
+int EqTrue 140,4080
+static Type Body 146,4163
+#define Body(152,4241
+Type BodyDict 154,4283
+static int PHashStats 159,4351
+static int PDictHash 168,4614
+static int EqDict 182,4901
+int Equal 187,5007
+#define Equal(194,5178
+static DictReplace 198,5340
+static DictAddition 218,5706
+HashFromKey 240,6128
+#define HashFromKey(245,6256
+TypeInstall 247,6365
+DictStore 266,6846
+Install 282,7298
+Object *DictFind 290,7483
+Object DictLoad 321,8050
+Object Lookup 327,8183
+Object Load 332,8298
+static int ForDict 353,8693
+static int forDict 363,8906
+static int GetDict 391,9609
+static int PutDict 402,9815
+static int CopyDict 416,10126
+int copyDict 427,10389
+static int PDict 437,10650
+static int PBegin 445,10817
+static int PEnd 457,11015
+static int PDef 466,11154
+static int PStore 481,11528
+static int PKnown 501,12058
+static int PLoad 509,12220
+static int PWhere 522,12464
+int maxDict 538,12842
+static int PMaxLength 543,12914
+int lengthDict 548,13018
+static int LengthDict 553,13093
+static int PCurrentDict 558,13200
+static int PNoAccess 564,13300
+static int PReadOnly 569,13392
+static int PrCheck 574,13482
+static int PwCheck 579,13573
+
+file.c,1169
+InitFile 88,3509
+static int Token 127,5257
+static struct file_struct *Body 145,5604
+struct file_struct *BodyFile 153,5713
+static int Getc 158,5790
+#define Getc(173,5989
+static int Getchar 176,6028
+static int Status 185,6126
+#define Status(191,6211
+static int Eq 193,6251
+Object FileFrom 201,6425
+Object FileString 220,6860
+int GeneralGetch 234,7164
+Ungetch 264,7726
+int ExecFile 279,8031
+Cleanup 305,8535
+Cbreak 314,8627
+static Echo 318,8658
+FILE *Fopen 336,8959
+void Fclose 354,9271
+static int PFile 367,9456
+static int PFileCheck 393,10266
+static int PseudoFile 422,11054
+static int EditLine 434,11797
+static int EditStatement 461,12325
+static int PCloseFile 513,13379
+int Close 520,13478
+static int PRead 543,13948
+static int PReadHexString 553,14140
+static int PReadLine 583,14738
+static int PReadString 597,15116
+static int PBytesAvailable 610,15435
+static int PWrite 615,15532
+static int PWriteHexString 637,15989
+static int PWriteString 666,16595
+static int PFlush 687,17041
+static int PFlushFile 694,17179
+static int PStatus 718,17685
+static int PCurFile 723,17785
+static int PPrint 733,18031
+static int PEcho 743,18221
+
+fill.c,985
+InitFill 58,1920
+#define NotThisBit(77,2365
+#define ThisBit(89,2707
+#define UpEdge(112,3565
+#define DownEdge(117,3793
+#define Xvalue(122,4023
+static void EmitTrapezoid 125,4109
+int Fill 140,4607
+static int EOFill 157,4914
+static void PathTrapezoid 176,5256
+int InitClip 196,6125
+static int Clip 209,6390
+static int EOClip 233,6981
+static int PClipPath 256,7573
+static int FillIt 278,7988
+static void Trapezoids 312,8707
+ProcessEdges 339,9233
+ThisBit 380,10140
+NotThisBit 413,11129
+static void RemoveEdges 428,11482
+static int UpEdge 441,11823
+static int DownEdge 449,12165
+static int EoRule 456,12492
+static int NwRule 461,12543
+static float Yintersect 466,12590
+static int Xvalue 482,13017
+static int intercmp 488,13151
+static void AddInteresting 501,13518
+static void FindInfinity 549,14734
+static int edgecmp 561,14942
+static int AddEdge 568,15085
+static void BuildEdgeList 590,15499
+static int NextLowest 619,16118
+static void AddLowest 638,16433
+
+font.c,1055
+InitFont 61,1517
+static int XMoveShow 105,3394
+HardPoint DExtToInt 116,3576
+static int Update 130,3785
+InitShowContext 139,3967
+HardPoint Adjust 144,4022
+static int PAdjust 152,4278
+static int PCurrentFont 159,4451
+static int PFindFont 164,4524
+static int PSetFont 181,4849
+void SetupFontCache 191,5078
+int CheckFont 201,5468
+int CheckHershey 228,6153
+int ExtractBBox 262,6907
+static Object MakeFontID 283,7290
+int BodyFontID 293,7441
+static int PDefineFont 298,7502
+Object LookupFont 319,7963
+static int PScaleFont 355,8834
+static int PMakeFont 367,9094
+Vector GetMetrics 380,9332
+static int BuildHershey 399,9901
+static int Show 489,12709
+static int ShowStopped 505,13050
+#define lengthString(512,13149
+#define BodyString(514,13187
+int ShowUser 516,13225
+static int ShowString 574,14782
+ShowStringAux 595,15248
+static int ShowStop 646,16502
+ShowStopAux 655,16632
+static int PShow 667,16822
+static int PWidthShow 672,16927
+static int PAShow 677,17113
+static int PAWidthShow 682,17272
+static int PStringWidth 691,17547
+
+gsave.c,84
+InitGSave 26,728
+int GSave 36,1050
+int GRestore 52,1458
+int GRestoreAll 88,2308
+
+image.c,332
+InitImage 21,632
+static void VerticalReverseImage 27,845
+static int RealImageMask 42,1342
+DrawBitmap 103,3422
+void Tile 115,3723
+void FillMask 146,4354
+struct hardware *UnpaddedHardwareFromString 159,4572
+static int RealImage 178,5060
+DrawColourBitmap 291,8975
+FillUnitBox 321,9858
+struct hardware *ScaleBitmap 331,10251
+
+integer.c,958
+InitInteger 25,894
+int StrictMul 74,3467
+int StrictAdd 94,3997
+int BodyInteger 101,4129
+static int Body 106,4197
+Object MakeInteger 111,4265
+static Object Make 121,4387
+static int Cvr 131,4509
+static int Cvs 136,4595
+static int EqEq 148,4934
+Object IntReal 154,5018
+static int PFor 159,5090
+static int For 171,5393
+static int Eq 197,6009
+static int Lt 202,6111
+static int Le 207,6212
+static int Gt 212,6314
+static int Ge 217,6415
+static int Not 222,6517
+static int And 227,6616
+static int Or 232,6711
+static int Xor 237,6805
+static int BitShift 242,6900
+static int Abs 250,7125
+static int Add 255,7231
+static int Sub 260,7337
+static int Mul 265,7444
+static int Div 270,7550
+static int Mod 277,7715
+static int Neg 284,7860
+static int Sqrt 289,7938
+static int Exp 296,8094
+static int Identity 301,8223
+static int Sin 306,8292
+static int Cos 311,8403
+static int Atan 316,8514
+static int Ln 321,8653
+static int Log 326,8757
+
+main.c,750
+main 48,1428
+int xCheck 100,2659
+#define xCheck(105,2737
+Message 107,2781
+Protect 113,2869
+Unprotect 118,2902
+static int EnableInterrupts 123,2937
+static void InitArguments 130,3041
+static void Interpreter 178,4031
+static void InitErrors 269,6135
+static catchint 311,8278
+int Interrupted 317,8360
+static Object InsErr 329,8593
+static ErrorFn 337,8784
+int Error 346,8964
+Object MakeObject 352,9041
+int OpCheck 364,9232
+PanicIf 375,9491
+Panic 382,9568
+int min 390,9754
+int rCheck 395,9810
+int wCheck 403,9985
+Object Cvx 411,10162
+Object Cvlit 417,10229
+Object NoAccess 424,10321
+Object ExecOnly 433,10528
+Object ReadOnly 442,10763
+Object WriteOnly 451,10922
+Object SameFlags 460,11080
+int Max 466,11155
+int Min 471,11210
+
+malloc.c,83
+char *malloc 19,604
+int free 42,974
+char *realloc 46,1011
+char *calloc 55,1157
+
+mat.c,330
+Matrix NewMatrix 18,598
+Vector NewVector 27,759
+Matrix Translate 36,873
+HereTranslate 43,1048
+Matrix Scale 49,1176
+Matrix Rotate 56,1309
+Matrix MatMult 65,1525
+Matrix MatInvert 72,1769
+Vector Transform 81,2089
+Vector DTransform 88,2259
+Vector ITransform 95,2402
+Vector IDTransform 105,2612
+Vector DiffVector 115,2795
+
+math.c,336
+InitMath 25,677
+static catchmath 54,1919
+float Deg 60,2003
+float Rad 66,2101
+float BodyFloat 71,2157
+Object ParseNumber 82,2380
+static int ParseSign 157,3746
+static int ParseInteger 174,3975
+static int random 211,4666
+static int PRand 216,4753
+static int PSrand 222,4862
+static int PRrand 228,4957
+static int Idiv 233,5030
+
+matrix.c,768
+InitMatrix 34,989
+Object MatrixFrom 54,1920
+int ExtractMatrix 59,2042
+static int PMatrix 80,2473
+int PInitMatrix 85,2549
+static int PIdentMatrix 92,2641
+static int PDefaultMatrix 100,2826
+static int PCurrentMatrix 108,3035
+static int PSetMatrix 116,3226
+static int PTranslate 126,3445
+static int PScale 182,5078
+static int PRotate 238,6697
+static int PConcat 277,7712
+static int PConcatMatrix 287,7890
+static int Transfn 299,8201
+static int PTransform 354,9328
+static int PDTransform 359,9390
+static int PITransform 364,9454
+static int PIDTransform 369,9518
+static int PInvertMatrix 374,9584
+Point IntToExt 385,9840
+HardPoint ExtToInt 393,10014
+Matrix PointTranslate 414,10405
+Matrix HardPointTranslate 419,10494
+Object AssignMatrix 427,10604
+
+misc.c,46
+InitMisc 22,626
+static int PUserTime 28,747
+
+name.c,446
+InitName 27,732
+unsigned char *BodyName 38,1036
+int lengthName 43,1122
+static int Cvs 48,1201
+static int EqEq 58,1469
+static int Eq 66,1571
+static int ExecName 71,1716
+static struct name_struct *FindTreeName 86,1977
+static int HashName 111,2753
+static struct name_struct *FindName 126,3005
+Object MakeName 150,3501
+Object NameFrom 160,3664
+Object Cvn 170,3819
+Object StringName 180,3966
+PrintName 185,4057
+Object ParseId 190,4140
+
+null.c,435
+struct hardware *InitHardware 17,562
+static struct hardware *NewHardware 24,637
+struct hardware *NewWindowHardware 36,959
+struct hardware *NewBitmapHardware 41,1087
+static void DestroyBits 46,1211
+void DestroyHardware 50,1255
+struct hardware *HardwareFromString 60,1443
+char *StringFromHardware 66,1595
+void UpdateControl 71,1715
+void RasterTile 75,1781
+void BitBlt 82,1906
+void BitBltLine 89,2049
+void BitBltBlob 96,2168
+
+operator.c,371
+InitOperator 26,725
+Object MakeOp 39,1145
+InstallOp 78,1972
+TypeInstallOp 120,2889
+static struct op_struct *Body 162,3767
+#define Body(168,3857
+static int Eq 170,3893
+Object NameOperator 175,3995
+#define NameOperator(180,4070
+static int Cvs 182,4120
+static int EqEq 195,4451
+void PrintObject 202,4591
+int ExecOperator 241,6094
+static int Signature 298,7883
+
+orion.c,409
+struct hardware *InitHardware 27,766
+struct hardware *NewBitmapHardware 38,877
+struct hardware *NewWindowHardware 46,1071
+void DestroyHardware 57,1319
+static struct hardware *NewHardware 66,1502
+struct hardware *HardwareFromString 78,1811
+char *StringFromHardware 100,2305
+void UpdateControl 122,2796
+void RasterTile 126,2862
+void BitBlt 143,3262
+void BitBltLine 164,3719
+void BitBltBlob 187,4260
+
+pat.c,878
+Path NewElem 26,714
+void ElemFree 39,934
+Path ElemCopy 46,1055
+Path NewMove 53,1152
+Path NewPath 62,1299
+PathFree 69,1395
+Path PathCopy 76,1483
+enum pelem_type CurEType 85,1650
+int EmptyPath 90,1720
+PathDelete 95,1776
+Path PathRemove 105,1930
+PathInsert 113,2034
+int MoveTo 122,2190
+int LineTo 136,2478
+int CurveTo 147,2671
+float Normalise 161,2952
+static int ArcBit 176,3182
+int Arc 197,3792
+ArcTo 223,4436
+int ClosePath 268,5510
+Point NewPoint 283,5831
+HardPoint NewHardPoint 291,5926
+HardPoint MoveHardPoint 299,6035
+Point MovePoint 304,6139
+float PointX 309,6223
+float PointY 314,6270
+static int IsFlat 356,7698
+Bezier 372,8134
+static int RevSeg 388,8716
+Path ReversePath 402,9063
+static int flatten 461,10070
+Path FlattenPath 466,10181
+int CloseAll 521,11221
+SetPath 537,11698
+Bound 543,11759
+int PathBBox 551,11994
+UserBound 586,12853
+
+path.c,552
+InitPath 41,1012
+int PNewPath 66,2266
+static int PCurrentPoint 74,2390
+static int PMoveTo 86,2640
+static int PRMoveTo 91,2768
+static int PLineTo 98,2993
+static int PRLineTo 106,3182
+static int PArc 113,3407
+static int PArcN 139,4183
+static int PArcTo 166,4964
+static int PCurveTo 181,5427
+static int PRCurveTo 191,5772
+static int PClosePath 204,6211
+int PFlattenPath 209,6278
+static int PReversePath 219,6447
+static int PPathForAll 232,6747
+static int PathForAll 249,7211
+static int PPathProc 314,8687
+static int PPathBBox 367,10010
+
+pixrect.c,476
+struct hardware *InitHardware 44,1115
+struct hardware *NewWindowHardware 54,1287
+struct hardware *NewBitmapHardware 66,1589
+#define DeviceBitmap(82,1980
+static void DestroyHard 84,2043
+void DestroyHardware 92,2178
+static struct hardware *NewHardware 102,2355
+struct hardware *HardwareFromString 114,2664
+char *StringFromHardware 136,3158
+void UpdateControl 158,3649
+void RasterTile 162,3715
+void BitBlt 179,4115
+void BitBltLine 200,4572
+void BitBltBlob 223,5113
+
+pixwin.c,713
+DEFINE_ICON_FROM_IMAGE(working_icon,94,4035
+DEFINE_ICON_FROM_IMAGE(ready_icon,99,4133
+struct hardware *InitHardware 144,5217
+struct hardware *NewWindowHardware 156,5530
+struct hardware *NewBitmapHardware 203,7011
+#define Pixrect_addr(225,7686
+#define Pixwin_addr(226,7741
+static void DestroyHard 228,7795
+void DestroyHardware 241,7992
+static struct hardware *NewHardware 250,8187
+struct hardware *HardwareFromString 266,8534
+char *StringFromHardware 287,9035
+void UpdateControl 312,9654
+void RasterTile 329,9909
+void BitBlt 355,10572
+void BitBltLine 383,11285
+void BitBltBlob 409,11959
+void HardUpdate(436,12723
+STWinEvent(465,13287
+DoDispatch(516,14343
+Notify_value STDestroyEvent(523,14524
+
+poly.c,178
+InitPoly 19,603
+Object Parse 35,1211
+int PolyFirst 82,2150
+int PolySecond 89,2338
+int PolyThird 96,2572
+int PolyPair 103,2840
+int Apply 116,3249
+static int Copy 127,3429
+
+property.c,224
+InitProperty 20,620
+static int PType 39,1370
+static int PCvs 44,1469
+static int PCvlit 66,1964
+static int PCvn 71,2048
+static int PCvrs 76,2154
+int NoStringVal 102,2799
+int PCvx 113,3109
+static int PxCheck 118,3182
+
+protocol.c,553
+void master_protocol 25,701
+void slave_protocol 71,1528
+void send_colour 77,1593
+Colour recv_colour 84,1736
+void send_small 95,1894
+float recv_small 100,1964
+void send_point 105,2030
+DevicePoint recv_point 111,2112
+void send_byte 118,2216
+unsigned char recv_byte 123,2278
+void send_short 132,2358
+short recv_short 138,2440
+void send_float 148,2543
+float recv_float 153,2609
+void send_string 166,2785
+void recv_string 171,2920
+void flush_protocol 177,3012
+int can_recv 182,3061
+unsigned char getb 192,3169
+unsigned char getb 212,3467
+
+real.c,864
+InitReal 21,817
+Object MakeReal 54,2532
+static Object Make 64,2647
+static int Identity 74,2765
+static int Cvi 79,2842
+static int Cvs 84,2925
+static int EqEq 96,3262
+float BodyReal 102,3343
+static float Body 107,3407
+Object RealInteger 112,3473
+static int PFor 117,3554
+static int For 129,3856
+static int Eq 155,4462
+static int Lt 160,4564
+static int Le 165,4665
+static int Gt 170,4767
+static int Ge 175,4868
+static int Abs 180,4970
+static int Add 185,5077
+static int Sub 190,5172
+static int Mul 195,5267
+static int Div 200,5362
+static int Neg 205,5457
+static int Sqrt 210,5535
+static int Exp 215,5638
+static int Ceiling 220,5763
+static int Floor 225,5869
+static int Round 230,5974
+static int Truncate 237,6155
+static int Atan 242,6279
+static int Cos 247,6396
+static int Sin 252,6486
+static int Ln 257,6576
+static int Log 262,6659
+
+save.c,34
+char *Malloc 17,546
+Free 31,755
+
+stack.c,690
+InitStack 31,961
+static StackOb MakeStack 56,1944
+int Push 68,2233
+Object Pop 77,2425
+Object Top 86,2692
+int Height 95,2961
+int MaxStack 100,3016
+Object DictLookup 107,3094
+Object Where 123,3355
+static reverse 138,3622
+int CountTo 149,3805
+int ClearTo 161,4009
+static int PCountDictStack 172,4188
+static int PDictStack 177,4287
+static int PPop 192,4647
+static int PDup 197,4705
+static int PExch 202,4801
+static int PRoll 207,4892
+static int PIndex 234,5454
+static int PClear 241,5696
+static int PCount 247,5766
+static int PClearToMark 252,5850
+static int PCountToMark 260,5968
+static int PExecStack 270,6148
+ReverseStack 285,6501
+static int PReverseStack 292,6633
+
+state.c,1045
+InitState 58,1447
+int InitGraphics 100,3452
+int ErasePage 118,3962
+static int CopyPage 127,4154
+static int SetLineWidth 132,4199
+static int GetLineWidth 138,4308
+static int SetLineCap 143,4398
+static int GetLineCap 153,4569
+static int SetLineJoin 158,4658
+static int GetLineJoin 168,4834
+static int SetDash 173,4926
+static int GetDash 215,5853
+static int SetFlat 228,6199
+static int GetFlat 234,6298
+static int SetMiterLimit 239,6384
+static int GetMiterLimit 249,6557
+static int SetGray 254,6649
+static int GetGray 271,6933
+static int SetHSB 276,7027
+static int SetRGB 285,7314
+static int GetHSB 296,7607
+static int GetRGB 308,7826
+static int PScreenSize 320,8042
+static int PBuildScreen 325,8187
+static int PSetRealScreen 348,8801
+static int GetScreen 387,9678
+static int PSetRealTransfer 395,9896
+static int PGetTransfer 428,10591
+static int PTransferSize 433,10676
+static int SetFillMethod 438,10766
+static int GetFillMethod 444,10875
+static int SetStrokeMethod 449,10962
+static int GetStrokeMethod 455,11075
+
+string.c,1261
+#define IS_OCTAL_DIGIT(15,521
+InitString 30,1074
+static int Cvi 64,3036
+static int Cvr 79,3381
+static int Cvs 94,3770
+static int EqEq 104,4042
+static int Exec 130,4565
+static int Token 135,4660
+Object MakeString 162,5269
+static Object Make 175,5554
+static Object MakeNoCopy 188,5841
+Object StringFrom 199,6021
+static int Eq 210,6180
+int EqString 215,6276
+static int Lt 223,6451
+static int Le 232,6690
+static int Gt 241,6880
+static int Ge 250,7119
+int lengthString 259,7309
+static int Length 264,7381
+unsigned char *BodyString 269,7492
+static unsigned char *Body 274,7575
+static int Get 279,7659
+int getString 295,8043
+static int GetInterval 300,8136
+Object getIString 309,8415
+static int Put 314,8551
+putString 332,9001
+static int PutInterval 337,9107
+int putIString 347,9371
+static int Copy 358,9614
+static int match 370,9908
+static ForAll 379,10048
+static int forString 389,10266
+Object ParseString 410,10781
+Object ParseHexString 476,12417
+static int PString 502,13006
+static int AnchorSearch 516,13308
+static int Search 533,13772
+static int PNoAccess 556,14415
+static int PExecOnly 561,14507
+static int PReadOnly 566,14597
+static int PrCheck 571,14687
+static int PwCheck 576,14778
+unsigned char *Bcopy 581,14869
+
+stroke.c,293
+InitStroke 23,605
+int Stroke 29,725
+float Magnitude 49,1053
+static void Dash 54,1133
+MoveChunk 152,3700
+leftof 176,4082
+Miter 181,4146
+Bevel 212,5149
+BeginCap 239,5894
+LineJoin 264,6573
+EndCap 295,7436
+float LineSegment 323,8213
+int PStrokePath 368,9487
+int ThinStroke 410,10500
+
+sunview.c,633
+DEFINE_ICON_FROM_IMAGE (ralpage_icon,31,962
+struct hardware *InitHardware 65,1650
+setpgrp 93,2361
+struct hardware *NewWindowHardware 98,2398
+struct hardware *NewBitmapHardware 115,2866
+#define DeviceBitmap(131,3257
+static void DestroyHard 133,3320
+void DestroyHardware 141,3474
+static struct hardware *NewHardware 151,3651
+struct hardware *HardwareFromString 163,3960
+char *StringFromHardware 185,4454
+void UpdateControl 207,4945
+void RasterTile 224,5194
+void BitBlt 241,5595
+void BitBltLine 262,6053
+void BitBltBlob 285,6595
+Pixrect *xpr_region 305,7212
+xpr_replrop 317,7405
+xpr_rop 325,7615
+xpr_vector 337,8018
+
+unix.c,255
+InitUnix 19,662
+static int Chdir 32,1156
+static int Fork 43,1391
+static int Exit 48,1465
+static int Wait 55,1581
+static int Execv 68,1915
+static int System 107,2731
+static int Signal 118,2973
+static int Kill 127,3173
+static int PGetEnv 133,3340
+
+vcache.c,27
+int LoadVfontCache 24,668
+
+viewer.c,780
+main 32,764
+DoNewWindow 94,2570
+DoNewBitmap 105,2823
+DoBitBlt 116,3077
+DoPaint 137,3616
+int size 159,4227
+DoSendBitmap 164,4313
+DoGetBitmap 179,4714
+DoDestroyHardware 194,5016
+DoGetMatrix 204,5196
+DoLine 222,5537
+DoPaintLine 239,5913
+int recv_hardware 256,6361
+struct hardware *get_hard 261,6413
+void set_hard 271,6575
+int Max 278,6769
+int Min 283,6825
+Matrix NewMatrix 288,6881
+char *Malloc 297,7052
+Free 302,7109
+unsigned char *Bcopy 307,7146
+Panic 317,7315
+DevicePoint NewDevicePoint 323,7414
+Colour NewColour 332,7530
+DoGetTransferSize 343,7672
+DoSetTransfer 349,7753
+DoScreenSize 361,7974
+DoBuildScreen 369,8121
+DoSetScreen 388,8561
+DoSetClipHardware 400,8849
+DoBitBltTrapezoid 409,9043
+DoPaintTrapezoid 428,9530
+DoSetUpdateControl 448,10047
+
+ww.c,554
+struct hardware *InitHardware 26,713
+setpgrp 40,914
+struct hardware *NewWindowHardware 47,966
+struct hardware *NewBitmapHardware 64,1352
+#define DeviceBitmap(81,1696
+static void DestroyHard 83,1751
+void DestroyHardware 96,1945
+static struct hardware *NewHardware 106,2122
+struct hardware *HardwareFromString 118,2423
+char *StringFromHardware 134,2834
+void UpdateControl 141,2975
+void RasterTile 153,3209
+void BitBlt 165,3677
+void BitBltLine 185,4281
+void BitBltBlob 212,4851
+static void xxrasterop 230,5403
+static int RunLength 260,7040
+
+x10.c,1212
+struct hardware *InitHardware 62,1161
+static struct hardware *NewHardware 78,1459
+SetClipHardware 90,1757
+int hard_size 94,1819
+static struct bitmap *NewBM 99,1913
+static void DestroyBM 111,2214
+static Bitmap NeedBitmap 119,2363
+static OODBitmap 128,2526
+struct hardware *NewWindowHardware 137,2646
+struct hardware *NewBitmapHardware 148,2923
+void DestroyHardware 153,3064
+Matrix DeviceMatrix 162,3222
+DevicePoint HardwareExtent 167,3367
+int IsWindowHardware 172,3508
+static InitRopMap 179,3611
+static int Xvalue 187,4110
+static void PaintBlob 192,4237
+void PaintTrapezoid 207,4710
+static void RasterBlob 249,6052
+static void RasterTrapezoid 266,6527
+void Paint 310,7922
+void BitBlt 359,9418
+void PaintLine 392,10355
+void Line 420,11149
+struct hardware *HardwareFromString 424,11259
+char *StringFromHardware 446,11740
+InitReversal 468,12213
+void HardUpdate 482,12389
+static struct hardcolour HardColour 487,12428
+static void InitTransfer 517,12960
+int TransferSize 525,13067
+void SetTransfer 530,13117
+int ScreenSize 538,13265
+void BuildScreen 545,13387
+static sgn 556,13676
+static int screen_cmp 566,13780
+void SetScreen 573,13936
+SetBit 609,14925
+UpdateControl 617,15091
+
+x11.c,1069
+static void Punt(77,2087
+#define MIN(116,2975
+struct hardware *InitHardware 120,3043
+static struct hardware *NewHardware(145,3905
+struct hardware *NewBitmapHardware 161,4306
+struct hardware *NewWindowHardware 187,5095
+int IsWindowHardware 246,6885
+void DestroyHardware 255,7064
+Matrix DeviceMatrix 275,7484
+DevicePoint HardwareExtent 295,7990
+void BitBlt 306,8275
+void Paint 327,8908
+void BitBltTrapezoid(353,9946
+void PaintTrapezoid 362,10169
+void BitBltLine 378,10675
+void PaintLine 391,10955
+void BitBltBlob 409,11400
+void RasterTile 429,11808
+void RasterTile 456,12576
+int TransferSize 490,13598
+void SetTransfer 495,13648
+char *StringFromHardware 516,14485
+struct hardware *HardwareFromString 544,15176
+int ScreenSize 575,16301
+void BuildScreen 581,16385
+void SetScreen 587,16485
+void SetClipHardware 606,17076
+void HardUpdate 619,17406
+void UpdateControl 630,17741
+Matrix DeviceMatrix 711,19753
+int IsWindowHardware 716,19916
+#define IsWindowHardware(721,19995
+DevicePoint HardwareExtent 723,20045
+void SetClipHardware 733,20196
+
+xcache.c,46
+int LoadXCache 19,569
+int LoadXCache 33,770
+
+xxx.c,867
+InitString(862,11017
+Cvi(897,12858
+Cvr(914,13487
+Cvs(931,14402
+EqEq(943,14806
+Exec(980,16044
+Token(987,16272
+MakeString(1012,17524
+Make(1028,17837
+MakeNoCopy(1044,18144
+StringFrom(1058,18329
+Eq(1071,18506
+EqString(1078,18721
+Lt(1087,18912
+Le(1096,19276
+Gt(1107,19610
+Ge(1116,19974
+lengthString(1127,20301
+Length(1134,20387
+BodyString(1141,20628
+Body(1148,20725
+Get(1155,20805
+getString(1173,21335
+GetInterval(1181,21455
+getIString(1192,21862
+Put(1200,22020
+putString(1219,22499
+PutInterval(1227,22634
+putIString(1239,22902
+Copy(1253,23171
+match(1265,23584
+ForAll(1276,23736
+forString(1288,24476
+ParseString(1310,25840
+ParseHexString(1415,28482
+PString(1442,29361
+AnchorSearch(1458,29788
+Search(1476,30861
+PNoAccess(1499,32208
+PExecOnly(1506,32424
+PReadOnly(1513,32640
+PrCheck(1520,32856
+PwCheck(1527,33072
+Bcopy(1534,33293

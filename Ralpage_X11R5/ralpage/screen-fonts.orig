@@ -1,0 +1,50 @@
+# this file describes the screen fonts available to the interpreter
+#
+# the font name is that used by documents
+#
+# each screen font name comprises a prefix, a point size and a suffix. To be useful, a 
+# range of sizes should be available.
+# e.g.
+#	family-cache/sans10.snf
+#
+#	family-cache/sans 	is the prefix
+#	10			is one of the available point sizes
+#	.snf			is the suffix
+#
+# a null suffix can be specified with ""
+#
+# if the prefix begins with a / it is taken to be an absolute path name
+# if it does not, the $RALPAGELIB library name is prepended, so that fonts can be
+# placed in the ralpage library.
+#
+# the resolution is in pixels per inch and describes the screen resolution that
+# will display the font at the given point size.
+#
+# font name			prefix				suffix	resolution	format
+
+Serif-Roman			adobe-cache/times		.snf	86		snf
+Serif-Italic			adobe-cache/times		i.snf	86		snf
+Serif-Bold			adobe-cache/times		b.snf	86		snf
+Serif-BI			adobe-cache/times		bi.snf	86		snf
+
+Sans-Roman			adobe-cache/helvetica		.snf	86		snf
+Sans-Italic			adobe-cache/helvetica		i.snf	86		snf
+Sans-Bold			adobe-cache/helvetica		b.snf	86		snf
+Sans-BoldItalic			adobe-cache/helvetica		bi.snf	86		snf
+
+Times-Roman			adobe-cache/times		.snf	86		snf
+Times-Italic			adobe-cache/times		i.snf	86		snf
+Times-Bold			adobe-cache/times		b.snf	86		snf
+Times-BoldItalic		adobe-cache/times		bi.snf	86		snf
+
+Helvetica			adobe-cache/helvetica		.snf	86		snf
+Helvetica-Oblique		adobe-cache/helvetica		i.snf	86		snf
+Helvetica-Bold			adobe-cache/helvetica		b.snf	86		snf
+Helvetica-BoldOblique		adobe-cache/helvetica		bi.snf	86		snf
+
+Courier				adobe-cache/courier		f.snf	86		snf
+Courier-Oblique			adobe-cache/courier		if.snf	86		snf
+Courier-Bold			adobe-cache/courier		bf.snf	86		snf
+Courier-BoldOblique		adobe-cache/courier		bif.snf	86		snf
+
+Symbol				adobe-cache/symbol		.snf	86		snf

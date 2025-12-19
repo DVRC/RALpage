@@ -1,0 +1,16 @@
+Anthony A. Datri (datri@convex.com)
+
+Here's ralpage.  I didn't write it -- Crispin Goswell did, and John G. Myers
+(jgm) did improvements.  I haven't changed much here, but there are a few
+things:
+
+Makefile.68881 builds ralpage with good switches for a Sun 3 with a 68881.
+The psrc at this level has the definition for "letter" (US 8.5 x 11 page)
+put back in and defaulted.  It also has a statusdict definition included,
+which will allow many previously unviewable files (like Frame output) to
+be viewed.
+
+I can answer simple questions about this package, but again, I'm the author.
+After posting about it in comp.windows.x, I was deluged with queries for
+it, so I'm putting this tree on expo in the contrib directory.
+

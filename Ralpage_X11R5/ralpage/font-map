@@ -1,0 +1,14 @@
+FontMap	/Times-Roman		/Serif-Roman	put
+FontMap	/Times-Bold		/Serif-Bold	put
+FontMap	/Times-Italic		/Serif-Italic	put
+FontMap	/Times-BoldItalic	/Serif-BI	put
+
+FontMap	/Helvetica		/Sans-Roman	put
+FontMap	/Helvetica-Oblique	/Sans-Italic	put
+FontMap	/Helvetica-Bold		/Sans-Bold	put
+FontMap	/Helvetica-BoldOblique	/Sans-BI	put
+
+FontMap	/Courier		/Fixed-Roman	put
+FontMap	/Courier-Oblique	/Fixed-Oblique	put
+FontMap	/Courier-Bold		/Fixed-Bold	put
+FontMap	/Courier-BoldOblique	/Fixed-BO	put

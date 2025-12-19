@@ -1,0 +1,264 @@
+
+
+
+POSTSCRIPT(1)       UNIX Programmer's Manual        POSTSCRIPT(1)
+
+
+
+NAME
+     xps - PostScript interpreter
+
+SYNOPSIS
+     xps [ -isc - ] files . . .
+
+DESCRIPTION
+     _x_p_s is an interpreter for the PostScript language.  The
+     language is intended for driving laser printers, but this
+     implementation is for previewing graphics on a suitable dev-
+     ice or for more general programming.
+
+     The implementation conforms to the PostScript Language
+     Manual as closely as possible.
+
+     _x_p_s is a version of the interpreter which displays the out-
+     put using the X Window System.
+
+     To create a window of A4 size, the A4 command may be used.
+     If this is specified on the command line (e.g. ``PS -c
+     A4''), postscript will not bother to read its standard input
+     unless told to do so with ``-''.
+
+INVOCATION
+     When _x_p_s starts up it performs the following actions:
+
+     It reads a number of definitions from a standard library
+     file.  This file is _p_s_r_c in the directory given as the
+     environment variable _P_O_S_T_S_C_R_I_P_T_L_I_B (defaults to
+     /_m_i_t/_s_i_p_b/_l_i_b/_p_o_s_t_s_c_r_i_p_t).  This contains definitions which
+     are part of the PostScript language and can be defined in
+     PostScript.  In particular, it reads a procedure called exe-
+     cutive which is the top level interpreter used when _x_p_s is
+     running interactively.
+
+     Next it reads a file called ._p_o_s_t_s_c_r_i_p_t from the users HOME
+     directory.  This may contain any useful startup routines
+     that are always wanted.
+
+     Next any arguments are processed off the command line.
+     These can be a mixture of options and files, and are exe-
+     cuted in order.  The options are as follows:
+
+     -c   Causes the next argument to be treated as an executable
+          postscript string.
+
+     -i   Causes postscript to behave as if its standard input is
+          a terminal, even if it isn't.  This involves executing
+          the executive definition from the library.  If this is
+          absent and the standard input is not a terminal and
+          there are no files or -c options on the command line,
+          the standard input will be treated as an ordinary file.
+
+
+
+Printed 4/21/89            Rutherford                           1
+
+
+
+
+
+
+POSTSCRIPT(1)       UNIX Programmer's Manual        POSTSCRIPT(1)
+
+
+
+     -s   Causes the standard input to be read, even if there are
+          files or commands on the command line.
+
+     -    Same as -s.
+
+FONT MAPPING
+     Most installations will have a number of fonts which they
+     may wish to use.  Most files will contain font names such as
+     ``Times-Roman'' which are inconvenient to change.  thus con-
+     tains a dictionary in which name pairs can be placed.  This
+     dictionary called FontMap is searched when a font is chosen
+     and the font name is replaced by the value associated with
+     its dictionary entry if one is present; otherwise the name
+     is not changed.  The reason for this is that a previewer
+     gives only an approximation, so it is sometimes useful to
+     use differing fonts, even if the widths are slightly wrong.
+
+     Also, during startup, a file called font-map in the library
+     gets run. This is assumed to contain default mappings, and
+     may typically be empty.
+
+NEW OPERATORS
+     A number of non-standard operators have been added to this
+     version of the interpreter.
+
+     savecurrentfont has been described already.
+
+     setstrokemethod and currentstrokemethod allow thin strokes
+     to be done with line drawing rather than the area fill used
+     for other lines.  The option is an integer.  0 turns off
+     this feature, 1 turns it on and is the default.
+
+     A4 and A5 generate new windows of the suggested sizes.  The
+     old window is deleted unless it is being held in a gsave
+     context.
+
+ASSUMPTIONS
+     There are a number of Assumptions that have been made in the
+     absence of more specific documentation.
+
+          That Integer and Real values are only equivalent
+          mathematically, and are normally distinct except where
+          specified in the manual.  The manual requires
+          equivalence in the following places:
+
+               The arguments of the arithmetic and mathematical
+               operators.
+
+               The arguments of the relational operators (includ-
+               ing eq and ne).
+
+
+
+
+
+Printed 4/21/89            Rutherford                           2
+
+
+
+
+
+
+POSTSCRIPT(1)       UNIX Programmer's Manual        POSTSCRIPT(1)
+
+
+
+          In particular integers and reals are distinguished as
+          dictionary keys.
+
+          That cvrs is not expected to convert reals to any base.
+
+          That the output from == and pstack can look however we
+          want them to.
+
+          That %stdout and %stderr should not ever be closed -
+          the manual is specific about %stdin, but not the other
+          two.
+
+          That stop can exit a run context.
+
+          That flushfile should close an input stream.  Read will
+          close its file if it reads nothing, but the manual
+          doesn't say whether other operators should.  It is
+          assumed so.
+
+          That access restrictions on files are implemented using
+          the access restrictions on objects.
+
+FILES
+     ~/.postscript - profile command source
+     $POSTSCRIPTLIB/psrc - library of postscript material.
+     $POSTSCRIPTLIB/font-map - library of postscript material.
+
+     The _P_O_S_T_S_C_R_I_P_T_L_I_B directory may contain:
+
+     psrc The POSTSCRIPT initialisation library.
+
+     font a directory containing font headers, which are execut-
+          able POSTSCRIPT describing how to load fonts.
+
+     fonts
+          a directory containing font information.
+
+     font-map
+          a file containing default font name mappings.
+
+     cache
+          a directory containing a corresponding set of cached
+          fonts.
+
+SEE ALSO
+     _T_h_e _P_o_s_t_S_c_r_i_p_t _L_a_n_g_u_a_g_e _M_a_n_u_a_l, _A_d_o_b_e _S_y_s_t_e_m_s _I_n_c_o_r_p_o_r_a_t_e_d,
+     _1_9_8_4.
+
+AUTHOR
+     Crispin Goswell.  Tony Williams provided important guidance.
+
+
+
+
+
+Printed 4/21/89            Rutherford                           3
+
+
+
+
+
+
+POSTSCRIPT(1)       UNIX Programmer's Manual        POSTSCRIPT(1)
+
+
+
+BUGS
+     No ``virtual memory'' - dummy operators which do a gsave and
+     grestore are provided.
+
+     No access protection, the operators are there, but they
+     don't protect anything.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Printed 4/21/89            Rutherford                           4
+
+
+

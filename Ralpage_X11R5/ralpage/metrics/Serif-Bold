@@ -1,0 +1,85 @@
+Metrics /a [-3 20] put
+Metrics /b [1 21] put
+Metrics /c [-3 19] put
+Metrics /d [2 21] put
+Metrics /e [-3 19] put
+Metrics /f [5 14] put
+Metrics /g [-2 19] put
+Metrics /h [1 23] put
+Metrics /i [6 12] put
+Metrics /j [5 13] put
+Metrics /k [1 22] put
+Metrics /l [6 12] put
+Metrics /m [-2 34] put
+Metrics /n [-2 23] put
+Metrics /o [-3 20] put
+Metrics /p [-2 21] put
+Metrics /q [-3 20] put
+Metrics /r [-2 17] put
+Metrics /s [-3 17] put
+Metrics /t [5 15] put
+Metrics /u [-2 23] put
+Metrics /v [-1 18] put
+Metrics /w [-1 24] put
+Metrics /x [-2 20] put
+Metrics /y [-1 19] put
+Metrics /z [-3 18] put
+Metrics /A[2 20] put
+Metrics /B[1 22] put
+Metrics /C[1 21] put
+Metrics /D[1 22] put
+Metrics /E[1 21] put
+Metrics /F[1 20] put
+Metrics /G[1 23] put
+Metrics /H[0 24] put
+Metrics /I[6 12] put
+Metrics /J[4 16] put
+Metrics /K[0 22] put
+Metrics /L[3 18] put
+Metrics /M[-1 26] put
+Metrics /N[0 24] put
+Metrics /O[1 22] put
+Metrics /P[1 22] put
+Metrics /Q[1 22] put
+Metrics /R[1 22] put
+Metrics /S[2 20] put
+Metrics /T[2 20] put
+Metrics /U[0 24] put
+Metrics /V[2 20] put
+Metrics /W[0 24] put
+Metrics /X[2 20] put
+Metrics /Y[1 22] put
+Metrics /Z[2 20] put
+Metrics /3197 [64 0] put
+Metrics /zero [2 20] put
+Metrics /one [2 20] put
+Metrics /two [2 20] put
+Metrics /three [2 20] put
+Metrics /four [2 20] put
+Metrics /five [2 20] put
+Metrics /six [2 20] put
+Metrics /seven [2 20] put
+Metrics /eight [2 20] put
+Metrics /nine [2 20] put
+Metrics /period [-4 11] put
+Metrics /comma [-4 11] put
+Metrics /colon [0 11] put
+Metrics /semicolon [0 11] put
+Metrics /exclam [7 11] put
+Metrics /question [3 19] put
+Metrics /quoteleft [7 11] put
+Metrics /quoteright [7 11] put
+Metrics /ampersand [-1 26] put
+Metrics /dollar [6 20] put
+Metrics /slash [5 23] put
+Metrics /parenleft [9 14] put
+Metrics /parenright [9 14] put
+Metrics /asterisk [4 16] put
+Metrics /minus [-4 25] put
+Metrics /plus [-3 25] put
+Metrics /equal [-4 25] put
+Metrics /quotesingle [8 9] put
+Metrics /quotedbl [3 18] put
+Metrics /ring [5 14] put
+Metrics /space [64 0] put
+Metrics /space [0 20] put % nicked from Times/roman.r

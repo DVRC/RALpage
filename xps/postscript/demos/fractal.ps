@@ -1,0 +1,276 @@
+%!
+% Postscript Fractal Drawing Program
+
+% Copyright (C) 1988 by Peter Van Roy.  All rights reserved.
+% This program may be copied and used for non-commercial purposes
+% provided this copyright notice is included unchanged.
+% The examples in this file were first created interactively
+% with the Macintosh program FractaSketch.
+
+% Have fun with this little program!
+% Please let me know if you have comments or suggestions.
+
+%	Peter Van Roy
+%	508-10 Evans Hall
+%	Computer Science Division
+%	University of California
+%	Berkeley, CA 94720
+
+% -----------------------------------------------------------------------------
+
+% Some example fractals:
+% Remove comments from the fractal you wish to draw.
+
+% Koch snowflake:
+%/numpt 5 def
+%/slst [ 0 0.33333 0.33333 0.33333 0.33333 ] def
+%/relalst [ 0 60 -120 60 0 ] def
+%/backflags [ false false false false false ] def
+%/botflags [ false false false false false ] def
+%/invflags [ false false false false false ] def
+%/leftflags [ true true true true true ] def
+%/drawlevel 6 def
+%/linewidth 0 def
+%/home { 150 750 moveto -90 rotate }def
+%/drawscale 700 def
+
+% Flowsnake:
+% /numpt 8 def
+% /slst [ 0.0 0.37796 0.37796 0.37796 0.37796 0.37796 0.37796 0.37796 ] def
+% /relalst [ -19.1 60.0 120.0 -60.0 -120.0 0.0 -60.0 79.1 ] def
+% /backflags [ false false true true false false false true ] def
+% /botflags [ false false false false false false false false ] def
+% /invflags [ false false false false false false false false ] def
+% /leftflags [ true true true true true true true true ] def
+% /drawlevel 5 def
+% /linewidth 0.5 def
+% /home { 100 400 moveto } def
+% /drawscale 400 def
+
+% Square snowflake:
+% /numpt 9 def
+% /slst [ 0 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 ] def
+% /relalst [ 0 90 -90 -90 0 90 90 -90 0 ] def
+% /backflags [ false false false false false false false false false ] def
+% /botflags [ false false false false false false false false false ] def
+% /invflags [ false false false false false false false false false ] def
+% /leftflags [ true true true true true true true true true ] def
+% /drawlevel 5 def
+% /linewidth 0 def
+% /home { 300 800 moveto -90 rotate }def
+% /drawscale 800 def
+
+% Triangle quilt:
+ /numpt 10 def
+ /slst [ 0.0 0.47141 0.33333 0.33333 0.33333 0.31427 0.22222 0.22222 0.22222 0.44444 ] def
+ /relalst [ 45 -45 180 -270 135 -45 180 -270 90 0 ] def
+ /backflags [ false false false false false false false false false false ] def
+ /botflags [ false false false false false false false false false false ] def
+ /invflags [ false false false false false false false false false false ] def
+ /leftflags [ false false false false false false false false false true ] def
+ /drawlevel 6 def
+ /linewidth 0 def
+ /home { 100 750 moveto -90 rotate }def
+ /drawscale 700 def
+
+% Tempete (lightning storm):
+% /numpt 7 def
+% /slst [ 0.0 0.23570 0.16667 0.68718 0.66667 0.33333 0.23570 ] def
+% /relalst [ -45 45 76 -166 90 45 -45 ] def
+% /backflags [ false false false true true true true ] def
+% /botflags [ false false false false false false false ] def
+% /invflags [ false false false true true false false ] def
+% /leftflags [ true true true false true false false ] def
+% /drawlevel 6 def
+% /linewidth 0.5 def
+% /home { 100 400 moveto } def
+% /drawscale 400 def
+
+% Umbrella Tree:
+% /numpt 9 def
+% /slst [ 0.0 0.65 0.65 0.65 0.65 0.65 0.65 1.3 1.0 ] def
+% /relalst [ 72.7 0 -180 0 28.6 0 180 -104.3 0 ] def
+% /backflags [ false false false false false false false false false ] def
+% /botflags [ false true false true true true false true true ] def
+% /invflags [ false true false false false true false false false ] def
+% /leftflags [ true false true false false false false false false ] def
+% /drawlevel 14 def
+% /linewidth 0 def
+% /home { 100 400 moveto 300 400 lineto }def
+% /drawscale 200 def
+
+% Cacti:
+% /numpt 8 def
+% /slst [ 0.0 0.27182 0.30469 0.30104 0.30249 0.23633 0.23343 0.26797 ] def
+% /relalst [ 4.8 75.4 -162 81.8 83.4 -163.9 74.2 6.3 ] def
+% /backflags [ false false false false false false false false ] def
+% /botflags [ false false false false false false false false ] def
+% /invflags [ false false false false false false false false ] def
+% /leftflags [ true true true true true true true true ] def
+% /drawlevel 5 def
+% /linewidth 0 def
+% /home { 80 750 moveto -90 rotate } def
+% /drawscale 700 def
+
+% Dragon curve:
+% /numpt 5 def
+% /slst [ 0 0.5 0.5 0.5 0.5 ] def
+% /relalst [ -90 90 90 -90 0 ] def
+% /backflags [ false false true false true ] def
+% /botflags [ false false false false false ] def
+% /invflags [ false false false false false ] def
+% /leftflags [ true true true true true ] def
+% /drawlevel 7 def
+% /linewidth 0 def
+% /home { 370 565 moveto -90 rotate } def
+% /drawscale 432 def
+
+% Sierpinski arrowhead:
+% /numpt 4 def
+% /slst [ 0 0.5 0.5 0.5 ] def
+% /relalst [ 60 -60 -60 60 ] def
+% /backflags [ false false false false ] def
+% /botflags [ false false false false ] def
+% /invflags [ false false false false ] def
+% /leftflags [ true false true false ] def
+% /drawlevel 10 def
+% /linewidth 0 def
+% /home { 50 700 moveto -90 rotate }def
+% /drawscale 600 def
+
+% -----------------------------------------------------------------------------
+
+% Format of the input parameters needed for creating your own fractals.
+% Note: These parameters are identical to those output by FractaSketch.
+
+% A fractal is represented as a connected sequence of line segments called
+% a template.  When the fractal is drawn each segment is recursively replaced
+% by a scaled-down copy of the template.  Each segment of the template
+% has 4 single bit attributes that determine how the scaled-down version
+% will be drawn.
+
+% Scalar parameters:
+% numpt = number of points in the template (equal to number of segments + 1)
+% drawlevel = depth of recursion
+% linewidth = width of drawing line
+
+% Segment parameters:
+% slst = lengths of the segments scaled so the template has horizontal length
+%        equal to 1.  The first element of slst is not used, put zero here.
+% relalst = relative angle between this segment and the previous one.
+% backflags = true if the segment is drawn backwards.
+% botflags = true if recursion stops with this segment.
+% invflags = true if drawing of this segment is inverted in color.
+% leftflags = true if positive angles are counterclockwise.
+
+% -----------------------------------------------------------------------------
+% Turtle graphics utilities:
+
+/circ12 180 def
+/left { rotate } def
+/right { neg rotate } def
+/forward { currentpoint translate { 0 lineto } { 0 moveto } ifelse } def
+
+
+% -----------------------------------------------------------------------------
+% Utilities allowing easy access to the local parameters of
+% drawfractal(level, scale, visflag, rightflag, backflag):
+
+% Only use these if there is nothing else on the stack:
+/level { 4 index } def
+/scale { 3 index } def
+/visflag { 2 index } def
+/rightflag { 1 index } def
+/backflag { dup } def
+
+% Use these when there is junk on the stack;
+% give the number of items on the stack as an argument:
+/+level { 4 add index } def
+/+scale { 3 add index } def
+/+visflag { 2 add index } def
+/+rightflag { 1 add index } def
+/+backflag { index } def
+
+/declevel { 5 -1 roll 1 sub 5 1 roll } def
+/5pops { pop pop pop pop pop } def
+
+
+% -----------------------------------------------------------------------------
+% The main definition of drawfractal:
+
+/drawfractal {
+   level 0 le
+      { scale visflag forward }
+      { declevel
+         gsave
+         level 0 gt
+            { backflag
+                 { scale false forward  circ12 left } if
+              rightflag
+                 { relalst 0 get right }
+		 { relalst 0 get left } ifelse
+	      1 1 numpt 1 sub
+		 { botflags 1 index get
+		      { slst 1 index get 2 +scale mul
+			invflags 2 index get forward
+		      }
+		      { slst 1 index get 2 +scale mul
+			2 +level exch
+			3 +visflag invflags 4 index get xor
+			4 +rightflag leftflags 5 index get xor not
+			backflags 5 index get
+			drawfractal
+		      } ifelse
+		   1 +rightflag
+		      { relalst exch get right }
+		      { relalst exch get left } ifelse
+		 } for
+	    }
+	    { backflag
+		 { scale false forward  circ12 left } if
+	      rightflag
+		 { relalst 0 get right
+		   1 1 numpt 1 sub
+		      { botflags 1 index get
+			   { slst 1 index get 2 +scale mul
+			     invflags 2 index get forward
+			   }
+			   { slst 1 index get 2 +scale mul
+			     2 +visflag invflags 3 index get xor forward
+			   } ifelse
+			relalst exch get right
+		      } for
+		 }
+		 { relalst 0 get left
+		   1 1 numpt 1 sub
+		      { botflags 1 index get
+			   { slst 1 index get 2 +scale mul
+			     invflags 2 index get forward
+			   }
+			   { slst 1 index get 2 +scale mul
+			     2 +visflag invflags 3 index get xor forward
+			   } ifelse
+			relalst exch get left
+		      } for
+		 } ifelse
+	    } ifelse
+	 stroke
+	 grestore
+	 scale false forward
+      } ifelse
+
+5pops } def
+
+
+% -----------------------------------------------------------------------------
+% Main program
+
+newpath
+linewidth setlinewidth
+home
+currentpoint translate
+drawlevel drawscale true false false drawfractal
+stroke
+showpage 
+
+
