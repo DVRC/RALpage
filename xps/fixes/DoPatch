@@ -1,0 +1,3 @@
+#!/bin/sh
+(cd ../postscript ; patch) <Diff.psrc
+(cd ../source ; patch) <Diff.source

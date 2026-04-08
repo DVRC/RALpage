@@ -1,127 +1,115 @@
 /*
  * Copyright (C) Rutherford Appleton Laboratory 1987
  * 
- * This source may be copied, distributed, altered or used, but not
- * sold for profit or incorporated into a product except under licence
- * from the author.
+ * This source may be copied, distributed, altered or used, but not sold for profit
+ * or incorporated into a product except under licence from the author.
  * It is not in the public domain.
- * This notice should remain in the source unaltered, and any changes
- * to the source made by persons other than the author should be
- * marked as such.
+ * This notice should remain in the source unaltered, and any changes to the source
+ * made by persons other than the author should be marked as such.
  * 
  *	Crispin Goswell @ Rutherford Appleton Laboratory caag@uk.ac.rl.vd
  */
 #include "main.h"
 #include "graphics.h"
 
-#define __SEG__ SegG
 
-Colour NewGray (level)
-     float level;
-{
-  return NewHSBColour (0.0, 0.0, level);
-}
+Colour NewGray (level) float level;
+ {
+ 	return NewHSBColour (0.0, 0.0, level);
+ }
 
-Colour NewColour (h, s, b)
-     float h, s, b;
-{
-  return NewHSBColour (h, s, b);
-}
+Colour NewColour (h, s, b) float h, s, b;
+ {
+ 	return NewHSBColour (h, s, b);
+ }
 
-Colour NewHSBColour (h, s, b)
-     float h, s, b;
-{
-  Colour res;
-  
-  res.hue = h;
-  res.saturation = s;
-  res.brightness = b;
-  
-  return res;
-}
+Colour NewHSBColour (h, s, b) float h, s, b;
+ {
+	Colour res;
+	
+	res.hue = h;
+	res.saturation = s;
+	res.brightness = b;
+	
+	return res;
+ }
 
-Colour NewRGBColour (R, G, B)
-     float R, G, B;
-{
-  float H, S, L, m, M, r, g, b;
-  
-  M = R > G ? R : G; M = M > B ? M : B;
-  m = R < G ? R : G; m = m < B ? m : B;
-  if (M != m) {
-    r = (M - R) / (M - m);
-    g = (M - G) / (M - m);
-    b = (M - B) / (M - m);
-  }
-  L = (M + m) / 2;
-  
-  if (M == m)
-    S = 0;
-  else if (L <= 0.5)
-    S = (M - m) / (M + m);
-  else
-    S = (M - m) / (2 - M - m);
-  
-  if (S == 0)
-    H = 0;
-  else if (R == M)
-    H = 2 + b - g;
-  else if (G == M)
-    H = 4 + r - b;
-  else
-    H = 6 + g - r;
-  
-  H /= 6;
-  
-  return NewHSBColour (H, S, L);
-}
+Colour NewRGBColour (R, G, B) float R, G, B;
+ {
+ 	float H, S, L, m, M, r, g, b;
+ 	
+ 	M = R > G ? R : G; M = M > B ? M : B;
+ 	m = R < G ? R : G; m = m < B ? m : B;
+ 	if (M != m)
+ 	 {
+ 	 	r = (M - R) / (M - m);
+ 	 	g = (M - G) / (M - m);
+ 	 	b = (M - B) / (M - m);
+ 	 }
+ 	L = (M + m) / 2;
+ 	
+ 	if (M == m)
+ 	 	S = 0;
+ 	else if (L <= 0.5)
+ 		S = (M - m) / (M + m);
+ 	else
+ 		S = (M - m) / (2 - M - m);
+ 	
+ 	if (S == 0)
+ 		H = 0;
+ 	else if (R == M)
+ 		H = 2 + b - g;
+ 	else if (G == M)
+ 		H = 4 + r - b;
+ 	else
+ 		H = 6 + g - r;
+ 	
+ 	H /= 6;
+	
+	return NewHSBColour (H, S, L);
+ }
 
-void ColourHSB (colour, h, s, b)
-     Colour colour;
-     float *h, *s, *b;
-{
-  *h = colour.hue;
-  *s = colour.saturation;
-  *b = colour.brightness;
-}
+void ColourHSB (colour, h, s, b) Colour colour; float *h, *s, *b;
+ {
+ 	*h = colour.hue;
+ 	*s = colour.saturation;
+ 	*b = colour.brightness;
+ }
 
-float Value (m, M, hue)
-     float m, M, hue;
-{
-  if (hue < 0.0)
-    hue += 2 * PI;
-  if (hue < PI / 3)
-    return m + (M - m) * hue / (PI / 3);
-  else if (hue < PI)
-    return M;
-  else if (hue < 4 * PI / 3)
-    return m + (M - m) * (4 * PI / 3 - hue) / (PI / 3);
-  else
-    return m;
-}
+float Value (m, M, hue) float m, M, hue;
+ {
+ 	if (hue < 0.0)
+ 		hue += 2 * PI;
+ 	if (hue < PI / 3)
+ 		return m + (M - m) * hue / (PI / 3);
+ 	else if (hue < PI)
+ 		return M;
+ 	else if (hue < 4 * PI / 3)
+ 		return m + (M - m) * (4 * PI / 3 - hue) / (PI / 3);
+ 	else
+ 		return m;
+ }
 
-void ColourRGB (colour, r, g, b)
-     Colour colour;
-     float *r, *g, *b;
-{
-  float H = colour.hue, S = colour.saturation, L = colour.brightness;
-  float m, M;
-  
-  if (L <= .5)
-    M = L * (1 + S);
-  else
-    M = (L + S) - (L * S);
-  m = 2 * L - M;
-  H *= 2 * PI;
-  *r = Value (m, M, H);
-  *g = Value (m, M, H - 2 * PI / 3);
-  *b = Value (m, M, H - 4 * PI / 3);
-}
+void ColourRGB (colour, r, g, b) Colour colour; float *r, *g, *b;
+ {
+ 	float H = colour.hue, S = colour.saturation, L = colour.brightness;
+ 	float m, M;
+	
+	if (L <= .5)
+		M = L * (1 + S);
+	else
+		M = (L + S) - (L * S);
+	m = 2 * L - M;
+	H *= 2 * PI;
+	*r = Value (m, M, H);
+	*g = Value (m, M, H - 2 * PI / 3);
+	*b = Value (m, M, H - 4 * PI / 3);
+ }
 
-float Brightness (colour)
-     Colour colour;
-{
-  return colour.brightness;
-}
+float Brightness (colour) Colour colour;
+ {
+ 	return colour.brightness;
+ }
 
 
 /* 
@@ -211,4 +199,5 @@ static int GetRGB ()
  	VOID Push (OpStack, MakeReal (L* b / Wb));
 	return TRUE;
  }
+
 */

@@ -1,5 +1,3 @@
-(PostScript Interpreter ) print version print (\n) print
-
 /executive {
 	{
 		{ (\n) print
@@ -12,8 +10,12 @@
 
 /bind {} def
 
-/save { gsave /save } def
-/restore { grestore pop } def
+%% Start mods by jgm
+/$$SAVELEVEL 0 def
+/save { gsave /save /$$SAVELEVEL $$SAVELEVEL 1 add def } def
+/restore { grestore pop /$$SAVELEVEL $$SAVELEVEL 1 sub def } def
+/vmstatus { $$SAVELEVEL 10000 10000 } def
+%% End mods by jgm
 /raise { errordict exch get exec } def
 
 /beep ( ) dup 0 7 put def
@@ -67,15 +69,18 @@
 %/tty (|cat -u </dev/tty) (r) file def
 
 /showpage {
-	copypage initgraphics
-	beep print flush
-	false echo
-	{ tty read { pop } if } stopped
-	true echo
-	not {
-		erasepage
-	} if
+	copypage initgraphics erasepage
 } def
+
+systemdict /outputpage known not {
+    /outputpage {
+	beep print flush
+  	false echo
+  	{ tty read { pop } if } stopped
+  	true echo
+	pop
+    } def
+} if
 
 /run { { (r) file } stopped { pop stop } if cvx exec } def
 /prompt { (PS>) print } def
@@ -123,6 +128,8 @@
 } def
 
 /kshow {
+	exch	% jgm
+
 	showdict begin /p exch def
 		dup length 0 ne {
 			dup 0 get /last exch def
@@ -130,6 +137,7 @@
 			dup length 1 sub 1 exch getinterval {
 				last exch dup /last exch def
 				/p load exec
+				( ) dup 0 last put show  % jgm
 			} forall
 		} if
 	end
@@ -418,7 +426,7 @@ end
 	/h 11 72 mul f mul cvi def
 	/w 8.25 72 mul f mul 8 div cvi def
 	m 5 h put
-	m w h [] framedevice
+	m w h /outputpage load framedevice	% jgm
 	end
 } def
 
@@ -430,7 +438,7 @@ end
 	/h 11 72 mul f mul cvi def
 	/w 8.25 72 mul f mul 8 div cvi def
 	m 5 h put
-	m w h [] framedevice
+	m w h /outputpage load framedevice	% jgm
 	end
 } def
 
@@ -441,7 +449,7 @@ end
 	/h 11 72 mul f mul cvi def
 	/w 8.25 72 mul f mul 8 div cvi def
 	m 5 h put
-	m w h [] framedevice
+	m w h /outputpage load framedevice	% jgm
 	end
 } def
 
@@ -452,7 +460,7 @@ end
 	/h 8.25 72 mul f mul cvi def
 	/w 11.75 2 div 72 mul f mul 8 div cvi def
 	m 5 h put
-	m w h [] framedevice
+	m w h /outputpage load framedevice	% jgm
 	end
 } def
 
@@ -462,32 +470,43 @@ end
 	/f m 0 get def
 	/h 8.25 72 mul f mul cvi def
 	/w 11.75 72 mul f mul 8 div cvi def
-	[ 0 f f 0 0 0] w h [] framedevice
+	[ 0 f f 0 0 0] w h /outputpage load framedevice % jgm
 	end
 } def
 
+% Begin additions --jgm
+
 /letter {
-	/CURWIN 0 0 612 792 0 window def
+	5 dict begin
+	/m [1.13889 0 0 -1.13889 0 0] def
+	/f m 0 get def
+	/h 11 72 mul f mul cvi def
+	/w 8.5 72 mul f mul 8 div cvi def
+	m 5 h put
+	m w h /outputpage load framedevice
+	end
 } def
+
+/note { letter } def
+
+/legal {
+	5 dict begin
+	/m [1.13889 0 0 -1.13889 0 0] def
+	/f m 0 get def
+	/h 14 72 mul f mul cvi def
+	/w 8.5 72 mul f mul 8 div cvi def
+	m 5 h put
+	m w h /outputpage load framedevice
+	end
+} def
+
+% End additions --jgm
 
 /ascii-set ( !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~) def
 
-% Hacks to make certain programs run
-
-/statusdict 10 dict def
-statusdict begin /product (XPS) def end
-
-/vmstatus {0 0 10000} def
-
 % end of definitions
 {} settransfer
-
-% Original grayscale (yuck)
-%20 0.0 { dup mul exch dup mul add 1 sub } setscreen
-
-/scr [ [43 11 35 3 41 9 33 1] [27 59 19 51 25 57 17 49] [39 7 47 15 37 5 45 13] [23 55 31 63 21 53 29 61] [42 10 34 2 44 12 36 4] [26 58 18 50 28 60 20 52] [38 6 46 14 40 8 48 16] [22 54 30 62 24 56 32 64] ]def
-
-82 8 idiv 0.0 { 1 add 4 mul cvi exch 1 add 4 mul cvi scr exch get exch get 33.0 sub 32 div } setscreen
+20 0.0 { dup mul exch dup mul add 1 sub } setscreen
 
 0 setgray
 
@@ -502,5 +521,3 @@ statusdict begin /product (XPS) def end
 /Times-Roman findfont 10 scalefont setfont
 
 enableinterrupts
-
-letter

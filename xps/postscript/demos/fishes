@@ -238,8 +238,7 @@
 } def
 /zoom { /zoomcode cvx 5 array astore cvx} def
  
-/setup {0 144 translate 72 7 mul dup scale .25 7 div dup translate 0
-setlinewidth 0 setgray} def
+/setup {0 144 translate 72 7 mul dup scale .25 7 div dup translate .001 setlinewidth} def
  
 %  display a level 2 fish
  

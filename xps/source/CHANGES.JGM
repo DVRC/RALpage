@@ -1,0 +1,48 @@
+Here is a patch that makes several bug fixes and enhancements to the 
+Postscript
+interpreter recently posted.  The changes are:
+
+
+Bugs fixed:
+
+Half-implemented the missing operator "vmstatus".  The number of savelevels is
+correct (as far as the broken implementation of "save" and "restore" allow),
+but the amount of memory used and free is a lie.
+
+Implemented the missing operator "noaccess".
+
+Fixed a bug in the operator "stopped".  Previously it only worked on arrays,
+but now it works on any executable object.
+
+Fixed the parsing bug for reals with a trailing period (e.g. "4.") which
+resulted in the "undefined in operater exec" errors reported to the net.
+
+Changed an occurance of the variable "signed" to "signedp" as the former is an
+ANSI C keyword.
+
+Added a version of the missing file postscript/demos/buildcachefont.ps
+
+
+Enhancements made:
+
+Macroized PanicIf()
+
+Changed "undefined in operator exec" errors to instead report 
+"undefined in operator foo", where "foo" is the operator that was undefined.
+
+Fixed imagemask to deal better with images that have to be shrunk.  Bitmapped
+fonts intended for 300 dpi printers look much better now.
+(Change courtesy of Christopher Cox, cc4b@andrew.cmu.edu)
+
+Tweaked makefile to deal better with sun3.
+
+Added "getenv" operator.  The syntax is:
+	<string> getenv <string> <true>
+if the environment variable exists, or
+	<string> getenv <false>
+if it does not.
+
+
+				John G. Myers
+				jm36@andrew.cmu.edu
+				jgm@k.gp.cs.cmu.edu

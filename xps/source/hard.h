@@ -9,24 +9,9 @@
 
 typedef struct device_point { int dx, dy; } DevicePoint;
 
-struct hardware
-{
-  union hard {
-    char *addr;
-    int handle;
-  } hard;
-  int flags;
-  DevicePoint extent;
-  HardPoint realsize;
-  struct hardware *aux, *clip;
-  short touched;
-  short changed;
-};
-
-extern struct hardware *HardwareFromString (), *NewBitmapHardware ();
-extern struct hardware *NewWindowHardware (), *InitHardware ();
+extern struct hardware *HardwareFromString (), *NewBitmapHardware (), *NewWindowHardware (), *InitHardware ();
 extern DevicePoint HardwareExtent ();
-extern unsigned char *StringFromHardware ();
+extern char *StringFromHardware ();
 
 extern void BitBlt (), BitBltBlob (), BitBltLine (), DestroyHardware ();
 extern void HardUpdate (), UpdateControl ();

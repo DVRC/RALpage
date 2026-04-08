@@ -1,12 +1,16 @@
 .na
 .TH POSTSCRIPT 1 Rutherford
 .SH NAME
-xps \- PostScript interpreter
+postscript \- PostScript interpreter
 .SH SYNOPSIS
 .B
-xps [ -isc - ] files . . .
+PS [ -isc - ] files . . .
+.br
+postscript [ -isc - ] files . . .
+.br
+viewer
 .SH DESCRIPTION
-.I xps
+.I PS
 is an interpreter for the PostScript language.
 The language is intended for driving laser printers, but this
 implementation is for previewing graphics on a suitable device or
@@ -15,16 +19,25 @@ for more general programming.
 The implementation conforms to the PostScript Language Manual as
 closely as possible.
 .PP
-.I xps
-is a version of the interpreter which displays the output using the X
-Window System.
+.I Postscript
+is a version of the interpreter which will talk through a pair of pipes to
+a viewer program, possibly running on a different machine.
+.PP
+.I Postscript looks for the environment variable POSTSCRIPTDEVICE, which may contain
+the name of
+a two-way device or a command with a vertical bar at the front.
+This is ``|viewer'' by default, and may be something like ``|rsh workstation viewer''.
+.I Postscript
+may be run on a compute server with no display, and
+.I viewer
+on a workstation.
 .PP
 To create a window of A4 size, the A4 command may be used.
 If this is specified on the command line (e.g. ``PS -c A4''), postscript will not bother to
 read its standard input unless told to do so with ``-''.
 .SH INVOCATION
 When
-.I xps
+.I postscript
 starts up it performs the following actions:
 .PP
 It reads a number of definitions from a standard library file.
@@ -33,13 +46,13 @@ This file is
 in the directory given as the environment variable
 .I POSTSCRIPTLIB
 (defaults to
-.IR /mit/sipb/lib/postscript ).
+.IR /usr/lib/postscript ).
 This contains definitions which are part of the PostScript language
 and can be defined in PostScript.
 In particular, it reads a procedure called
 .B executive
 which is the top level interpreter used when
-.I xps
+.I postscript
 is running interactively.
 .PP
 Next it reads a file called
@@ -67,25 +80,25 @@ Causes the standard input to be read, even if there are files or commands
 on the command line.
 .IP -
 Same as -s.
-.\ .SH CACHING
-.\ .PP
-.\ This implementation does caching of fonts to disk.
-.\ Once a font has been selected and used,
-.\ .B savecurrentfont
-.\ may be used (without any arguments) to save the current font into the
-.\ disk cache.
-.\ It saves only those glyphs which have been cached so far, and will fail
-.\ if the
-.\ .I cache
-.\ directory does not contain sub-directories matching the relevant
-.\ files in the
-.\ .I font
-.\ directory.
-.\ .PP
-.\ Loading from the disk cache is automatic - the system is tolerant about
-.\ absent cached fonts, and simply reads the whole font specification instead.
-.\ The intention is that the system should be lazy, so that it doesn't do work
-.\ unnecessarily.
+.SH CACHING
+.PP
+This implementation does caching of fonts to disk.
+Once a font has been selected and used,
+.B savecurrentfont
+may be used (without any arguments) to save the current font into the
+disk cache.
+It saves only those glyphs which have been cached so far, and will fail
+if the
+.I cache
+directory does not contain sub-directories matching the relevant
+files in the
+.I font
+directory.
+.PP
+Loading from the disk cache is automatic - the system is tolerant about
+absent cached fonts, and simply reads the whole font specification instead.
+The intention is that the system should be lazy, so that it doesn't do work
+unnecessarily.
 .SH FONT MAPPING
 .PP
 Most installations will have a number of fonts which they may wish to use.
@@ -210,6 +223,6 @@ a directory containing a corresponding set of cached fonts.
 Crispin Goswell.
 Tony Williams provided important guidance.
 .SH BUGS
-No ``virtual memory'' \- dummy operators which do a gsave and grestore are provided.
+No ``virtual memory'' \- dummy operators which do a gsave and grestore and provided.
 .PP
 No access protection, the operators are there, but they don't protect anything.

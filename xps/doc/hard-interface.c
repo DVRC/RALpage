@@ -17,6 +17,15 @@ struct hardware
  *	of access that PostScript is interested in. Any Hardware parameter may be expected to be NULL.
  */
 
+/* Begin jgm */
+/*
+ *	DriverType contains a pointer to a string naming the device that this
+ * 	is a driver for.  The given string will show up in the "version"
+ *	operator.
+ */
+char *DriverType = "";
+/* End jgm */
+
 /*********************************** CREATION OF WINDOWS AND BITMAPS *******************/
 
 struct hardware *InitHardware () {}

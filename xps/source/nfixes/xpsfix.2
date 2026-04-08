@@ -1,0 +1,1998 @@
+From jarvis.csri.toronto.edu!utgpu!utzoo!attcan!uunet!lll-winken!lll-tis!ames!necntc!ncoast!allbery Thu Jul 28 23:43:36 GMT 1988
+Article 501 of comp.sources.misc:
+Path: jarvis.csri.toronto.edu!utgpu!utzoo!attcan!uunet!lll-winken!lll-tis!ames!necntc!ncoast!allbery
+>From: jgm@k.gp.cs.cmu.edu (John Myers)
+Newsgroups: comp.sources.misc
+Subject: v04i007: Postscript interpreter patches (2 of 2)
+Message-ID: <12089@ncoast.UUCP>
+Date: 28 Jul 88 23:43:36 GMT
+Sender: allbery@ncoast.UUCP
+Reply-To: jgm@k.gp.cs.cmu.edu (John Myers)
+Organization: System/Technology Development Corp.
+Lines: 1981
+Approved: allbery@ncoast.UUCP
+
+Posting-number: Volume 4, Issue 7
+Submitted-by: "John Myers" <jgm@k.gp.cs.cmu.edu>
+Archive-name: psinter-patch2
+
+#! /bin/sh
+# This is a shell archive.  Remove anything before this line, then unpack
+# it by saving it into a file and typing "sh file".  To overwrite existing
+# files, type "sh file -c".  You can also feed this as standard input via
+# unshar, or by typing "sh <file", e.g..  If this archive is complete, you
+# will see the following message at the end:
+#		"End of shell archive."
+# Contents:  ps.diff.v3
+# Wrapped by jm36@cycle4.andrew.cmu.edu on Thu Jul 28 19:29:36 1988
+PATH=/bin:/usr/bin:/usr/ucb ; export PATH
+if test -f ps.diff.v3 -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"ps.diff.v3\"
+else
+echo shar: Extracting \"ps.diff.v3\" \(54477 characters\)
+sed "s/^X//" >ps.diff.v3 <<'END_OF_ps.diff.v3'
+XMake sure you have already applied patch 'ps.diff.v2'.
+X
+XIf you already have the file "source/X11.c", move it to a safe place
+Xbefore applying this patch.
+X
+XTo apply this, you need the 'patch' program which is available from
+Xthe comp.sources.unix archives.
+X
+XChange directories to the top-level postscript directory (the one with
+Xthe file "MANIFEST" in it) and apply this patch with the command:
+X
+Xpatch -p0 <ps.diff.v3
+X
+X				_.John G. Myers
+X				jm36+@andrew.cmu.edu
+X
+X*** /tmp/CHANGES.JGM.v2	Thu Jul 28 14:59:27 1988
+X--- ./CHANGES.JGM	Thu Jul 28 15:07:01 1988
+X***************
+X*** 60,65 ****
+X--- 60,80 ----
+X  
+X  Added operators letter, note, and legal.
+X  
+X+ 			      Version 3:
+X+ 
+X+ Bugs fixed:
+X+ 
+X+ The fourth parameter to the "framedevice" is no longer ignored.  psrc
+X+ has been modified so that if a driver defines the postscript operator
+X+ "outputpage", it will be called instead of the "beep and wait for
+X+ input" routine when the copypage or showpage command is executed.
+X+ 
+X+ Enhancements made:
+X+ 
+X+ Barry Shein's speedups have been incorporated.
+X+ 
+X+ A version of the X11 driver is included.
+X+ 
+X  				John G. Myers
+X  				jm36@andrew.cmu.edu
+X  				jgm@k.gp.cs.cmu.edu
+Xdiff -cr /usr/tmp/ps/postscript/psrc ./postscript/psrc
+X*** /usr/tmp/ps/postscript/psrc	Thu Jul 28 14:00:59 1988
+X--- ./postscript/psrc	Thu Jul 28 14:17:45 1988
+X***************
+X*** 69,84 ****
+X  %/tty (|cat -u </dev/tty) (r) file def
+X  
+X  /showpage {
+X! 	copypage initgraphics
+X! 	beep print flush
+X! 	false echo
+X! 	{ tty read { pop } if } stopped
+X! 	true echo
+X! 	not {
+X! 		erasepage
+X! 	} if
+X  } def
+X  
+X  /run { { (r) file } stopped { pop stop } if cvx exec } def
+X  /prompt { (PS>) print } def
+X  
+X--- 69,87 ----
+X  %/tty (|cat -u </dev/tty) (r) file def
+X  
+X  /showpage {
+X! 	copypage initgraphics erasepage
+X  } def
+X  
+X+ systemdict /outputpage known not {
+X+     /outputpage {
+X+ 	beep print flush
+X+   	false echo
+X+   	{ tty read { pop } if } stopped
+X+   	true echo
+X+ 	pop
+X+     } def
+X+ } if
+X+ 
+X  /run { { (r) file } stopped { pop stop } if cvx exec } def
+X  /prompt { (PS>) print } def
+X  
+X***************
+X*** 423,429 ****
+X  	/h 11 72 mul f mul cvi def
+X  	/w 8.25 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h [] framedevice
+X  	end
+X  } def
+X  
+X--- 426,432 ----
+X  	/h 11 72 mul f mul cvi def
+X  	/w 8.25 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h /outputpage load framedevice	% jgm
+X  	end
+X  } def
+X  
+X***************
+X*** 435,441 ****
+X  	/h 11 72 mul f mul cvi def
+X  	/w 8.25 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h [] framedevice
+X  	end
+X  } def
+X  
+X--- 438,444 ----
+X  	/h 11 72 mul f mul cvi def
+X  	/w 8.25 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h /outputpage load framedevice	% jgm
+X  	end
+X  } def
+X  
+X***************
+X*** 446,452 ****
+X  	/h 11 72 mul f mul cvi def
+X  	/w 8.25 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h [] framedevice
+X  	end
+X  } def
+X  
+X--- 449,455 ----
+X  	/h 11 72 mul f mul cvi def
+X  	/w 8.25 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h /outputpage load framedevice	% jgm
+X  	end
+X  } def
+X  
+X***************
+X*** 457,463 ****
+X  	/h 8.25 72 mul f mul cvi def
+X  	/w 11.75 2 div 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h [] framedevice
+X  	end
+X  } def
+X  
+X--- 460,466 ----
+X  	/h 8.25 72 mul f mul cvi def
+X  	/w 11.75 2 div 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h /outputpage load framedevice	% jgm
+X  	end
+X  } def
+X  
+X***************
+X*** 467,473 ****
+X  	/f m 0 get def
+X  	/h 8.25 72 mul f mul cvi def
+X  	/w 11.75 72 mul f mul 8 div cvi def
+X! 	[ 0 f f 0 0 0] w h [] framedevice
+X  	end
+X  } def
+X  
+X--- 470,476 ----
+X  	/f m 0 get def
+X  	/h 8.25 72 mul f mul cvi def
+X  	/w 11.75 72 mul f mul 8 div cvi def
+X! 	[ 0 f f 0 0 0] w h /outputpage load framedevice % jgm
+X  	end
+X  } def
+X  
+X***************
+X*** 480,486 ****
+X  	/h 11 72 mul f mul cvi def
+X  	/w 8.5 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h [] framedevice
+X  	end
+X  } def
+X  
+X--- 483,489 ----
+X  	/h 11 72 mul f mul cvi def
+X  	/w 8.5 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h /outputpage load framedevice
+X  	end
+X  } def
+X  
+X***************
+X*** 493,499 ****
+X  	/h 14 72 mul f mul cvi def
+X  	/w 8.5 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h [] framedevice
+X  	end
+X  } def
+X  
+X--- 496,502 ----
+X  	/h 14 72 mul f mul cvi def
+X  	/w 8.5 72 mul f mul 8 div cvi def
+X  	m 5 h put
+X! 	m w h /outputpage load framedevice
+X  	end
+X  } def
+X  
+X*** /usr/tmp/ps/source/makefile	Thu Jul 28 13:53:39 1988
+X--- ./source/makefile	Thu Jul 28 15:36:09 1988
+X***************
+X*** 2,10 ****
+X--- 2,20 ----
+X  	integer.o main.o math.o misc.o name.o operator.o\
+X  	poly.o property.o real.o save.o stack.o string.o unix.o
+X  LIBS=libww.a -lsuntool -lsunwindow -lpixrect -g
+X+ XLIB=/usr/lib/libX11.a
+X  GRAPHICS=cache.o colour.o device.o fill.o font.o gsave.o image.o mat.o matrix.o\
+X  	pat.o path.o state.o stroke.o
+X  
+X+ SOURCES=array.c boolean.c config.c control.c dictionary.c file.c\
+X+ 	integer.c main.c math.c misc.c name.c operator.c\
+X+ 	poly.c property.c real.c save.c stack.c string.c unix.c\
+X+ 	cache.c colour.c device.c fill.c font.c gsave.c image.c mat.c matrix.c\
+X+ 	pat.c path.c state.c stroke.c
+X+ LINT=lint
+X+ LFLAGS= -lm
+X+ 
+X+ 
+X  # For SUN with 68881
+X  #CFLAGS=-O -f68881
+X  
+X***************
+X*** 11,39 ****
+X  # For others
+X  CFLAGS=-O
+X  
+X! #default: sunPS
+X  
+X  PS:	$(OBJECTS) $(GRAPHICS) hard.o canon.a
+X! 	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) hard.o canon.a -lm `libs` -o PS
+X  
+X  sunPS:	$(OBJECTS) $(GRAPHICS) pixrect.o canon.a
+X! 	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) pixrect.o canon.a -lm -lpixrect -o sunPS
+X  
+X  CPS:	$(OBJECTS) $(GRAPHICS) colour-ww.o trapezoid.o canon.o
+X! 	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) colour-ww.o canon.o trapezoid.o -lm `libs` -o CPS
+X  
+X  postscript:	$(OBJECTS) $(GRAPHICS) adapter.o protocol.o
+X! 	cc $(CFLAGS) $(OBJECTS) $(GRAPHICS) adapter.o protocol.o -lm -o postscript
+X  
+X  XPS:	$(OBJECTS) $(GRAPHICS) X.o
+X! 	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) X.o -lm -lX -o XPS
+X  
+X  canon.a:	canon.o screen.o trapezoid.o paint.o
+X  	ar ruv canon.a canon.o screen.o trapezoid.o paint.o
+X  	ranlib canon.a
+X  
+X  viewer:	protocol.o viewer.o hard.o canon.a
+X! 	cc protocol.o viewer.o hard.o canon.a `libs` -o viewer
+X  
+X  all:	PS postscript viewer
+X  
+X--- 21,56 ----
+X  # For others
+X  CFLAGS=-O
+X  
+X! default: sunPS
+X  
+X+ xps: $(OBJECTS) $(GRAPHICS) X11.o canon.a $(XLIB)
+X+ 	rm -f xps
+X+ 	$(CC) -o xps $(CFLAGS) $(OBJECTS) $(GRAPHICS) X11.o canon.a -lm $(XLIB)
+X+ 
+X  PS:	$(OBJECTS) $(GRAPHICS) hard.o canon.a
+X! 	$(CC) $(CFLAGS)  $(OBJECTS) $(GRAPHICS) hard.o canon.a -lm `libs` -o PS
+X  
+X  sunPS:	$(OBJECTS) $(GRAPHICS) pixrect.o canon.a
+X! 	$(CC) $(CFLAGS)  $(OBJECTS) $(GRAPHICS) pixrect.o canon.a -lm -lpixrect -o sunPS
+X  
+X  CPS:	$(OBJECTS) $(GRAPHICS) colour-ww.o trapezoid.o canon.o
+X! 	$(CC) $(CFLAGS)  $(OBJECTS) $(GRAPHICS) colour-ww.o canon.o trapezoid.o -lm `libs` -o CPS
+X  
+X  postscript:	$(OBJECTS) $(GRAPHICS) adapter.o protocol.o
+X! 	$(CC) $(CFLAGS) $(OBJECTS) $(GRAPHICS) adapter.o protocol.o -lm -o postscript
+X  
+X  XPS:	$(OBJECTS) $(GRAPHICS) X.o
+X! 	$(CC) $(CFLAGS)  $(OBJECTS) $(GRAPHICS) X.o -lm -lX -o XPS
+X  
+X+ lint:
+X+ 	$(LINT) $(LFLAGS) $(SOURCES) $(LINTFILTER)
+X+ 
+X  canon.a:	canon.o screen.o trapezoid.o paint.o
+X  	ar ruv canon.a canon.o screen.o trapezoid.o paint.o
+X  	ranlib canon.a
+X  
+X  viewer:	protocol.o viewer.o hard.o canon.a
+X! 	$(CC) protocol.o viewer.o hard.o canon.a `libs` -o viewer
+X  
+X  all:	PS postscript viewer
+X  
+X***************
+X*** 44,50 ****
+X  orion:	orion.o installorion orionlib
+X  
+X  X.o:	
+X! 	cc -c X.c
+X  
+X  wwlib:
+X  	if [ -f libww.a ]; \
+X--- 61,67 ----
+X  orion:	orion.o installorion orionlib
+X  
+X  X.o:	
+X! 	$(CC) -c X.c
+X  
+X  wwlib:
+X  	if [ -f libww.a ]; \
+X*** /dev/null	Thu Jul 28 10:26:48 1988
+X--- ./source/X11.c	Wed Jul 27 18:15:31 1988
+X***************
+X*** 0 ****
+X--- 1,667 ----
+X+ /*
+X+  * Copyright (C) Rutherford Appleton Laboratory 1987
+X+  * 
+X+  * This source may be copied, distributed, altered or used, but not sold for profit
+X+  * or incorporated into a product except under licence from the author.
+X+  * It is not in the public domain.
+X+  * This notice should remain in the source unaltered, and any changes to the source
+X+  * made by persons other than the author should be marked as such.
+X+  * 
+X+  *	Crispin Goswell @ Rutherford Appleton Laboratory caag@uk.ac.rl.vd
+X+  */
+X+ #include "main.h"
+X+ #include "graphics.h"
+X+ #include <X11/Xlib.h>
+X+ #include <X11/Xutil.h>
+X+ #include <X11/Xatom.h>
+X+ #include <stdio.h>
+X+ #include "canon.h"
+X+ 
+X+ char *DriverType = "X11"; /* jgm */
+X+ 
+X+ static void Punt(str)
+X+ char *str;
+X+ {
+X+     fprintf(stderr, "%s\n", str);
+X+     exit(1);
+X+ }
+X+ 
+X+ 
+X+ 
+X+ static Display *dpy;
+X+ 
+X+ typedef struct _HardwareRec {
+X+     Drawable w;
+X+ } HardwareRec, *Hardware;
+X+ 
+X+ #ifdef CANON
+X+ struct hardware
+X+ {
+X+     /*
+X+      * Each driver is expected to provide its own definition of this
+X+      * structure.  It is only ever used as a pointer and is never dereferenced
+X+      * outside the driver.
+X+      */
+X+     int pad;
+X+ };
+X+ #endif CANON
+X+ 
+X+ /*
+X+  * This file describes the interface that PostScript requires to the graphics
+X+  * system at Version 1.4.
+X+  * 	
+X+  * ''Hardware'' in this context refers to a pointer to windows and/or bitmaps
+X+  * and is the lowest level of access that PostScript is interested in. Any
+X+  * Hardware parameter may be expected to be NULL.
+X+  */
+X+ 
+X+ /********************* CREATION OF WINDOWS AND BITMAPS *******************/
+X+ 
+X+ #define SCREEN 0		/* What to use as our screen number. */
+X+ #define MIN(x, y)	(((x) < (y)) ? (x) : (y))
+X+ 
+X+ static GC fillgc[16];
+X+ 
+X+ struct hardware *InitHardware ()
+X+ {
+X+     XGCValues values;
+X+     int i;
+X+     if ((dpy = XOpenDisplay(dpy)) == NULL)
+X+ 	Punt("Could not open display");
+X+     InitTransfer(DisplayHeight(dpy, SCREEN) / 11);
+X+     /* This defines our screen as being 11 inches high, no matter what its */
+X+     /* real size.  What a hack. */
+X+     values.foreground = AllPlanes;
+X+     for (i=0 ; i<16 ; i++) {
+X+ 	values.function = i;
+X+ 	fillgc[i] = XCreateGC(dpy, RootWindow(dpy, SCREEN),
+X+ 			      GCFunction | GCForeground, &values);
+X+     }
+X+ }
+X+ /*
+X+  * InitHardware () returns a default device which PostScript may use
+X+  * immediately (or NULL if not appropriate).  Its size and shape are not
+X+  * defined. Most typically the user will want to start up another device
+X+  * before it is used anyway. No attempt will be made by PostScript to Destroy
+X+  * the resulting device.
+X+  */
+X+ 
+X+ static struct hardware *NewHardware(width, height)
+X+ int width, height;
+X+ {
+X+     struct hardware *to;
+X+     Hardware hard;
+X+     to = (struct hardware *) malloc(sizeof(struct hardware));
+X+     hard = (Hardware) malloc(sizeof(HardwareRec));
+X+     to->hard.addr = (char *) hard;
+X+     to->flags = 0;
+X+     to->aux = to->clip = NULL;
+X+     to->extent = NewDevicePoint(width, height);
+X+     hard->w = NULL;
+X+     return to;
+X+ }
+X+ 
+X+ 
+X+ struct hardware *NewBitmapHardware (width, height)
+X+ int width, height;
+X+ {
+X+     struct hardware *to = NewHardware(width, height);
+X+     Hardware hard = (Hardware) to->hard.addr;
+X+     to->flags = NULL;
+X+     hard->w = XCreatePixmap(dpy, RootWindow(dpy, SCREEN), width, height,
+X+ 			    DefaultDepth(dpy, SCREEN));
+X+     XFillRectangle(dpy, hard->w, fillgc[GXclear], 0, 0, width, height);
+X+ 
+X+ /*    {
+X+ 	static int y = 0;
+X+ 	XSetWindowAttributes attributes;
+X+ 	hard->w = XCreateSimpleWindow(dpy, RootWindow(dpy, SCREEN), 700, y,
+X+ 				  width, height, 1, BlackPixel(dpy, SCREEN),
+X+ 				  WhitePixel(dpy, SCREEN));
+X+ 	attributes.override_redirect = TRUE;
+X+ 	XChangeWindowAttributes(dpy, hard->w, CWOverrideRedirect, &attributes);
+X+ 	XMapWindow(dpy, hard->w);
+X+ 	y+=30;
+X+     }*/
+X+     return to;
+X+ }
+X+ 
+X+ struct hardware *NewWindowHardware (width, height)
+X+ int width, height;
+X+ {
+X+     struct hardware *to = NewHardware(width, height);
+X+     Hardware hard = (Hardware) to->hard.addr;
+X+     XEvent event;
+X+     unsigned long vmask;
+X+     XSetWindowAttributes xswa;
+X+ 
+X+     to->flags = ISWIN;
+X+ /*
+X+     hard->w = XCreateSimpleWindow(dpy, RootWindow(dpy, SCREEN), 0, 0,
+X+ 				  width, height, 1, BlackPixel(dpy, SCREEN),
+X+ 				  0);
+X+ */
+X+     vmask = CWBackPixel|CWBorderPixel|CWBackingStore|
+X+       CWBackingPlanes|CWSaveUnder;
+X+     xswa.background_pixel = WhitePixel(dpy,SCREEN);
+X+     xswa.border_pixel = BlackPixel(dpy,SCREEN);
+X+     xswa.backing_store = Always;
+X+     xswa.backing_planes = AllPlanes;
+X+     xswa.save_under = True;
+X+ 
+X+     hard->w = XCreateWindow(dpy,RootWindow(dpy,SCREEN),
+X+ 			    0,0,
+X+ 			    width,height,
+X+ 			    1,DefaultDepth(dpy,SCREEN),
+X+ 			    InputOutput,DefaultVisual(dpy,SCREEN),
+X+ 			    vmask,&xswa);
+X+ 
+X+     XChangeProperty(dpy,hard->w,XA_WM_NAME,XA_STRING,8,
+X+ 		    PropModeReplace,"POSTSCRIPT",10);
+X+ 
+X+     XSelectInput(dpy, hard->w, ExposureMask);
+X+     XMapWindow(dpy, hard->w);
+X+     XNextEvent(dpy, &event);
+X+     XSelectInput(dpy, hard->w, 0);
+X+     return to;
+X+ }
+X+ /*
+X+  * NewBitmapHardware () is expected to create a new bitmap. Only one plane
+X+  * will be needed.
+X+  * 	
+X+  * NewWindowHardware () is expected to create a window on the screen. On a
+X+  * colour system this will be expected to support full colour.
+X+  */
+X+ 
+X+ #ifdef CANON
+X+ int IsWindowHardware (h)
+X+ struct hardware *h;
+X+ {}
+X+ #endif CANON
+X+ /*
+X+  * IsWindowHardware () should return TRUE if the hardware is a window, FALSE
+X+  * otherwise.  NULL is a window.
+X+  */
+X+ 
+X+ void DestroyHardware (h)
+X+ struct hardware *h;
+X+ {
+X+     if (h) {
+X+ 	Hardware hard = (Hardware) h->hard.addr;
+X+ 	if (IsWindowHardware(h))
+X+ 	    XDestroyWindow(dpy, hard->w);
+X+ 	else
+X+ 	    XFreePixmap(dpy, hard->w);
+X+     }
+X+ }
+X+ /*
+X+  * 	
+X+  * DestroyHardware () should release the resources required by the hardware,
+X+  * bitmap or window.  This should cause a window device to vanish. NULL is not
+X+  * an error (does nothing).
+X+  */
+X+ 
+X+ 
+X+ #ifdef CANON
+X+ Matrix DeviceMatrix (width, height)
+X+ int width, height;
+X+ {}
+X+ #endif CANON
+X+ 
+X+ /*
+X+  *
+X+  * DeviceMatrix () should return a matrix appropriate to a device of the given
+X+  * height and width.  For a typical display with a graphics origin at the top
+X+  * left of a window, an appropriate definition would be:
+X+  * 	
+X+  * Matrix DeviceMatrix (width, height)
+X+  * int width, height;
+X+  * {
+X+  *     return NewMatrix (PIXELS_PER_INCH / 72.0, 0.0, 0.0,
+X+  * 		         -PIXELS_PER_INCH / 72.0, 0.0, (float) height);
+X+  * }
+X+  */
+X+ 
+X+ #ifdef CANON
+X+ DevicePoint HardwareExtent (h)
+X+ struct hardware *h;
+X+ {}
+X+ #endif
+X+ /*
+X+  * HardwareExtent () returns a DevicePoint describing the width and height of
+X+  * the argument.  NULL has extent NewDevicePoint (0, 0).
+X+  */
+X+ 
+X+ /*************************** OUTPUT PRIMITIVES ******************************/	
+X+ 
+X+ void BitBlt (from, to, fromPoint, toPoint, extent, rop)
+X+ struct hardware *from, *to;
+X+ DevicePoint toPoint, fromPoint, extent;
+X+ int rop;
+X+ {
+X+     Hardware fromhard, tohard;
+X+     static int count = 0;
+X+     if (to == NULL) return;
+X+     tohard = (Hardware) to->hard.addr;
+X+     if (from == NULL) {
+X+ 	XFillRectangle(dpy, tohard->w, fillgc[rop], toPoint.dx, toPoint.dy,
+X+ 		       extent.dx, extent.dy);
+X+     } else {
+X+ 	fromhard = (Hardware) from->hard.addr;
+X+ 	XCopyArea(dpy, fromhard->w, tohard->w, fillgc[rop], fromPoint.dx,
+X+ 		  fromPoint.dy, extent.dx, extent.dy, toPoint.dx, toPoint.dy);
+X+     }
+X+     if (count++ % 50 == 0) XSync(dpy, 0);
+X+ }
+X+ 
+X+ #ifdef CANON
+X+ void Paint (from, to, fromPoint, toPoint, extent, colour)
+X+ struct hardware *from, *to;
+X+ DevicePoint toPoint, fromPoint, extent;
+X+ Colour colour;
+X+ {}
+X+ #endif
+X+ 
+X+ /*
+X+  * 	
+X+  * BitBlt () is a full function RasterOp. The 'rop' argument will have values
+X+  * as described in the header file hard.h. If the from argument is NULL it is
+X+  * taken to be a bitmap full of ones the shape of the fromPoint and extent. If
+X+  * the to argument is NULL, this is a no-op.
+X+  *
+X+  * Paint () is an addition to BitBlt. Bits that are set in the source are
+X+  * Painted into the destination in the given colour with a copying rasterop so
+X+  * that they replace pixels previously there. If the machine does not support
+X+  * colour windows, half-toning should be performed.  Colour values have hue,
+X+  * saturation and brightness components. on a black and white or greyscale
+X+  * system the brightness value will be a FP value between 0.0 (black) and 1.1
+X+  * (white), which can be used as a grey level.
+X+  * 	
+X+  * Paint is expected to mask with the clip mask. BitBlt is not,
+X+  */
+X+ 
+X+ #ifdef CANON
+X+ void BitBltTrapezoid(to, lefttop, leftbottom, righttop, rightbottom,
+X+ 		     top, bottom, rop)
+X+ struct hardware *to;
+X+ DevicePoint lefttop, leftbottom, righttop, rightbottom;
+X+ int top, bottom, rop;
+X+ {}
+X+ #endif CANON
+X+ 
+X+ #ifdef CANON
+X+ void PaintTrapezoid (to, lefttop, leftbottom, righttop, rightbottom,
+X+ 		     top, bottom, colour)
+X+ struct hardware *to;
+X+ DevicePoint lefttop, leftbottom, righttop, rightbottom;
+X+ int top, bottom;
+X+ Colour colour;
+X+ {}
+X+ #endif CANON
+X+ 
+X+ /*
+X+  * BitBltTrapezoid () and PaintTrapezoid () render a complete trapezoidal
+X+  * shape.  The corners of the trapezoid may lie far outside the range of
+X+  * interesting scan-lines, but the slope of the line should be clipped by the
+X+  * top and bottom. The coordinates are half-open.
+X+  */
+X+ 
+X+ void BitBltLine (h, fromPoint, toPoint, rop)
+X+ struct hardware *h;
+X+ DevicePoint fromPoint, toPoint;
+X+ int rop;
+X+ {
+X+     if (h) {
+X+ 	Hardware hard = (Hardware) h->hard.addr;
+X+ 	XDrawLine(dpy, hard->w, fillgc[rop], fromPoint.dx, fromPoint.dy,
+X+ 		  toPoint.dx, toPoint.dy);
+X+     }
+X+ }
+X+ 
+X+ #ifdef CANON
+X+ void PaintLine (h, fromPoint, toPoint, colour)
+X+ struct hardware *h;
+X+ DevicePoint fromPoint, toPoint;
+X+ Colour colour;
+X+ {}
+X+ #endif CANON
+X+ 
+X+ /*
+X+  * 	
+X+  * 	BitBltLine () is expected to draw a line between the given points
+X+  * 	with the given RasterOp and colour masking.
+X+  * 	The line should be one pixel wide and half-open.
+X+  * 	[Thicker lines are done with BitBlt.]
+X+  * 	
+X+  * 	PaintLine () is expected to Paint a line by analogy with Paint
+X+  * 	and BitBlt.
+X+  */
+X+ 
+X+ void BitBltBlob (to, top, height, left, right, rop)
+X+ struct hardware *to;
+X+ int top, height, *left, *right, rop;
+X+ {
+X+     int i;
+X+     DevicePoint p1, p2;
+X+     for (i=0 ; i<height ; i++) {
+X+ 	p1.dx = left[i];
+X+ 	p2.dx = right[i];
+X+ 	p1.dy = p2.dy = top + i;
+X+ 	BitBltLine(to, p1, p2, rop);
+X+     }
+X+ }
+X+ 
+X+  /*
+X+   * BitBltBlob () takes a set of pixel coordinates and fills the trapezon
+X+   * figure half open.
+X+   */
+X+ 
+X+ #ifdef SLOWANDWRONG
+X+ void RasterTile (from, to, toPoint, extent, rop)
+X+ struct hardware *from, *to;
+X+ DevicePoint toPoint, extent;
+X+ int rop;
+X+ {
+X+     Hardware fromhard, tohard;
+X+     DevicePoint p1, p2, p3;
+X+     int x, y;
+X+     if (to == NULL) return;
+X+     if (from == NULL)
+X+ 	Punt("Can only RasterTile from Hardware.");
+X+     fromhard = (Hardware) from->hard.addr;
+X+     tohard = (Hardware) to->hard.addr;
+X+     p1.dx = p1.dy = 0;
+X+     for (x=toPoint.dx ; x < toPoint.dx + extent.dx ; x+=from->extent.dx) {
+X+ 	for (y=toPoint.dy ; y < toPoint.dy + extent.dy ; y+=from->extent.dy) {
+X+ 	    p2.dx = x;
+X+ 	    p2.dy = y;
+X+ 	    p3.dx = MIN(toPoint.dx + extent.dx - x, from->extent.dx);
+X+ 	    p3.dy = MIN(toPoint.dy + extent.dy - y, from->extent.dy);
+X+ 	    BitBlt(from, to, p1, p2, p3, rop);
+X+ 	}
+X+     }
+X+ }
+X+ #endif SLOWANDWRONG
+X+ 
+X+ 
+X+ void RasterTile (from, to, toPoint, extent, rop)
+X+ struct hardware *from, *to;
+X+ DevicePoint toPoint, extent;
+X+ int rop;
+X+ {
+X+     Hardware fromhard, tohard;
+X+     static GC gc = NULL;
+X+     XGCValues values;
+X+     int valuemask;
+X+     if (to == NULL) return;
+X+     if (from == NULL || IsWindowHardware(from))
+X+ 	Punt("Can only RasterTile from Bitmap.");
+X+     fromhard = (Hardware) from->hard.addr;
+X+     tohard = (Hardware) to->hard.addr;
+X+     values.tile = fromhard->w;
+X+     values.fill_style = FillTiled;
+X+     values.function = rop;
+X+     valuemask = GCFunction | GCTile | GCFillStyle;
+X+     if (gc == NULL)
+X+ 	gc = XCreateGC(dpy, RootWindow(dpy, SCREEN), valuemask, &values);
+X+     else
+X+ 	XChangeGC(dpy, gc, valuemask, &values);
+X+     XFillRectangle(dpy, tohard->w, gc, toPoint.dx, toPoint.dy,
+X+ 		   extent.dx, extent.dy);
+X+ }
+X+ 
+X+ /*
+X+  * RasterTile () replicates the whole of ``from'' over ``to'', but clipped by
+X+  * the rectangle bounded by ``toPoint'' and ``extent''.
+X+  */
+X+ 
+X+ /******************* BRIGHTNESS TRANSFER FUNCTION ************************/
+X+ 
+X+ #ifdef CANON
+X+ int TransferSize ()
+X+ {}
+X+ #endif CANON
+X+ 
+X+ #ifdef CANON
+X+ void SetTransfer (vec)
+X+ float *vec;
+X+ {}
+X+ #endif CANON
+X+ /*
+X+  * 	
+X+  * TransferSize () and SetTransfer () control the mapping function between
+X+  * user brightnesses and device brightnesses. The interface is expected to
+X+  * perform this mapping of brightnesses to a sufficient resolution.
+X+  * SetTransfer takes a table of floating point numbers between 0 and 1. User
+X+  * brightnesses are scaled to the size of this table and mapped through it.
+X+  * The argument table given to SetTransfer () will be deleted after use.
+X+  * TransferSize () simply enquires the required size of the table.
+X+  * 	
+X+  * It may be appropriate to half-tone on a grayscale or colour device to
+X+  * improve rendering if it is not too expensive. TransferSize () returns the
+X+  * size of the pattern table.
+X+  */
+X+ 
+X+ /********************** BITMAP CONVERSION ********************************/
+X+ 
+X+ char *StringFromHardware (h)
+X+ struct hardware *h;
+X+ {
+X+     XImage *image;
+X+     Hardware hard;
+X+     unsigned char *result, *ptr, c;
+X+     int x, y, i;
+X+     if (h == NULL) return NULL;
+X+     hard = (Hardware) h->hard.addr;
+X+     image = XGetImage(dpy, hard->w, 0, 0, h->extent.dx, h->extent.dy,
+X+ 		      AllPlanes, ZPixmap);
+X+     result = (unsigned char *) malloc(((h->extent.dx + 7) / 8) * h->extent.dy);
+X+     ptr = result;
+X+     for (y=0 ; y<h->extent.dy ; y++) {
+X+ 	for (x=0 ; x<h->extent.dx ; x+=8) {
+X+ 	    c = 0;
+X+ 	    for (i=0 ; i<8 ; i++) {
+X+ 		c = c << 1;
+X+ 		if (x+i < h->extent.dx)
+X+ 		    c |= XGetPixel(image, x+i, y);
+X+ 	    }
+X+ 	}
+X+ 	*ptr++ = c;
+X+     }
+X+     free((char *) image);
+X+     return (char *) result;
+X+ }
+X+ 
+X+ struct hardware *HardwareFromString (s, width, height)
+X+ char *s;
+X+ int width, height;
+X+ {
+X+     struct hardware *h = NewBitmapHardware(width, height);
+X+     Hardware hard = (Hardware) h->hard.addr;
+X+     XImage *image;
+X+     if (s == NULL) Punt("HardwareFromString called with NULL string!");
+X+     image = XCreateImage(dpy, DefaultVisual(dpy, SCREEN),
+X+ 			 DefaultDepth(dpy, SCREEN), ZPixmap, 0, s,
+X+ 			 width, height, 8, 0);
+X+     image->bitmap_bit_order = MSBFirst;
+X+     XPutImage(dpy, hard->w, fillgc[GXcopy], image, 0, 0, 0, 0, width, height);
+X+     free((char *) image);
+X+     return h;
+X+ }
+X+ /*
+X+  * 	
+X+  * StringFromHardware () produces a string from its argument which describes
+X+  * the bitmap.  The bitmap is returned in row-major order with the leftmost
+X+  * bit of each byte in the most significant position. Rows are padded to byte
+X+  * boundaries. Only single plane bitmaps are used.
+X+  * 	
+X+  * HardwareFromString () performs the inverse mapping, generating a bitmap
+X+  * from a set of bits, given a width and height. Only single plane bitmaps are
+X+  * used.
+X+  */
+X+ 
+X+ /************************* HALF-TONE SCREEN *******************************/
+X+ 
+X+ #ifdef CANON
+X+ int ScreenSize (freq, rotation)
+X+ float freq, rotation;
+X+ {}
+X+ #endif CANON
+X+ 
+X+ #ifdef CANON
+X+ void BuildScreen (freq, rotation, x, y)
+X+ float freq, rotation, *x, *y;
+X+ {}
+X+ #endif CANON
+X+ 
+X+ #ifdef CANON
+X+ void SetScreen (freq, rotation, thresh)
+X+ float freq, rotation, *thresh;
+X+ {}
+X+ #endif CANON
+X+ /*
+X+  * ScreenSize () allows PostScript to determine how large an array of sample
+X+  * points to expect.  It should return the length of the side of the sample
+X+  * square.
+X+  * 	
+X+  * BuildScreen () returns a set of sampling coordinates to PostScript to hand
+X+  * to the users spot-function
+X+  * 	
+X+  * SetScreen () allows PostScript to set the thresholds for each sample point
+X+  * so that half-tone bitmaps can be made.
+X+  */
+X+ 
+X+ /************************* CLIPPING ******************************************/
+X+ 
+X+ #ifdef CANON
+X+ void SetClipHardware (h, clip)
+X+ struct hardware *h, *clip;
+X+ {}
+X+ #endif
+X+ /*
+X+  * 	
+X+  * SetClipHardware sets hardware which is a clip mask for BitBlt. This mask
+X+  * should be ANDed with any output operation. If clip is NULL, masking will
+X+  * not be needed.
+X+  */
+X+ 
+X+ /************************ UPDATE CONTROLS **********************************/
+X+ 
+X+ void HardUpdate ()
+X+ {
+X+     XFlush(dpy, 0);
+X+ }
+X+ /*
+X+  * HardUpdate is a hook to allow devices which do output buffering to flush
+X+  * that buffering when appropriate.  This allows an interactive user to see
+X+  * completed graphics between prompts (it is called as a side-effect of the
+X+  * PostScript flush operator). Typically is is a no-op.
+X+  */
+X+ 
+X+ void UpdateControl (h, on)
+X+ struct hardware *h;
+X+ int on;
+X+ {}
+X+ /*
+X+  * This call can be used to enable batching of output operations.
+X+  * UpdateControl (h, FALSE) means ``start of batching'' UpdateControl (h,
+X+  * TRUE) means ``end of batching''. It is used to improve performance on
+X+  * machines where screen updates have a high locking overhead. It may be a
+X+  * no-op.  The operation should nest if batching is already in progress: FALSE
+X+  * increments a counter, TRUE decrements a counter. Display changes are
+X+  * allowed when the counter is non-zero.
+X+  */
+X+ 
+X+ /********************************** CANONICAL IMPLEMENTATION LIBRARY ******************************/
+X+ 
+X+ /*
+X+  * Some parts of the above interface can be supported by a canonical library.
+X+  * This library contains:
+X+ 
+X+ SetClipHardware
+X+ HardUpdate
+X+ IsWindowHardware
+X+ HardwareExtent
+X+ 
+X+ PaintTrapezoid
+X+ BitBltTrapezoid
+X+ 
+X+ Paint
+X+ PaintLine
+X+ 
+X+ DeviceMatrix
+X+ InitTransfer
+X+ TransferSize
+X+ SetTransfer
+X+ ScreenSize
+X+ BuildScreen
+X+ SetScreen
+X+ 
+X+  *
+X+  * As the driver matures, the user may provide his own versions of the
+X+  * canonical routines.  This leaves the following for implementation by 
+X+  * the user.
+X+  *
+X+ 
+X+ InitHardware
+X+ NewBitmapHardware
+X+ NewWindowHardware
+X+ DestroyHardware
+X+ HardwareFromString
+X+ StringFromHardware
+X+ UpdateControl
+X+ RasterTile
+X+ BitBlt
+X+ BitBltLine
+X+ BitBltBlob
+X+ 
+X+  * There is a pedagogical implementation in null.c
+X+  *	
+X+  * There are a number of interface issues concerning the canonical driver.
+X+  * Firstly, a canonical struct hardware is defined, which contains a union of
+X+  * a char * and an int handle. The remainder are expected to use this to store
+X+  * device specific information.
+X+  *
+X+  * InitTransfer() should be called during InitHardware with the number of 
+X+  * pixels per inch on the display as an argument.
+X+  */
+X+ 
+X+ /* I tacked this lot on the end to avoid altering canon.c - CAAG */
+X+ 
+X+ int pixels_per_inch;
+X+ 
+X+ int single_rop [] =
+X+  {
+X+ 	ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE,
+X+ 	ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE,
+X+ 	ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE,
+X+ 	ROP_FALSE, ROP_DEST, ROP_NOTDEST, ROP_TRUE
+X+  };
+X+ 
+X+ /*ARGSUSED*/
+X+ Matrix DeviceMatrix (width, height) int width, height;
+X+  {
+X+  	return NewMatrix (pixels_per_inch / 72.0, 0.0, 0.0, -pixels_per_inch / 72.0, 0.0, (float) height);
+X+  }
+X+ 
+X+ int IsWindowHardware (h) struct hardware *h;
+X+  {
+X+  	return h->flags & ISWIN;
+X+  }
+X+ 
+X+ #define IsWindowHardware(h) ((h)->flags & ISWIN)
+X+ 
+X+ DevicePoint HardwareExtent (h) struct hardware *h;
+X+  {
+X+  	if (h)
+X+  		return h->extent;
+X+  	else
+X+  		return NewDevicePoint (0, 0);
+X+  }
+X+ 
+X+ void SetClipHardware (h, clip) struct hardware *h, *clip;
+X+  {
+X+  	if (h)
+X+ 		h->clip = clip;
+X+  }
+X+ 
+Xdiff -cr /usr/tmp/ps/source/array.c ./source/array.c
+X*** /usr/tmp/ps/source/array.c	Thu Jul 28 14:01:14 1988
+X--- ./source/array.c	Wed Jul 27 12:02:11 1988
+X***************
+X*** 142,151 ****
+X--- 142,165 ----
+X  int ExecArray (item) Object item;
+X   {
+X   	int l = lengthArray (item);
+X+ 	Object res;
+X+ 	register Object *rp = &res;
+X   	
+X  	if (l == 0)
+X   		return TRUE;
+X+ 	/*
+X+ 	 * BZS - try some open-coding here
+X+ 	 *
+X   	Push (ExecStack, SameFlags (item, Make (Body (item) + 1, l - 1)));
+X+ 	*/
+X+ 	rp->type = Array;
+X+ 	rp->flags = READABLE | WRITEABLE;
+X+ 	rp->u.Integer = 0;
+X+ 	rp->u.Array = item.u.Array + 1;
+X+ 	rp->Length = l - 1;
+X+ 	rp->flags = item.flags;
+X+ 	Push(ExecStack,res);
+X+ 	/* end open-coding */
+X   	if (TypeOf (Body (item) [0]) == Name || TypeOf (Body (item) [0]) == Operator)
+X   		Push (ExecStack, Body (item) [0]);
+X   	else
+Xdiff -cr /usr/tmp/ps/source/config.c ./source/config.c
+X*** /usr/tmp/ps/source/config.c	Thu Jul 28 14:01:20 1988
+X--- ./source/config.c	Thu Jul 28 14:07:25 1988
+X***************
+X*** 92,98 ****
+X  	
+X  	/* Begin jgm */
+X  	strcpy(versionbuf, DriverType);
+X! 	strcat(versionbuf, " version 1.4 with jgm mods v2");
+X  	Install ("version",	StringFrom (versionbuf));
+X  	/* End jgm */
+X   }
+X--- 92,98 ----
+X  	
+X  	/* Begin jgm */
+X  	strcpy(versionbuf, DriverType);
+X! 	strcat(versionbuf, " version 1.4 with jgm/bzs mods v3");
+X  	Install ("version",	StringFrom (versionbuf));
+X  	/* End jgm */
+X   }
+Xdiff -cr /usr/tmp/ps/source/device.c ./source/device.c
+X*** /usr/tmp/ps/source/device.c	Thu Jul 28 14:01:23 1988
+X--- ./source/device.c	Sat Apr 30 17:45:35 1988
+X***************
+X*** 25,31 ****
+X   	struct hardware *h;
+X   	DevicePoint extent;
+X   	
+X! 	InstallOp ("framedevice",	FrameDevice, 		4, 0, 0, 0, Array, Integer, Integer, Array);
+X  	InstallOp ("nulldevice",	NullDevice,		0, 0, 0, 0);
+X  	InstallOp ("grabbits",		GrabBits,		4, 0, 0, 0, Float, Float, Float, Float);
+X  	
+X--- 25,31 ----
+X   	struct hardware *h;
+X   	DevicePoint extent;
+X   	
+X! 	InstallOp ("framedevice",	FrameDevice, 		4, 0, 0, 0, Array, Integer, Integer, Poly /* jgm */);
+X  	InstallOp ("nulldevice",	NullDevice,		0, 0, 0, 0);
+X  	InstallOp ("grabbits",		GrabBits,		4, 0, 0, 0, Float, Float, Float, Float);
+X  	
+X***************
+X*** 79,94 ****
+X   	return TRUE;
+X   }
+X  
+X- /*ARGSUSED*/
+X  static int FrameDevice (mat, width, height, proc) Object mat, width, height, proc;
+X   {
+X   	Matrix m;
+X   	
+X   	if (lengthArray (mat) != 6 || !ExtractMatrix (&m, mat))
+X   		return Error (PTypeCheck);
+X   	if (BodyInteger (width) < 0 || BodyInteger (height) < 0)
+X   		return Error (PRangeCheck);
+X!  	SetDevice (NewWindowDevice (BodyInteger (width) * 8, BodyInteger (height), m));
+X   	ErasePage ();
+X   	
+X  	return TRUE;
+X--- 79,98 ----
+X   	return TRUE;
+X   }
+X  
+X  static int FrameDevice (mat, width, height, proc) Object mat, width, height, proc;
+X   {
+X   	Matrix m;
+X+ 	struct device *d;
+X   	
+X   	if (lengthArray (mat) != 6 || !ExtractMatrix (&m, mat))
+X   		return Error (PTypeCheck);
+X   	if (BodyInteger (width) < 0 || BodyInteger (height) < 0)
+X   		return Error (PRangeCheck);
+X! 	/* Begin jgm */
+X!  	d = NewWindowDevice (BodyInteger (width) * 8, BodyInteger (height), m);
+X! 	d->output_routine = proc;
+X!  	SetDevice (d);
+X! 	/* End jgm */
+X   	ErasePage ();
+X   	
+X  	return TRUE;
+X***************
+X*** 148,155 ****
+X   	res->link_count = 0;
+X   	res->default_clip = clip;
+X   	res->default_matrix = m;
+X   	res->dev = dev;
+X!  	
+X   	return res;
+X   }
+X  
+X--- 152,160 ----
+X   	res->link_count = 0;
+X   	res->default_clip = clip;
+X   	res->default_matrix = m;
+X+ 	res->output_routine = Nil;
+X   	res->dev = dev;
+X! 	
+X   	return res;
+X   }
+X  
+Xdiff -cr /usr/tmp/ps/source/device.h ./source/device.h
+X*** /usr/tmp/ps/source/device.h	Thu Jul 28 13:43:09 1988
+X--- ./source/device.h	Sat Apr 30 16:34:02 1988
+X***************
+X*** 9,14 ****
+X--- 9,15 ----
+X   	Matrix default_matrix;
+X   	Path default_clip;
+X   	int link_count;
+X+ 	Object output_routine; /* jgm */
+X   	struct hardware *dev;
+X   };
+X  
+Xdiff -cr /usr/tmp/ps/source/dictionary.c ./source/dictionary.c
+X*** /usr/tmp/ps/source/dictionary.c	Thu Jul 28 13:53:28 1988
+X--- ./source/dictionary.c	Wed Jul 27 12:02:12 1988
+X***************
+X*** 17,24 ****
+X  
+X  Object Absent, Nil, SysDict;
+X  
+X! Object DictLookup (), MakeDict (), DictLoad ();
+X  
+X  static int LengthDict (), CopyDict (), forDict (), ForDict (), PutDict (), GetDict ();
+X  static int PDict (), PBegin (), PEnd (), PDef (), PStore (), PKnown (), PLoad ();
+X  static int PrCheck (), PwCheck (), PReadOnly (), EqDict (); 
+X--- 17,29 ----
+X  
+X  Object Absent, Nil, SysDict;
+X  
+X! /* BZS - DictLoad open-coded */
+X! #ifndef DictLoad
+X! Object DictLoad();
+X! #endif
+X  
+X+ Object DictLookup (), MakeDict ();
+X+ 
+X  static int LengthDict (), CopyDict (), forDict (), ForDict (), PutDict (), GetDict ();
+X  static int PDict (), PBegin (), PEnd (), PDef (), PStore (), PKnown (), PLoad ();
+X  static int PrCheck (), PwCheck (), PReadOnly (), EqDict (); 
+X***************
+X*** 166,171 ****
+X--- 171,182 ----
+X  		(a.u.Integer == b.u.Integer || TypeOf (a) == Array && a.Length == 0);
+X   }
+X  
+X+ /* BZS - open code Equal */
+X+ #define Equal(A,B) ((TypeOf(A) == TypeOf(B)) && \
+X+ 		    (A.Length == B.Length) && \
+X+ 		    ((A.u.Integer == B.u.Integer)|| \
+X+ 		     (TypeOf(A) == Array) && (A.Length == 0)))
+X+ 
+X  static DictReplace (hash, key, value, size, h) struct dict_entry *hash; Object key, value; int size, h;
+X   {
+X   	int i;
+X***************
+X*** 250,258 ****
+X  	DictStore (SysDict, NameFrom (key), value);
+X   }
+X  
+X! static Object DictFind (hash, key, size) struct dict_entry *hash; Object key; int size;
+X   {
+X!  	int i, h;
+X   	
+X   	++hash_attempts;
+X   	
+X--- 261,272 ----
+X  	DictStore (SysDict, NameFrom (key), value);
+X   }
+X  
+X! /*
+X!  * BZS - add some register decls, make global for macrification (remove static)
+X!  */
+X! Object DictFind (hash, key, size) struct dict_entry *hash; Object key; int size;
+X   {
+X!  	register int i, h;
+X   	
+X   	++hash_attempts;
+X   	
+X***************
+X*** 266,271 ****
+X--- 280,286 ----
+X  	 {
+X  	 	if (TypeOf (hash[i].entry_key) == Null)
+X  	 		return Absent;
+X+ 
+X  	 	if (Equal (key, hash[i].entry_key))
+X  	 	 {
+X  			++hash_tries;
+X***************
+X*** 279,289 ****
+X--- 294,308 ----
+X  	 }
+X  	return Absent;
+X   }
+X+ #undef Equal
+X  
+X+ /* BZS - macro-ified */
+X+ #ifndef DictLoad
+X  Object DictLoad (dict, key) Object dict, key;
+X   {
+X  	return DictFind (Body (dict)->dict_body, key, Body (dict)->dict_size);
+X   }
+X+ #endif
+X  
+X  Object Lookup (dict, key) Type dict; Object key;
+X   {
+Xdiff -cr /usr/tmp/ps/source/fill.c ./source/fill.c
+X*** /usr/tmp/ps/source/fill.c	Thu Jul 28 14:02:56 1988
+X--- ./source/fill.c	Wed Jul 27 12:02:15 1988
+X***************
+X*** 35,41 ****
+X   *	pool
+X   */		
+X  
+X! static struct edge
+X   {
+X  	int topX, topY, bottomX, bottomY; short dir;
+X  	struct edge *pair;
+X--- 35,41 ----
+X   *	pool
+X   */		
+X  
+X! /* static (removed --jgm) */ struct edge
+X   {
+X  	int topX, topY, bottomX, bottomY; short dir;
+X  	struct edge *pair;
+X***************
+X*** 70,75 ****
+X--- 70,126 ----
+X  static int FillIt ();
+X  static int EoRule (), NwRule ();
+X  
+X+ /*
+X+  * BZS - Open Code
+X+  */
+X+ #define NotThisBit(EDGE,WHERE,EMITFN) { \
+X+   if((EDGE)->pair != NULL) { \
+X+      (*EMITFN)((EDGE),(EDGE)->pair,(EDGE)->startingY,WHERE); \
+X+      (EDGE)->pair->startingY = WHERE; \
+X+      (EDGE)->pair->where = WHERE; \
+X+      (EDGE)->pair->pair = NULL; \
+X+      (EDGE)->pair = NULL; \
+X+    } \
+X+   (EDGE)->startingY = WHERE; \
+X+   (EDGE)->where = WHERE; \
+X+ }
+X+ 
+X+ #define ThisBit(LEFT,RIGHT,WHERE,EMITFN) { \
+X+    if((LEFT)->pair != (RIGHT) || (RIGHT)->up) { \
+X+      if((LEFT)->pair != NULL) { \
+X+         (*EMITFN)(LEFT,(LEFT)->pair,(LEFT)->startingY,(LEFT)->where); \
+X+         (LEFT)->pair->startingY = (LEFT)->pair->where; \
+X+   	(LEFT)->pair->pair->startingY = (LEFT)->pair->pair->where; \
+X+   	(LEFT)->pair->pair = NULL; \
+X+      } \
+X+      if ((RIGHT)->pair != NULL) { \
+X+         (*EMITFN) (RIGHT, (RIGHT)->pair, (RIGHT)->startingY, (RIGHT)->where); \
+X+ 	(RIGHT)->pair->startingY = (RIGHT)->pair->where; \
+X+   	(RIGHT)->pair->pair->startingY = (RIGHT)->pair->pair->where; \
+X+   	(RIGHT)->pair->pair = NULL; \
+X+      }  \
+X+      (LEFT)->pair = RIGHT; \
+X+      (RIGHT)->pair = LEFT; \
+X+      (LEFT)->startingY = (RIGHT)->startingY = WHERE; \
+X+    } \
+X+    (LEFT)->where = (RIGHT)->where = WHERE; \
+X+    (LEFT)->up = TRUE; \
+X+    (RIGHT)->up = FALSE; \
+X+ }
+X+ 
+X+ #define UpEdge(COUNT_A,COUNT_B,INC_A,INC_B,RULE_A,RULE_B) \
+X+   ((*RULE_B)(COUNT_B+INC_B) && !(*RULE_A)(COUNT_A) && \
+X+    (*RULE_A)(COUNT_A+INC_A)||(*RULE_A)(COUNT_A+INC_A) && \
+X+    !(*RULE_B)(COUNT_B) && (*RULE_B)(COUNT_B+INC_B))
+X+ 
+X+ #define DownEdge(COUNT_A,COUNT_B,INC_A,INC_B,RULE_A,RULE_B) \
+X+   ((*RULE_B)(COUNT_B+INC_B) && (*RULE_A)(COUNT_A) && \
+X+    !(*RULE_A)(COUNT_A+INC_A)||(*RULE_A)(COUNT_A+INC_A) && \
+X+    (*RULE_B)(COUNT_B) && !(*RULE_B)(COUNT_B+INC_B))
+X+ 
+X+ #define Xvalue(AX,AY,BX,BY,CY) \
+X+   ((BX)+((CY)-(BY))*((AX)-(BX))/(float)((AY)-(BY)))
+X+ 
+X  static void EmitTrapezoid (left, right, top, bottom) struct edge *left, *right; int top, bottom;
+X   {
+X   	struct edge *temp;
+X***************
+X*** 286,320 ****
+X  
+X  ProcessEdges (rule_a, rule_b, emitfn) int (*rule_a)(), (*rule_b)(); void (*emitfn)();
+X   {
+X! 	struct edge *up_edge;
+X! 	int i, count_a = 0, count_b = 0;
+X! 	/* static void RemoveEdges (); (unused --jgm) */
+X! 	
+X! 	for (i = 0; i < ninteresting; i++)
+X! 	 {
+X! 	 	/* static void Emit (); (unused --jgm) */
+X! 	 	int d_a = 0, d_b = 0;
+X! 	 	
+X! 	 	if (interesting[i]->clip)
+X! 	 		d_a = interesting[i]->dir;
+X! 	 	else
+X! 	 		d_b = interesting[i]->dir;
+X  
+X! 	 	if (UpEdge (count_a, count_b, d_a, d_b, rule_a, rule_b))
+X! 	 		up_edge = interesting[i];
+X! 	 	else if (DownEdge (count_a, count_b, d_a, d_b, rule_a, rule_b))
+X! 	 	 	ThisBit (up_edge, interesting[i], interestingY, emitfn);
+X! 	 	else
+X! 	 	 	NotThisBit (interesting[i], interestingY, emitfn);
+X! 	 	
+X! 	 	count_a += d_a;
+X! 	 	count_b += d_b;
+X! 	 }
+X! 	if (count_a || count_b)
+X! 		fprintf (stderr, "count_a = %dcount_b = %d\n", count_a, count_b);
+X! 	PanicIf (count_a || count_b, "something wrong in area fill");
+X   }
+X  
+X  ThisBit (left, right, where, emitfn) struct edge *left, *right; int where; void (*emitfn)();	
+X   {
+X   	if (left->pair != right || right->up)
+X--- 337,379 ----
+X  
+X  ProcessEdges (rule_a, rule_b, emitfn) int (*rule_a)(), (*rule_b)(); void (*emitfn)();
+X   {
+X! 	register struct edge **intp;
+X!         register struct edge *up_edge;
+X! 	register int count_a = 0, count_b = 0;
+X! 	register int i;
+X  
+X! 	i = ninteresting;
+X! 	intp = interesting;
+X! 	while(i-- > 0) {
+X! 	  register int d_a = 0, d_b = 0;
+X! 
+X! 	  if ((*intp)->clip)
+X! 	    d_a = (*intp)->dir;
+X! 	  else
+X! 	    d_b = (*intp)->dir;
+X! 
+X! 	  if (UpEdge (count_a, count_b, d_a, d_b, rule_a, rule_b))
+X! 	    up_edge = *intp;
+X! 	  else if(DownEdge (count_a, count_b, d_a, d_b, rule_a, rule_b)){
+X! 	    ThisBit (up_edge,(*intp), interestingY, emitfn);
+X! 	  }
+X! 	  else {
+X! 	    NotThisBit ((*intp),interestingY,emitfn);
+X! 	  }
+X! 	  count_a += d_a;
+X! 	  count_b += d_b;
+X! 
+X! 	  intp++;
+X! 	}
+X! 
+X! 	if (count_a || count_b) {
+X! 	  fprintf (stderr, "count_a = %dcount_b = %d\n", count_a, count_b);
+X! 	  Panic("something wrong in area fill");
+X! 	}
+X   }
+X  
+X+ /* BZS - Open code */
+X+ #ifndef ThisBit
+X  ThisBit (left, right, where, emitfn) struct edge *left, *right; int where; void (*emitfn)();	
+X   {
+X   	if (left->pair != right || right->up)
+X***************
+X*** 341,347 ****
+X--- 400,412 ----
+X   	left->where = right->where = where;
+X   	left->up = TRUE; right->up = FALSE;
+X   }
+X+ #endif
+X  
+X+ /*
+X+  * BZS - Open Code this, it can be called hundreds of thousands of times
+X+  * in even simple pictures. Mooreforms spend 50% of its time in this.
+X+  */
+X+ #ifndef NotThisBit
+X  NotThisBit (edge, where, emitfn) struct edge *edge; int where; void (*emitfn)();	
+X   {
+X   	if (edge->pair != NULL)
+X***************
+X*** 355,364 ****
+X    	edge->startingY = where;
+X   	edge->where = where;
+X   }
+X  
+X  static void RemoveEdges (interestingY, emitfn) int interestingY; void (*emitfn)();
+X   {
+X!  	int i, j = 0;
+X   	
+X   	for (i = 0; i < ninteresting; i++)
+X  		if (interesting [i]->bottomY > interestingY)
+X--- 420,430 ----
+X    	edge->startingY = where;
+X   	edge->where = where;
+X   }
+X+ #endif
+X  
+X  static void RemoveEdges (interestingY, emitfn) int interestingY; void (*emitfn)();
+X   {
+X!  	register int i, j = 0;
+X   	
+X   	for (i = 0; i < ninteresting; i++)
+X  		if (interesting [i]->bottomY > interestingY)
+X***************
+X*** 368,385 ****
+X   	ninteresting = j;
+X   }
+X  
+X  static int UpEdge (count_a, count_b, inc_a, inc_b, rule_a, rule_b) int count_a, count_b, inc_a, inc_b, (*rule_a) (), (*rule_b) ();
+X   {
+X   	return (*rule_b)(count_b + inc_b) && !(*rule_a) (count_a) && (*rule_a) (count_a + inc_a) ||
+X   		(*rule_a)(count_a + inc_a) && !(*rule_b) (count_b) && (*rule_b) (count_b + inc_b);
+X   }
+X! 
+X  static int DownEdge (count_a, count_b, inc_a, inc_b, rule_a, rule_b) int count_a, count_b, inc_a, inc_b, (*rule_a) (), (*rule_b) ();
+X   {
+X   	return (*rule_b)(count_b + inc_b) && (*rule_a) (count_a) && !(*rule_a) (count_a + inc_a) ||
+X   		(*rule_a)(count_a + inc_a) && (*rule_b) (count_b) && !(*rule_b) (count_b + inc_b);
+X   }
+X! 
+X  static int EoRule (n) int n;
+X   {
+X  	return n & 1;
+X--- 434,453 ----
+X   	ninteresting = j;
+X   }
+X  
+X+ #ifndef UpEdge
+X  static int UpEdge (count_a, count_b, inc_a, inc_b, rule_a, rule_b) int count_a, count_b, inc_a, inc_b, (*rule_a) (), (*rule_b) ();
+X   {
+X   	return (*rule_b)(count_b + inc_b) && !(*rule_a) (count_a) && (*rule_a) (count_a + inc_a) ||
+X   		(*rule_a)(count_a + inc_a) && !(*rule_b) (count_b) && (*rule_b) (count_b + inc_b);
+X   }
+X! #endif
+X! #ifndef DownEdge
+X  static int DownEdge (count_a, count_b, inc_a, inc_b, rule_a, rule_b) int count_a, count_b, inc_a, inc_b, (*rule_a) (), (*rule_b) ();
+X   {
+X   	return (*rule_b)(count_b + inc_b) && (*rule_a) (count_a) && !(*rule_a) (count_a + inc_a) ||
+X   		(*rule_a)(count_a + inc_a) && (*rule_b) (count_b) && !(*rule_b) (count_b + inc_b);
+X   }
+X! #endif
+X  static int EoRule (n) int n;
+X   {
+X  	return n & 1;
+X***************
+X*** 405,419 ****
+X  	return num / denom;
+X   }
+X  
+X  static int Xvalue (ax, ay, bx, by, cy) int ax, ay, bx, by, cy;
+X   {
+X   	return bx + (cy - by) * (ax - bx) / (float) (ay - by);
+X   }
+X  
+X  static int intercmp (aa, bb) char *aa, *bb;
+X   {
+X!  	struct edge *a = *(struct edge **) aa, *b = *(struct edge **) bb;
+X!  	int sign;
+X  	
+X  	sign = Xvalue (a->topX, a->topY, a->bottomX, a->bottomY, interestingY + 1) -
+X  		     Xvalue (b->topX, b->topY, b->bottomX, b->bottomY, interestingY + 1);
+X--- 473,489 ----
+X  	return num / denom;
+X   }
+X  
+X+ #ifndef Xvalue
+X  static int Xvalue (ax, ay, bx, by, cy) int ax, ay, bx, by, cy;
+X   {
+X   	return bx + (cy - by) * (ax - bx) / (float) (ay - by);
+X   }
+X+ #endif
+X  
+X  static int intercmp (aa, bb) char *aa, *bb;
+X   {
+X!    register struct edge *a = *(struct edge **) aa, *b = *(struct edge **) bb;
+X!    int sign;
+X  	
+X  	sign = Xvalue (a->topX, a->topY, a->bottomX, a->bottomY, interestingY + 1) -
+X  		     Xvalue (b->topX, b->topY, b->bottomX, b->bottomY, interestingY + 1);
+X***************
+X*** 424,449 ****
+X  
+X  static void AddInteresting ()
+X   {
+X! 	int i;
+X  	 	
+X  	nextY = infinity;
+X  	for (; here < nedges && edge[here].topY <= interestingY; here++) /* look at each new interesting edge */
+X  	 {
+X! 	 	int i, n;
+X! 	 	
+X! 		for (i = 0; i < ninteresting; i++) /* look at all possible intersections */
+X  		 {
+X! 		 	int inter = Yintersect (&edge[here], interesting[i]);
+X  		 	
+X! 		 	if (inter >= interestingY && inter <= edge[here].bottomY && inter <= interesting[i]->bottomY)
+X  		 		AddLowest (inter);
+X  		 }
+X  		n = ninteresting++;
+X! 		interesting[n] = &edge[here];
+X! 		interesting[n]->pair = NULL;
+X! 		interesting[n]->up = FALSE;
+X! 		interesting[n]->startingY = interesting[n]->where = edge[here].topY;
+X! 		interesting[n]->name = names++;
+X  	 }
+X  	i = NextLowest (interestingY);
+X  	if (i)
+X--- 494,526 ----
+X  
+X  static void AddInteresting ()
+X   {
+X! 	register int i;
+X! 	register struct edge **intp;
+X  	 	
+X  	nextY = infinity;
+X  	for (; here < nedges && edge[here].topY <= interestingY; here++) /* look at each new interesting edge */
+X  	 {
+X! 	 	register int i, n;
+X! 
+X! 		i = ninteresting;
+X! 		intp = interesting;
+X! 		while(i-- > 0) /* look at all possible intersections */
+X  		 {
+X! 		 	int inter = Yintersect (&edge[here], (*intp));
+X  		 	
+X! 		 	if (inter >= interestingY &&
+X! 			    inter <= edge[here].bottomY &&
+X! 			    inter <= (*intp)->bottomY)
+X  		 		AddLowest (inter);
+X+ 			intp++;
+X  		 }
+X  		n = ninteresting++;
+X! 		intp = &interesting[n];
+X! 		*intp = &edge[here];
+X! 		(*intp)->pair = NULL;
+X! 		(*intp)->up = FALSE;
+X! 		(*intp)->startingY = (*intp)->where = edge[here].topY;
+X! 		(*intp)->name = names++;
+X  	 }
+X  	i = NextLowest (interestingY);
+X  	if (i)
+X***************
+X*** 450,461 ****
+X  		nextY = i;
+X  	if (here != nedges && edge[here].topY < nextY)
+X  		nextY = edge[here].topY;
+X! 	for (i = 0; i < ninteresting; i++)
+X! 	 {
+X! 		if (interesting[i]->topY > interestingY && interesting[i]->topY < nextY)
+X! 			nextY = interesting[i]->topY;
+X! 		if (interesting[i]->bottomY > interestingY && interesting[i]->bottomY < nextY)
+X! 			nextY = interesting[i]->bottomY;
+X  	 }
+X  	qsort ((char *) interesting, (unsigned) ninteresting, sizeof (struct edge *), intercmp);
+X   }
+X--- 527,541 ----
+X  		nextY = i;
+X  	if (here != nedges && edge[here].topY < nextY)
+X  		nextY = edge[here].topY;
+X! 	i = ninteresting;
+X! 	intp = interesting;
+X! 	while(i-- > 0)
+X! 	  {
+X! 		if ((*intp)->topY > interestingY && (*intp)->topY < nextY)
+X! 			nextY = (*intp)->topY;
+X! 		if ((*intp)->bottomY > interestingY && (*intp)->bottomY < nextY)
+X! 			nextY = (*intp)->bottomY;
+X! 		intp++;
+X  	 }
+X  	qsort ((char *) interesting, (unsigned) ninteresting, sizeof (struct edge *), intercmp);
+X   }
+X***************
+X*** 462,468 ****
+X  
+X  static void FindInfinity ()
+X   {
+X!  	int i;
+X   	
+X  	infinity = edge[0].topY;
+X  	for (i = 0; i < nedges; i++)
+X--- 542,548 ----
+X  
+X  static void FindInfinity ()
+X   {
+X!  	register int i;
+X   	
+X  	infinity = edge[0].topY;
+X  	for (i = 0; i < nedges; i++)
+X***************
+X*** 503,509 ****
+X  
+X  static void BuildEdgeList (path, clip) Path path; int clip;
+X   {
+X!  	Path p;
+X   	HardPoint move, here;
+X   	
+X   	for (p = path->next; p != path; p = p->next)
+X--- 583,589 ----
+X  
+X  static void BuildEdgeList (path, clip) Path path; int clip;
+X   {
+X!  	register Path p;
+X   	HardPoint move, here;
+X   	
+X   	for (p = path->next; p != path; p = p->next)
+X***************
+X*** 533,539 ****
+X  static int NextLowest (y) int y;
+X   {
+X  	int res;
+X! 	struct lowest *p;
+X  	
+X  	for (p = lowest; p && p->e <= y; p = lowest)	/* delete any which are now irrelevent */
+X  	 {
+X--- 613,619 ----
+X  static int NextLowest (y) int y;
+X   {
+X  	int res;
+X! 	register struct lowest *p;
+X  	
+X  	for (p = lowest; p && p->e <= y; p = lowest)	/* delete any which are now irrelevent */
+X  	 {
+X***************
+X*** 551,557 ****
+X  
+X  static void AddLowest (e) int e;
+X   {
+X!  	struct lowest *res, *p, *q;
+X   	
+X   	for (p = lowest; p && p->e < e; q = p, p = p->higher)
+X   		;
+X--- 631,637 ----
+X  
+X  static void AddLowest (e) int e;
+X   {
+X!  	register struct lowest *res, *p, *q;
+X   	
+X   	for (p = lowest; p && p->e < e; q = p, p = p->higher)
+X   		;
+Xdiff -cr /usr/tmp/ps/source/font.c ./source/font.c
+X*** /usr/tmp/ps/source/font.c	Thu Jul 28 14:02:59 1988
+X--- ./source/font.c	Wed Jul 27 12:02:18 1988
+X***************
+X*** 362,372 ****
+X   	else
+X   		return NewVector (0.0, 0.0, 1.0);
+X   }
+X! 
+X  static int BuildHershey (font, code) Object font, code;
+X   {
+X  	Vector met;
+X! 	Object *bbox, string, nm;
+X   	unsigned char *s;
+X   	Path p;
+X   	int i, l;
+X--- 362,374 ----
+X   	else
+X   		return NewVector (0.0, 0.0, 1.0);
+X   }
+X! /*
+X!  * BZS - some small changes to allow macrification of DictLoad()
+X!  */
+X  static int BuildHershey (font, code) Object font, code;
+X   {
+X  	Vector met;
+X! 	Object *bbox, string, nm, tmp;
+X   	unsigned char *s;
+X   	Path p;
+X   	int i, l;
+X***************
+X*** 373,381 ****
+X--- 375,391 ----
+X   	
+X  	bbox 	= BodyArray (DictLoad (font, FontBBox));
+X  	nm 	= BodyArray (DictLoad (font, Encoding)) [BodyInteger (code)];
+X+ 	/*
+X  	met 	= GetMetrics (DictLoad (DictLoad (font, Metrics), nm));
+X+ 	*/
+X+ 	tmp = DictLoad(font,Metrics);
+X+ 	met = GetMetrics(DictLoad(tmp,nm));
+X  	met.vx -= 2; /* hershey bodge - they look better closer */
+X+ 	/*
+X  	string 	= DictLoad (DictLoad (font, CharStrings), nm);
+X+ 	*/
+X+ 	tmp = DictLoad(font,CharStrings);
+X+ 	string = DictLoad(tmp,nm);
+X  	
+X  	SetCacheDevice (nm, NewPoint (met.vx, met.vy),
+X  		BodyReal (bbox[0]), BodyReal (bbox[1]),
+Xdiff -cr /usr/tmp/ps/source/main.h ./source/main.h
+X*** /usr/tmp/ps/source/main.h	Thu Jul 28 13:53:36 1988
+X--- ./source/main.h	Wed Jul 27 12:02:21 1988
+X***************
+X*** 166,170 ****
+X--- 166,176 ----
+X  		((getchbuf != EOF) ? getchbuf : ((BodyFile(file)->available = 0), Close (file), EOF))) \
+X  	: GeneralGetch (file))
+X  
+X+ /*
+X+  * BZS - macro-ify some things
+X+  */
+X+ Object DictFind();
+X+ #define DictLoad(DICT,KEY) DictFind((DICT.u.Dictionary)->dict_body,KEY,\
+X+ 				    (DICT.u.Dictionary)->dict_size)
+X  /* Next line --jgm */
+X  #define PanicIf(flag,s) do { if (flag) Panic(s); } while (0)
+Xdiff -cr /usr/tmp/ps/source/matrix.c ./source/matrix.c
+X*** /usr/tmp/ps/source/matrix.c	Thu Jul 28 14:03:05 1988
+X--- ./source/matrix.c	Wed Jul 27 12:02:22 1988
+X***************
+X*** 393,400 ****
+X  HardPoint ExtToInt (p) Point p;
+X   {
+X  	Vector v;
+X! 	
+X  	v = Transform (NewVector (p.x, p.y, 1.0), gstate->CTM);
+X  	return NewHardPoint (v.vx, v.vy);
+X   }
+X  
+X--- 393,413 ----
+X  HardPoint ExtToInt (p) Point p;
+X   {
+X  	Vector v;
+X! 	register Vector *vp;
+X! 	register Matrix *mp;
+X! 	register Point *pp;
+X! /*
+X!  * BZS - try open coding this
+X!  *	
+X  	v = Transform (NewVector (p.x, p.y, 1.0), gstate->CTM);
+X+  */
+X+ 	mp = &gstate->CTM;
+X+ 	vp = &v;
+X+ 	pp = &p;
+X+ 
+X+ 	vp->vx = pp->x * mp->A + pp->y * mp->C + mp->tx;
+X+ 	vp->vy = pp->x * mp->B + pp->y * mp->D + mp->ty;
+X+ 
+X  	return NewHardPoint (v.vx, v.vy);
+X   }
+X  
+Xdiff -cr /usr/tmp/ps/source/misc.c ./source/misc.c
+XNo differences encountered
+Xdiff -cr /usr/tmp/ps/source/operator.c ./source/operator.c
+X*** /usr/tmp/ps/source/operator.c	Thu Jul 28 14:03:10 1988
+X--- ./source/operator.c	Wed Jul 27 12:02:23 1988
+X***************
+X*** 203,212 ****
+X   *
+X   */
+X  
+X  int ExecOperator (item) Object item;
+X   {
+X! 	struct op_struct *op = Body (item);
+X! 	int i, res, (*fn)() = op->fn;
+X  	Object arg[7];
+X  	
+X  	Self = NameOperator (item);
+X--- 203,216 ----
+X   *
+X   */
+X  
+X+ /*
+X+  * BZS - try to speed up a little
+X+  */
+X  int ExecOperator (item) Object item;
+X   {
+X! 	register struct op_struct *op = Body (item);
+X! 	register int i, res;
+X! 	int (*fn)() = op->fn;
+X  	Object arg[7];
+X  	
+X  	Self = NameOperator (item);
+X***************
+X*** 219,225 ****
+X  		arg[i] = Pop (OpStack);
+X  	for (i = op->arguments - 1; i >= 0; i--)
+X  	 {
+X! 	 	Type formal = op->argtypes[i], actual = TypeOf (arg[i]);
+X  	 	
+X  	 	if (formal == Float && actual == Integer)
+X   	 		arg[i] = RealInteger (arg[i]);
+X--- 223,229 ----
+X  		arg[i] = Pop (OpStack);
+X  	for (i = op->arguments - 1; i >= 0; i--)
+X  	 {
+X! 	 	register Type formal = op->argtypes[i], actual = TypeOf (arg[i]);
+X  	 	
+X  	 	if (formal == Float && actual == Integer)
+X   	 		arg[i] = RealInteger (arg[i]);
+Xdiff -cr /usr/tmp/ps/source/screen.c ./source/screen.c
+X*** /usr/tmp/ps/source/screen.c	Thu Jul 28 13:44:08 1988
+X--- ./source/screen.c	Sat Apr 30 18:44:06 1988
+X***************
+X*** 55,61 ****
+X   	struct hardware *shade;
+X   } *screen = NULL;
+X  
+X! static int screen_size, screen_side;
+X  
+X  static int FreqSize (freq) float freq;
+X   {
+X--- 55,61 ----
+X   	struct hardware *shade;
+X   } *screen = NULL;
+X  
+X! static int screen_size /* , screen_side (unused --jgm) */;
+X  
+X  static int FreqSize (freq) float freq;
+X   {
+X***************
+X*** 121,127 ****
+X   	 	free ((char *) screen);
+X   	 }
+X   	p = screen = (struct screen *) Malloc ((unsigned) (((screen_size = size * size) + 1) * sizeof (struct screen)));
+X!  	screen_side = size;
+X   	for (i = 0; i < size; i++)
+X   		for (j = 0; j < size; j++)
+X   		 {
+X--- 121,127 ----
+X   	 	free ((char *) screen);
+X   	 }
+X   	p = screen = (struct screen *) Malloc ((unsigned) (((screen_size = size * size) + 1) * sizeof (struct screen)));
+X!  	/* screen_side = size; (unused --jgm) */
+X   	for (i = 0; i < size; i++)
+X   		for (j = 0; j < size; j++)
+X   		 {
+Xdiff -cr /usr/tmp/ps/source/state.c ./source/state.c
+X*** /usr/tmp/ps/source/state.c	Thu Jul 28 14:03:20 1988
+X--- ./source/state.c	Sat Apr 30 16:47:57 1988
+X***************
+X*** 123,128 ****
+X--- 123,133 ----
+X  
+X  static int CopyPage ()
+X   {
+X+         /* Begin jgm */
+X+         if (TypeOf(gstate->device->output_routine) != Null) {
+X+ 	    Push(ExecStack, gstate->device->output_routine);
+X+ 	}
+X+ 	/* End jgm */
+X   	return TRUE;
+X   }
+X  
+Xdiff -cr /usr/tmp/ps/source/stroke.c ./source/stroke.c
+X*** /usr/tmp/ps/source/stroke.c	Thu Jul 28 13:48:04 1988
+X--- ./source/stroke.c	Sat Apr 30 18:26:27 1988
+X***************
+X*** 358,364 ****
+X  int PStrokePath ()
+X   {
+X   	Path p, new = NewPath ();
+X!  	HardPoint prev, here, move;
+X   	enum pelem_type last_type = EHeader;
+X   	float angle, last_angle, width = gstate->line_width;
+X   	
+X--- 358,364 ----
+X  int PStrokePath ()
+X   {
+X   	Path p, new = NewPath ();
+X!  	HardPoint /* prev, (unused --jgm) */ here, move;
+X   	enum pelem_type last_type = EHeader;
+X   	float angle, last_angle, width = gstate->line_width;
+X   	
+X***************
+X*** 370,376 ****
+X  	 	switch (p->ptype)
+X  	 	 {
+X  	 	  	case EMove:
+X! 			 	prev = here;
+X  			 	move = here = p->pe.point;
+X  			 	break;
+X  			 	
+X--- 370,376 ----
+X  	 	switch (p->ptype)
+X  	 	 {
+X  	 	  	case EMove:
+X! 			 	/* prev = here; (unused --jgm) */
+X  			 	move = here = p->pe.point;
+X  			 	break;
+X  			 	
+X***************
+X*** 378,384 ****
+X  	 	  		if (last_type == EMove)
+X  	 	  			break;
+X  				angle = LineSegment (p, new, IntToExt (here), IntToExt (move), width, last_angle, last_type);
+X! 			 	prev = here;
+X  			 	here = move;
+X  			 	last_type = EHeader;
+X  			 	break;
+X--- 378,384 ----
+X  	 	  		if (last_type == EMove)
+X  	 	  			break;
+X  				angle = LineSegment (p, new, IntToExt (here), IntToExt (move), width, last_angle, last_type);
+X! 			 	/* prev = here; (unused --jgm) */
+X  			 	here = move;
+X  			 	last_type = EHeader;
+X  			 	break;
+X***************
+X*** 385,391 ****
+X  			 	
+X  	 	  	case ELine:
+X  				angle = LineSegment (p, new, IntToExt (here), IntToExt (p->pe.point), width, last_angle, last_type);
+X! 			 	prev = here;
+X  			 	here = p->pe.point;
+X  	 	  		break;
+X  	 	  		
+X--- 385,391 ----
+X  			 	
+X  	 	  	case ELine:
+X  				angle = LineSegment (p, new, IntToExt (here), IntToExt (p->pe.point), width, last_angle, last_type);
+X! 			 	/* prev = here; (unused --jgm) */
+X  			 	here = p->pe.point;
+X  	 	  		break;
+X  	 	  		
+X*** /dev/null	Thu Jul 28 10:26:48 1988
+X--- wwinfo.h	Thu Jul 28 14:36:37 1988
+X***************
+X*** 0 ****
+X--- 1,14 ----
+X+ Now that I've gotten your attention...
+X+ 
+X+ If your system doesn't have the wwinfo.h file, that probably means
+X+ that you don't have the ww window manager, which is rumored to be
+X+ available only to academic sites in the U.K.  In that case, a version
+X+ of the Postscript Interpreter compiled to produce output for ww
+X+ is probably worthless to you.
+X+ 
+X+ Please examine the file source/makefile and select a version that is
+X+ appropriate for you--possible choices include "sunPS", "XPS", and
+X+ "xps".
+X+ 
+X+ 				_.John G. Myers
+X+ 
+END_OF_ps.diff.v3
+if test 54477 -ne `wc -c <ps.diff.v3`; then
+    echo shar: \"ps.diff.v3\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+echo shar: End of shell archive.
+exit 0
+-- 
+_.John G. Myers		Internet: John.Myers@cs.cmu.edu
+			LoseNet:  ...!seismo!inhp4!wiscvm.wisc.edu!give!up
+"The world is full of bozos.  Some of them even have PhD's in Computer Science"
+
+

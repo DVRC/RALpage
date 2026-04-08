@@ -1,0 +1,26 @@
+diff -cr orig/postscript/psrc ./postscript/psrc
+*** orig/postscript/psrc	Sun Jan  3 14:22:51 1988
+--- ./postscript/psrc	Sun Dec 13 22:58:09 1987
+***************
+*** 10,17 ****
+  
+  /bind {} def
+  
+! /save { gsave /save } def
+! /restore { grestore pop } def
+  /raise { errordict exch get exec } def
+  
+  /beep ( ) dup 0 7 put def
+--- 10,21 ----
+  
+  /bind {} def
+  
+! %% Start mods by jgm
+! /$$SAVELEVEL 0 def
+! /save { gsave /save /$$SAVELEVEL $$SAVELEVEL 1 add def } def
+! /restore { grestore pop /$$SAVELEVEL $$SAVELEVEL 1 sub def } def
+! /vmstatus { $$SAVELEVEL 10000 10000 } def
+! %% End mods by jgm
+  /raise { errordict exch get exec } def
+  
+  /beep ( ) dup 0 7 put def

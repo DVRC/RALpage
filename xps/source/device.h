@@ -5,12 +5,13 @@
 #include "hard.h"
 
 struct device
-{
-  Matrix default_matrix;
-  Path default_clip;
-  int link_count;
-  struct hardware *dev;
-};
+ {
+ 	Matrix default_matrix;
+ 	Path default_clip;
+ 	int link_count;
+	Object output_routine; /* jgm */
+ 	struct hardware *dev;
+ };
 
-extern struct device *NewDevice (), *NewCacheDevice (), *LinkDevice ();
-extern struct device *DeviceFrom (), *UniqueDevice (), *NewBitmapDevice ();
+extern struct device *NewDevice (), *NewCacheDevice (), *LinkDevice (), *DeviceFrom (), *UniqueDevice ();
+extern struct device *NewBitmapDevice ();

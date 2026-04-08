@@ -5,7 +5,3 @@ FontMap /Symbol /Times-Roman put
 FontMap /Courier /Helvetica put
 FontMap /Courier-Oblique /Helvetica-Oblique put
 FontMap /Courier-Bold /Times-Bold put
-FontMap /NewCenturySchlbk-Roman /Times-Roman put
-FontMap /NewCenturySchlbk-Bold /Times-Bold put
-FontMap /NewCenturySchlbk-Italic /Times-Italic put
-FontMap /NewCenturySchlbk-BoldItalic /Times-BI put

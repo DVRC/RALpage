@@ -2,9 +2,9 @@
  * Copyright (C) Crispin Goswell 1987, All Rights Reserved.
  */
 
-typedef struct point { float x, y; } UserPoint;
+typedef struct point { float x, y; } Point;
 
 extern Matrix PointTranslate ();
-extern UserPoint NewUserPoint (), IntToExt (), MoveUserPoint ();
-extern int GMoveTo (), GLineTo ();
+extern Point NewPoint (), IntToExt (), MovePoint ();
+extern int MoveTo (), LineTo ();
 extern Object AssignMatrix ();

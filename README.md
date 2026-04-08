@@ -9,7 +9,7 @@ https://www.chilton-computing.org.uk/inf/se/mmi/p004.htm
 - dist: the same of Shar thing but stripped of the headers,
 - OG: pristine RALpage, without patches
 - MOD: John G. Myers' patches applied to the original interpreter
-- xps: from "stuff.mit.edu/afs/athena.mit.edu/astaff/project/xps/".
+- xps_mit: from "stuff.mit.edu/afs/athena.mit.edu/astaff/project/xps/".
   It has been ported to Sun, VAX, Mac (A/UX and Mac OS?) and IBM RT.
   I created the "obj" and "gmon" directories to tidy up the thing.
 - Ralpage_X11R5: from "https://ftp.gwdg.de/pub/x11/x.org/R5contrib/"
@@ -23,6 +23,8 @@ https://www.chilton-computing.org.uk/inf/se/mmi/p004.htm
 - SCN: from "https://www.scnresearch.com/pub/graphics/postscript.tar.Z"
   Probably it's the same one from Shars, but with the John G. Myers patches pre-applied
   and some minor modification
+- xps_scn: from "https://www.scnresearch.com/pub/X11/"
+  Probably another repackage with the John G. Myers patches, and other minor stuffs
 - Docs: related documentation and papers about this PostScript interpreter
 
 ## What's missing?

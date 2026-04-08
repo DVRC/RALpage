@@ -1,0 +1,35 @@
+OBJECTS=array.o boolean.o config.o control.o dictionary.o file.o\
+	integer.o main.o math.o misc.o name.o operator.o\
+	poly.o property.o real.o save.o stack.o string.o unix.o
+GRAPHICS=cache.o colour.o device.o fill.o font.o gsave.o image.o mat.o \
+	matrix.o pat.o path.o state.o stroke.o
+
+OBJS = $(OBJECTS) $(GRAPHICS) X11.o canon.a
+
+SRCS = array.c boolean.c config.c control.c dictionary.c file.c\
+	integer.c main.c math.c misc.c name.c operator.c\
+	poly.c property.c real.c save.c stack.c string.c unix.c\
+	cache.c colour.c device.c fill.c font.c gsave.c image.c mat.c matrix.c\
+	pat.c path.c state.c stroke.c
+
+SYS_LIBRARIES = -lm
+
+LOCAL_LIBRARIES = $(XLIB)
+
+/* Warning: gcc versions below 1.33 will not compile this with -O */
+
+/* Sun4 requires -Dfloat=double with cc. */
+DEFINES = # -Dfloat=double
+
+ComplexProgramTarget(xps)
+
+canon.a:	canon.o screen.o trapezoid.o paint.o
+	ar ruv canon.a canon.o screen.o trapezoid.o paint.o
+	ranlib canon.a
+
+# Yuk!
+install::
+	@echo 'install ../postscript by hand in $(LIBDIR) if anything is changed'
+
+clean::
+	rm -f canon.a

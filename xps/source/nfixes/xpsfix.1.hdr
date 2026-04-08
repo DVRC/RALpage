@@ -1,0 +1,87 @@
+From jarvis.csri.toronto.edu!utgpu!attcan!uunet!lll-winken!lll-tis!ames!necntc!ncoast!allbery Thu Jul 28 23:41:41 GMT 1988
+Article 498 of comp.sources.misc:
+Path: jarvis.csri.toronto.edu!utgpu!attcan!uunet!lll-winken!lll-tis!ames!necntc!ncoast!allbery
+>From: jgm@k.gp.cs.cmu.edu (John Myers)
+Newsgroups: comp.sources.misc
+Subject: v04i006: Postscript interpreter patches (1 of 2)
+Message-ID: <12088@ncoast.UUCP>
+Date: 28 Jul 88 23:41:41 GMT
+Sender: allbery@ncoast.UUCP
+Reply-To: jgm@k.gp.cs.cmu.edu (John Myers)
+Organization: System/Technology Development Corp.
+Lines: 1449
+Approved: allbery@ncoast.UUCP
+
+Posting-number: Volume 4, Issue 6
+Submitted-by: "John Myers" <jgm@k.gp.cs.cmu.edu>
+Archive-name: psinter-patch1
+
+These patches make several bug fixes and enhancements to the Postscript
+interpreter that was posted to comp.sources.unix.  They include a
+driver for X11 and some speedups that I picked up off of Barry Shein.
+
+Please read the instructions at the beginning of each of the patches
+before applying them.
+
+Bugs fixed:
+
+Half-implemented the missing operator "vmstatus".  The number of savelevels is
+correct (as far as the broken implementation of "save" and "restore" allow),
+but the amount of memory used and free is a lie.
+
+Implemented the missing operator "noaccess".
+
+Fixed a bug in the operator "stopped".  Previously it only worked on arrays,
+but now it works on any executable object.
+
+Fixed the parsing bug for reals with a trailing period (e.g. "4.") which
+resulted in the "undefined in operater exec" errors reported to the net.
+
+Changed an occurance of the variable "signed" to "signedp" as the former is an
+ANSI C keyword.
+
+Added a version of the missing file postscript/demos/buildcachefont.ps
+
+Fixed operators kshow, translate, scale, rotate, reversepath
+
+Casted NULL to appropriate type when it was passed as a parameter.
+
+Removed unused variables.
+
+The fourth parameter to the "framedevice" is no longer ignored.  psrc
+has been modified so that if a driver defines the postscript operator
+"outputpage", it will be called instead of the "beep and wait for
+input" routine when the copypage or showpage command is executed.
+
+Enhancements made:
+
+Macroized PanicIf()
+
+Changed "undefined in operator exec" errors to instead report 
+"undefined in operator foo", where "foo" is the operator that was undefined.
+
+Fixed imagemask to deal better with images that have to be shrunk.  Bitmapped
+fonts intended for 300 dpi printers look much better now.
+(Change courtesy of Christopher Cox, cc4b@andrew.cmu.edu)
+
+Tweaked makefile to deal better with sun3.
+
+Added "getenv" operator.  The syntax is:
+	<string> getenv <string> <true>
+if the environment variable exists, or
+	<string> getenv <false>
+if it does not.
+
+Each driver must now define the character pointer "DriverType".  The
+value of this variable is placed in the string produced by the
+"version" operator.
+
+Added operators letter, note, and legal.
+
+Barry Shein's speedups have been incorporated.
+
+A version of the X11 driver is included.
+
+				John G. Myers
+				jm36@andrew.cmu.edu
+

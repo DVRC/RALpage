@@ -1,20 +1,16 @@
 /*
  * Copyright (C) Rutherford Appleton Laboratory 1987
  * 
- * This source may be copied, distributed, altered or used, but not
- * sold for profit or incorporated into a product except under licence
- * from the author. 
+ * This source may be copied, distributed, altered or used, but not sold for profit
+ * or incorporated into a product except under licence from the author.
  * It is not in the public domain.
- * This notice should remain in the source unaltered, and any changes
- * to the source made by persons other than the author should be
- * marked as such. 
+ * This notice should remain in the source unaltered, and any changes to the source
+ * made by persons other than the author should be marked as such.
  * 
  *	Crispin Goswell @ Rutherford Appleton Laboratory caag@uk.ac.rl.vd
  */
 #include "main.h"
 #include "graphics.h"
-
-#define __SEG__ SegB
 
 extern int InitGraphics ();
 int ErasePage ();
@@ -66,8 +62,7 @@ InitState ()
  	InstallOp ("currentlinecap",	GetLineCap,	0, 1, 0, 0);
  	InstallOp ("setlinejoin",	SetLineJoin,	1, 0, 0, 0, Integer);
  	InstallOp ("currentlinejoin",	GetLineJoin,	0, 1, 0, 0);
- 	InstallOp ("setdash",		SetDash,	2, 0, 0, 0,
-		   Array, Float);
+ 	InstallOp ("setdash",		SetDash,	2, 0, 0, 0, Array, Float);
  	InstallOp ("currentdash",	GetDash,	0, 2, 0, 2);
  	InstallOp ("setflat",		SetFlat,	1, 0, 0, 0, Float);
  	InstallOp ("currentflat",	GetFlat,	0, 1, 0, 0);
@@ -76,30 +71,23 @@ InitState ()
  	
  	InstallOp ("setgray",		SetGray,	1, 0, 0, 0, Float);
  	InstallOp ("currentgray",	GetGray,	0, 1, 0, 0);
- 	InstallOp ("sethsbcolor",	SetHSB,		3, 0, 0, 0,
-		   Float, Float, Float);
+ 	InstallOp ("sethsbcolor",	SetHSB,		3, 0, 0, 0, Float, Float, Float);
  	InstallOp ("currenthsbcolor",	GetHSB,		0, 3, 0, 0);
- 	InstallOp ("setrgbcolor",	SetRGB,		3, 0, 0, 0,
-		   Float, Float, Float);
+ 	InstallOp ("setrgbcolor",	SetRGB,		3, 0, 0, 0, Float, Float, Float);
  	InstallOp ("currentrgbcolor",	GetRGB,		0, 3, 0, 0);
  	
-  	InstallOp ("screensize",	PScreenSize,	2, 1, 0, 0,
-		   Float, Float);
-  	InstallOp ("buildscreen",	PBuildScreen,	2, 2, 0, 0,
-		   Float, Float);
-  	InstallOp ("setrealscreen",	PSetRealScreen,	4, 0, 0, 0,
-		   Float, Float, Array, Array);
+  	InstallOp ("screensize",	PScreenSize,	2, 1, 0, 0, Float, Float);
+  	InstallOp ("buildscreen",	PBuildScreen,	2, 2, 0, 0, Float, Float);
+  	InstallOp ("setrealscreen",	PSetRealScreen,	4, 0, 0, 0, Float, Float, Array, Array);
 	InstallOp ("currentscreen",	GetScreen,	0, 3, 0, 0);
 	
- 	InstallOp ("setrealtransfer",	PSetRealTransfer,	2, 0, 0, 0,
-		   Array, Array);
+ 	InstallOp ("setrealtransfer",	PSetRealTransfer,	2, 0, 0, 0, Array, Array);
  	InstallOp ("currenttransfer",	PGetTransfer,	0, 1, 0, 0);
  	InstallOp ("transfersize",	PTransferSize,	0, 1, 0, 0);
  	
  	InstallOp ("setfillmethod",	SetFillMethod,	1, 0, 0, 0, Integer);
  	InstallOp ("currentfillmethod",	GetFillMethod,	0, 1, 0, 0);
- 	InstallOp ("setstrokemethod",	SetStrokeMethod,	1, 0, 0, 0,
-		   Integer);
+ 	InstallOp ("setstrokemethod",	SetStrokeMethod,	1, 0, 0, 0, Integer);
  	InstallOp ("currentstrokemethod",GetStrokeMethod,	0, 1, 0, 0);
  	InstallOp ("initgraphics",	InitGraphics,	0, 0, 0, 0);
 
@@ -126,15 +114,20 @@ int InitGraphics ()
 
 int ErasePage ()
  {
-	Paint (NULL, gstate->device->dev,
-	       NewDevicePoint (0, 0), NewDevicePoint (0, 0),
-	       HardwareExtent (gstate->device->dev),
-	       White);
+	Paint ((struct hardware *)NULL, gstate->device->dev, /* cast NULL --jgm */
+		NewDevicePoint (0, 0), NewDevicePoint (0, 0),
+		HardwareExtent (gstate->device->dev),
+		White);
  	return TRUE;
  }
 
 static int CopyPage ()
  {
+        /* Begin jgm */
+        if (TypeOf(gstate->device->output_routine) != Null) {
+	    Push(ExecStack, gstate->device->output_routine);
+	}
+	/* End jgm */
  	return TRUE;
  }
 
@@ -222,18 +215,17 @@ static int SetDash (array, offset) Object array, offset;
  }
 
 static int GetDash ()
-{
-  int i;
-
-  if(OpStack->stack_fill+gstate->dash_length+1 > OpStack->stack_size)
-    return Error(POpOverflow);
-  FastPush (OpStack, Marker);
-  for (i = 0; i < gstate->dash_length; i++)
-    FastPush (OpStack, MakeReal (gstate->dash_array[i]));
-  VOID Push (ExecStack, MakeReal (gstate->dash_offset));
-  VOID Push (ExecStack, Cvx (Rbracket));
-  return TRUE;
-}
+ {
+ 	int i;
+ 	if (!OpCheck (0, gstate->dash_length + 1))
+ 		return FALSE;
+ 	VOID Push (OpStack, Marker);
+ 	for (i = 0; i < gstate->dash_length; i++)
+ 		VOID Push (OpStack, MakeReal (gstate->dash_array[i]));
+ 	VOID Push (ExecStack, MakeReal (gstate->dash_offset));
+ 	VOID Push (ExecStack, Cvx (Rbracket));
+ 	return TRUE;
+ }
 
 static int SetFlat (flat) Object flat;
  {
@@ -265,15 +257,8 @@ static int SetGray (gray) Object gray;
  {
  	float g = BodyReal (gray);
  	
-	/* DCJ:
-	 * Postscript manual doesn't specify what happens when a value
-	 * to setgray is out of range.  Most printers will set the
-	 * value to the bound that was exceeded.  We will do so too.
-	 */
-	if (g < 0.0)
-	     g = 0.0;
-	if (g > 1.0)
-	     g = 1.0;
+ 	if (g < 0 || g > 1)
+ 		return Error (PRangeCheck);
 	gstate->colour = NewGray (g);
  	
 	return TRUE;
@@ -330,8 +315,7 @@ static int GetRGB ()
 
 static int PScreenSize (freq, rot) Object freq, rot;
  {
- 	return Push (OpStack, MakeInteger (ScreenSize (BodyReal (freq),
-						       BodyReal (rot))));
+ 	return Push (OpStack, MakeInteger (ScreenSize (BodyReal (freq), BodyReal (rot))));
  }
 
 static int PBuildScreen (freq, rot) Object freq, rot;
@@ -354,8 +338,7 @@ static int PBuildScreen (freq, rot) Object freq, rot;
  	Free ((char *) x);
  	Free ((char *) y);
  	
- 	return Push (OpStack,
-		     MakeArray (px, ss)) && Push (OpStack, MakeArray (py, ss));
+ 	return Push (OpStack, MakeArray (px, ss)) && Push (OpStack, MakeArray (py, ss));
  }
 
 static int PSetRealScreen (freq, rot, spot, thresh) Object freq, rot, spot, thresh;
@@ -387,8 +370,7 @@ static int PSetRealScreen (freq, rot, spot, thresh) Object freq, rot, spot, thre
  	 	
  		th[i] = BodyReal (a);
  	 }
- 	if (gstate->screen.count == 1)
-	     /* allows 0 to mean 'not assigned yet' */
+ 	if (gstate->screen.count == 1)	/* allows 0 to mean 'not assigned yet' */
  		Free ((char *) gstate->screen.thresh);
  	gstate->screen.thresh = th;
  	gstate->screen.count = 1;
@@ -409,7 +391,7 @@ static int GetScreen ()
 static int PSetRealTransfer (transfer, values) Object transfer, values;
  {
  	Object v;
- 	int i, size = TRANSFER_SIZE;
+ 	int i, size = TransferSize ();
  	float *val;
  	
  	if (lengthArray (values) != size)
@@ -446,7 +428,7 @@ static int PGetTransfer ()
 
 static int PTransferSize ()
  {
-	return Push (OpStack, MakeInteger (TRANSFER_SIZE));
+	return Push (OpStack, MakeInteger (TransferSize ()));
  }
 
 static int SetFillMethod (method) Object method;

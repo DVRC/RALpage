@@ -1,0 +1,1466 @@
+From jarvis.csri.toronto.edu!utgpu!attcan!uunet!lll-winken!lll-tis!ames!necntc!ncoast!allbery Thu Jul 28 23:41:41 GMT 1988
+Article 498 of comp.sources.misc:
+Path: jarvis.csri.toronto.edu!utgpu!attcan!uunet!lll-winken!lll-tis!ames!necntc!ncoast!allbery
+>From: jgm@k.gp.cs.cmu.edu (John Myers)
+Newsgroups: comp.sources.misc
+Subject: v04i006: Postscript interpreter patches (1 of 2)
+Message-ID: <12088@ncoast.UUCP>
+Date: 28 Jul 88 23:41:41 GMT
+Sender: allbery@ncoast.UUCP
+Reply-To: jgm@k.gp.cs.cmu.edu (John Myers)
+Organization: System/Technology Development Corp.
+Lines: 1449
+Approved: allbery@ncoast.UUCP
+
+Posting-number: Volume 4, Issue 6
+Submitted-by: "John Myers" <jgm@k.gp.cs.cmu.edu>
+Archive-name: psinter-patch1
+
+These patches make several bug fixes and enhancements to the Postscript
+interpreter that was posted to comp.sources.unix.  They include a
+driver for X11 and some speedups that I picked up off of Barry Shein.
+
+Please read the instructions at the beginning of each of the patches
+before applying them.
+
+Bugs fixed:
+
+Half-implemented the missing operator "vmstatus".  The number of savelevels is
+correct (as far as the broken implementation of "save" and "restore" allow),
+but the amount of memory used and free is a lie.
+
+Implemented the missing operator "noaccess".
+
+Fixed a bug in the operator "stopped".  Previously it only worked on arrays,
+but now it works on any executable object.
+
+Fixed the parsing bug for reals with a trailing period (e.g. "4.") which
+resulted in the "undefined in operater exec" errors reported to the net.
+
+Changed an occurance of the variable "signed" to "signedp" as the former is an
+ANSI C keyword.
+
+Added a version of the missing file postscript/demos/buildcachefont.ps
+
+Fixed operators kshow, translate, scale, rotate, reversepath
+
+Casted NULL to appropriate type when it was passed as a parameter.
+
+Removed unused variables.
+
+The fourth parameter to the "framedevice" is no longer ignored.  psrc
+has been modified so that if a driver defines the postscript operator
+"outputpage", it will be called instead of the "beep and wait for
+input" routine when the copypage or showpage command is executed.
+
+Enhancements made:
+
+Macroized PanicIf()
+
+Changed "undefined in operator exec" errors to instead report 
+"undefined in operator foo", where "foo" is the operator that was undefined.
+
+Fixed imagemask to deal better with images that have to be shrunk.  Bitmapped
+fonts intended for 300 dpi printers look much better now.
+(Change courtesy of Christopher Cox, cc4b@andrew.cmu.edu)
+
+Tweaked makefile to deal better with sun3.
+
+Added "getenv" operator.  The syntax is:
+	<string> getenv <string> <true>
+if the environment variable exists, or
+	<string> getenv <false>
+if it does not.
+
+Each driver must now define the character pointer "DriverType".  The
+value of this variable is placed in the string produced by the
+"version" operator.
+
+Added operators letter, note, and legal.
+
+Barry Shein's speedups have been incorporated.
+
+A version of the X11 driver is included.
+
+				John G. Myers
+				jm36@andrew.cmu.edu
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= Cut Here =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#! /bin/sh
+# This is a shell archive.  Remove anything before this line, then unpack
+# it by saving it into a file and typing "sh file".  To overwrite existing
+# files, type "sh file -c".  You can also feed this as standard input via
+# unshar, or by typing "sh <file", e.g..  If this archive is complete, you
+# will see the following message at the end:
+#		"End of shell archive."
+# Contents:  ps.diff.v1 ps.diff.v2
+# Wrapped by jm36@cycle4.andrew.cmu.edu on Thu Jul 28 19:38:29 1988
+PATH=/bin:/usr/bin:/usr/ucb ; export PATH
+if test -f ps.diff.v1 -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"ps.diff.v1\"
+else
+echo shar: Extracting \"ps.diff.v1\" \(20227 characters\)
+sed "s/^X//" >ps.diff.v1 <<'END_OF_ps.diff.v1'
+XThis is a patch for Crispin Goswell's postscript interpreter, which
+Xwas posted to comp.sources.unix a while back.  If you don't have the
+Xinterpreter, you can get it from one of the comp.sources.unix
+Xarchives.
+X
+XSoon after the interpreter was posted, I posted these fixes to
+Xcomp.sources.bugs, but they unfortunately had lines wrapped by our
+Xmailer.  This first patch is equivalent to that posting (modulo line
+Xwrapping) and if you successfully applied that posting, you can skip
+Xto the next patch.
+X
+XTo install this, you need the 'patch' program which is also available
+Xfrom the comp.sources.unix archives.
+X
+XChange directories to the top-level postscript directory (the one with
+Xthe file "MANIFEST" in it) and apply this patch with the command:
+X
+Xpatch -p0 <ps.diff.v1
+X
+X				_.John G. Myers
+X				jm36+@andrew.cmu.edu
+X
+X*** /dev/null	Mon Jul 25 01:14:13 1988
+X--- CHANGES.JGM	Thu Jul 28 12:24:55 1988
+X***************
+X*** 0 ****
+X--- 1,47 -----
+X+ Here is a patch that makes several bug fixes and enhancements to the Postscript
+X+ interpreter recently posted.  The changes are:
+X+ 
+X+ 
+X+ Bugs fixed:
+X+ 
+X+ Half-implemented the missing operator "vmstatus".  The number of savelevels is
+X+ correct (as far as the broken implementation of "save" and "restore" allow),
+X+ but the amount of memory used and free is a lie.
+X+ 
+X+ Implemented the missing operator "noaccess".
+X+ 
+X+ Fixed a bug in the operator "stopped".  Previously it only worked on arrays,
+X+ but now it works on any executable object.
+X+ 
+X+ Fixed the parsing bug for reals with a trailing period (e.g. "4.") which
+X+ resulted in the "undefined in operater exec" errors reported to the net.
+X+ 
+X+ Changed an occurance of the variable "signed" to "signedp" as the former is an
+X+ ANSI C keyword.
+X+ 
+X+ Added a version of the missing file postscript/demos/buildcachefont.ps
+X+ 
+X+ 
+X+ Enhancements made:
+X+ 
+X+ Macroized PanicIf()
+X+ 
+X+ Changed "undefined in operator exec" errors to instead report 
+X+ "undefined in operator foo", where "foo" is the operator that was undefined.
+X+ 
+X+ Fixed imagemask to deal better with images that have to be shrunk.  Bitmapped
+X+ fonts intended for 300 dpi printers look much better now.
+X+ (Change courtesy of Christopher Cox, cc4b@andrew.cmu.edu)
+X+ 
+X+ Tweaked makefile to deal better with sun3.
+X+ 
+X+ Added "getenv" operator.  The syntax is:
+X+ 	<string> getenv <string> <true>
+X+ if the environment variable exists, or
+X+ 	<string> getenv <false>
+X+ if it does not.
+X+ 
+X+ 
+X+ 				John G. Myers
+X+ 				jm36@andrew.cmu.edu
+X+ 				jgm@k.gp.cs.cmu.edu
+Xdiff -cr orig/postscript/psrc ./postscript/psrc
+X*** orig/postscript/psrc	Sun Jan  3 14:22:51 1988
+X--- ./postscript/psrc	Sun Dec 13 22:58:09 1987
+X***************
+X*** 10,17 ****
+X  
+X  /bind {} def
+X  
+X! /save { gsave /save } def
+X! /restore { grestore pop } def
+X  /raise { errordict exch get exec } def
+X  
+X  /beep ( ) dup 0 7 put def
+X--- 10,21 ----
+X  
+X  /bind {} def
+X  
+X! %% Start mods by jgm
+X! /$$SAVELEVEL 0 def
+X! /save { gsave /save /$$SAVELEVEL $$SAVELEVEL 1 add def } def
+X! /restore { grestore pop /$$SAVELEVEL $$SAVELEVEL 1 sub def } def
+X! /vmstatus { $$SAVELEVEL 10000 10000 } def
+X! %% End mods by jgm
+X  /raise { errordict exch get exec } def
+X  
+X  /beep ( ) dup 0 7 put def
+Xdiff -cr orig/source/array.c ./source/array.c
+X*** orig/source/array.c	Sun Jan  3 14:21:55 1988
+X--- ./source/array.c	Sat Dec 12 01:05:28 1987
+X***************
+X*** 17,22 ****
+X--- 17,23 ----
+X  
+X  static int forAll (), ForAll (), PReadOnly (), PExecOnly (), PrCheck (), PwCheck ();
+X  static int PutInterval (), GetInterval (), Put (), Get (), Length (), Copy (), Eq ();
+X+ static int PNoAccess (); /*jgm*/
+X  
+X  int ExecArray ();
+X  Object Marker;
+X***************
+X*** 53,58 ****
+X--- 54,60 ----
+X   	TypeInstallOp (Array, "length",	 	PLength,	1, 1, 0, 0, Array);
+X   	TypeInstallOp (Array, "copy", 		Copy,		2, 0, 0, 0, Array, Array);
+X   	TypeInstallOp (Array, "forall", 	ForAll,		2, 0, 0, 4, Array, Array);
+X+  	TypeInstallOp (Array, "noaccess", 	PNoAccess,	1, 1, 0, 0, Array); /*jgm*/
+X   	TypeInstallOp (Array, "executeonly", 	PExecOnly,	1, 1, 0, 0, Array);
+X   	TypeInstallOp (Array, "readonly", 	PReadOnly,	1, 1, 0, 0, Array);
+X   	TypeInstallOp (Array, "rcheck", 	PrCheck,	1, 1, 0, 0, Array);
+X***************
+X*** 385,390 ****
+X--- 387,398 ----
+X   	 		body[i] = Pop (OpStack);
+X   	 	return Push (OpStack, array);
+X   	 }
+X+  }
+X+ 
+X+ /* PNoAccess by jgm */
+X+ static int PNoAccess (item) Object item;
+X+  {
+X+  	return Push (OpStack, NoAccess (item));
+X   }
+X  
+X  static int PExecOnly (item) Object item;
+Xdiff -cr orig/source/cache.c ./source/cache.c
+X*** orig/source/cache.c	Sun Jan  3 14:22:42 1988
+X--- ./source/cache.c	Thu Dec 10 21:26:47 1987
+X***************
+X*** 501,512 ****
+X  	if ((ccache = SearchCache (m, BodyFontID (DictLoad (gstate->font, Fid)))) == NULL)
+X   		return Error (PInvFont);
+X   	
+X-   	Message (disk_name);
+X  	VOID sprintf (disk_name,
+X   		"%s/cache/%.*s/%3d%3d%3d%3d",
+X   		library,
+X   		lengthName (font_name), BodyName (font_name),
+X   		(int) right.vx, (int) right.vy, (int) bottom.vx, (int) bottom.vy);
+X   	
+X   	if ((fp = fopen (disk_name, "w")) == NULL)
+X   		return Error (PInvFileAccess);
+X--- 501,512 ----
+X  	if ((ccache = SearchCache (m, BodyFontID (DictLoad (gstate->font, Fid)))) == NULL)
+X   		return Error (PInvFont);
+X   	
+X  	VOID sprintf (disk_name,
+X   		"%s/cache/%.*s/%3d%3d%3d%3d",
+X   		library,
+X   		lengthName (font_name), BodyName (font_name),
+X   		(int) right.vx, (int) right.vy, (int) bottom.vx, (int) bottom.vy);
+X+   	Message (disk_name); /* moved from before to after prev line -- jgm */
+X   	
+X   	if ((fp = fopen (disk_name, "w")) == NULL)
+X   		return Error (PInvFileAccess);
+Xdiff -cr orig/source/config.c ./source/config.c
+X*** orig/source/config.c	Sun Jan  3 14:19:54 1988
+X--- ./source/config.c	Fri Jan  1 13:58:10 1988
+X***************
+X*** 87,91 ****
+X   	Install ("polytype",		DictFrom (Poly));
+X  	Install ("fonttype",		DictFrom (FontID));
+X  	
+X! 	Install ("version",	StringFrom ("Version 1.4"));
+X   }
+X--- 87,91 ----
+X   	Install ("polytype",		DictFrom (Poly));
+X  	Install ("fonttype",		DictFrom (FontID));
+X  	
+X! 	Install ("version",	StringFrom ("Version 1.4 with mods by jgm")); /* jgm */
+X   }
+Xdiff -cr orig/source/control.c ./source/control.c
+X*** orig/source/control.c	Sun Jan  3 14:26:55 1988
+X--- ./source/control.c	Sun Dec 13 23:13:46 1987
+X***************
+X*** 65,71 ****
+X   	InstallOp ("loop",	PLoop,		1, 0, 0, 4, Array);
+X  	InstallOp ("exit",	PExit,		0, 0, 0, 0);
+X   	InstallOp ("stop",	PStop,		0, 1, 0, 0);
+X!  	InstallOp ("stopped",	PStopped,	1, 1, 0, 3, Array);
+X   	InstallOp ("quit",	PQuit, 		0, 0, 0, 0);
+X   	InstallOp ("start",	PStart, 	0, 0, 0, 0);
+X   	InstallOp ("countexecstack",
+X--- 65,72 ----
+X   	InstallOp ("loop",	PLoop,		1, 0, 0, 4, Array);
+X  	InstallOp ("exit",	PExit,		0, 0, 0, 0);
+X   	InstallOp ("stop",	PStop,		0, 1, 0, 0);
+X! 	/* Changed from "Array" to "Poly" --jgm*/
+X!  	InstallOp ("stopped",	PStopped,	1, 1, 0, 3, Poly);
+X   	InstallOp ("quit",	PQuit, 		0, 0, 0, 0);
+X   	InstallOp ("start",	PStart, 	0, 0, 0, 0);
+X   	InstallOp ("countexecstack",
+Xdiff -cr orig/source/dictionary.c ./source/dictionary.c
+X*** orig/source/dictionary.c	Sun Jan  3 14:22:55 1988
+X--- ./source/dictionary.c	Sat Dec 12 01:06:49 1987
+X***************
+X*** 23,28 ****
+X--- 23,29 ----
+X  static int PDict (), PBegin (), PEnd (), PDef (), PStore (), PKnown (), PLoad ();
+X  static int PrCheck (), PwCheck (), PReadOnly (), EqDict (); 
+X  static int PWhere (), PMaxLength (), PCurrentDict (); 
+X+ static int PNoAccess (); /*jgm*/
+X  
+X  static int hash_tries = 0, hash_collisions = 0, hash_attempts = 0;
+X  static int PHashStats (), PDictHash ();
+X***************
+X*** 57,62 ****
+X--- 58,64 ----
+X  	TypeInstallOp (Dictionary, "length", 	LengthDict,	1, 1, 0, 0, Dictionary);
+X  	TypeInstallOp (Dictionary, "copy", 	CopyDict,	2, 0, 0, 0, Dictionary, Dictionary);
+X  	TypeInstallOp (Dictionary, "forall", 	ForDict,	2, 0, 0, 4, Dictionary, Array);
+X+  	TypeInstallOp (Dictionary, "noaccess", 	PNoAccess,	1, 1, 0, 0, Dictionary); /*jgm*/
+X   	TypeInstallOp (Dictionary, "readonly", 	PReadOnly,	1, 1, 0, 0, Dictionary);
+X   	TypeInstallOp (Dictionary, "rcheck", 	PrCheck,	1, 1, 0, 0, Dictionary);
+X   	TypeInstallOp (Dictionary, "wcheck", 	PwCheck,	1, 1, 0, 0, Dictionary);
+X***************
+X*** 511,516 ****
+X--- 513,524 ----
+X  static int PCurrentDict ()
+X   {
+X    	return Push (OpStack, Top (DictStack));
+X+  }
+X+ 
+X+ /* PNoAccess by jgm */
+X+ static int PNoAccess (item) Object item;
+X+  {
+X+  	return Push (OpStack, NoAccess (item));
+X   }
+X  
+X  static int PReadOnly (item) Object item;
+Xdiff -cr orig/source/image.c ./source/image.c
+X*** orig/source/image.c	Sun Jan  3 14:22:32 1988
+X--- ./source/image.c	Mon Dec 28 18:17:04 1987
+X***************
+X*** 353,363 ****
+X  	else
+X  	 {
+X  	 	middle2 = NewBitmapHardware (dwidth, h);
+X! 		for (i = 0; i < dwidth; i++)
+X! 			BitBlt (from, 	middle2,
+X! 				NewDevicePoint ((int) (i/xscale), 0), NewDevicePoint (i, 0),
+X  				NewDevicePoint (1, h),
+X  				ROP_OR);
+X  	 }
+X  	
+X  	if (dheight > h)
+X--- 353,365 ----
+X  	else
+X  	 {
+X  	 	middle2 = NewBitmapHardware (dwidth, h);
+X! 		/* begin changes by cc4b --jgm */
+X! 		for (i = 0; i < w; i++)
+X! 			BitBlt( from,  middle2,
+X! 				NewDevicePoint (i, 0), NewDevicePoint( (int) (i * xscale), 0),
+X  				NewDevicePoint (1, h),
+X  				ROP_OR);
+X+ 		/* end changes by cc4b --jgm */
+X  	 }
+X  	
+X  	if (dheight > h)
+X***************
+X*** 382,392 ****
+X  	else
+X  	 {
+X  		high2 = NewBitmapHardware (dwidth, dheight);
+X! 		for (i = 0; i < dheight; i++)
+X! 			BitBlt (middle2, high2,
+X! 				NewDevicePoint (0, (int) (i/yscale)), NewDevicePoint (0, i),
+X  				NewDevicePoint (dwidth, 1),
+X  				ROP_OR);
+X  	 }
+X   	return high2;
+X   }
+X--- 384,397 ----
+X  	else
+X  	 {
+X  		high2 = NewBitmapHardware (dwidth, dheight);
+X! 
+X! 		/* begin changes by cc4b --jgm */
+X! 		for (i = 0; i < h; i++ )
+X! 			BitBlt( middle2, high2,
+X! 				NewDevicePoint (0, i), NewDevicePoint( 0, (int) (i * yscale)),
+X  				NewDevicePoint (dwidth, 1),
+X  				ROP_OR);
+X+ 		/* end changes by cc4b  --jgm */
+X  	 }
+X   	return high2;
+X   }
+Xdiff -cr orig/source/integer.c ./source/integer.c
+X*** orig/source/integer.c	Sun Jan  3 14:21:32 1988
+X--- ./source/integer.c	Thu Dec 10 20:44:17 1987
+X***************
+X*** 72,80 ****
+X  
+X  int StrictMul (a, b) int a, b;
+X   {
+X!  	int atop, abot, btop, bbot, sum, signed;
+X   	
+X!  	signed = (a < 0) != (b < 0);
+X   	a = a < 0 ? -a : a;
+X   	b = b < 0 ? -b : b;
+X   	abot = a & LowMask;
+X--- 72,81 ----
+X  
+X  int StrictMul (a, b) int a, b;
+X   {
+X! 	/* Variable signed changed to signedp by jgm for ANSI C */
+X!  	int atop, abot, btop, bbot, sum, signedp;
+X   	
+X!  	signedp = (a < 0) != (b < 0);
+X   	a = a < 0 ? -a : a;
+X   	b = b < 0 ? -b : b;
+X   	abot = a & LowMask;
+X***************
+X*** 86,92 ****
+X   	sum = ((unsigned) sum >> Word2) + atop * btop;
+X   	if (sum != 0 || a * b < 0)
+X   		kill (getpid (), SIGFPE);
+X!  	return signed ? -a * b : a * b;
+X   }
+X  
+X  int StrictAdd (a, b) int a, b;
+X--- 87,93 ----
+X   	sum = ((unsigned) sum >> Word2) + atop * btop;
+X   	if (sum != 0 || a * b < 0)
+X   		kill (getpid (), SIGFPE);
+X!  	return signedp ? -a * b : a * b;
+X   }
+X  
+X  int StrictAdd (a, b) int a, b;
+Xdiff -cr orig/source/main.c ./source/main.c
+X*** orig/source/main.c	Sun Jan  3 14:22:13 1988
+X--- ./source/main.c	Sun Dec 13 00:40:04 1987
+X***************
+X*** 187,210 ****
+X    		 	Object newitem;
+X    		 	
+X    		 	newitem = Load (item);
+X!   		 	if (TypeOf (newitem) != Condition)
+X!   		 	 	item = newitem;
+X!   		 	
+X!   		 	if (!xCheck (item))
+X!  				res = Push (OpStack, item);
+X!   			else if (TypeOf (item) == Operator)
+X!   				res = ExecOperator (item);
+X!   			else if (TypeOf (item) == Array)
+X!   				res = ExecArray (item);
+X!   			else if (TypeOf (item) == File)
+X!   				res = ExecFile (item);
+X! 			else
+X!   			 {
+X!  		 		res = Push (OpStack, item);
+X!   		 		exop = Lookup (TypeOf (item), execName);
+X!   		 		if (TypeOf (exop) != Condition)
+X!   		 			VOID Push (ExecStack, exop);
+X!   		 	 }
+X     		 }
+X    		else
+X    		 {
+X--- 187,216 ----
+X    		 	Object newitem;
+X    		 	
+X    		 	newitem = Load (item);
+X! 			/* begin jgm */
+X! 			if (TypeOf (newitem) == Condition) {
+X! 			    VOID Push(OpStack, item);
+X! 			    res = Push(ExecStack, DictLoad(ErrorDict,PUndefined));
+X! 			} else {
+X! 			    /* end jgm */
+X! 			    item = newitem;
+X! 
+X! 			    if (!xCheck (item))
+X! 				res = Push (OpStack, item);
+X! 			    else if (TypeOf (item) == Operator)
+X! 				res = ExecOperator (item);
+X! 			    else if (TypeOf (item) == Array)
+X! 				res = ExecArray (item);
+X! 			    else if (TypeOf (item) == File)
+X! 				res = ExecFile (item);
+X! 			    else
+X! 			    {
+X! 				res = Push (OpStack, item);
+X! 				exop = Lookup (TypeOf (item), execName);
+X! 				if (TypeOf (exop) != Condition)
+X! 				    VOID Push (ExecStack, exop);
+X! 			    }
+X! 			} /* jgm */
+X     		 }
+X    		else
+X    		 {
+X***************
+X*** 340,350 ****
+X   		return TRUE;
+X   }
+X  
+X! PanicIf (cond, s) int cond; char *s;
+X!  {
+X!  	if (cond)
+X!  		Panic (s);
+X!  }
+X  
+X  Panic (s) char *s;
+X   {
+X--- 346,358 ----
+X   		return TRUE;
+X   }
+X  
+X! #ifdef needed /* Macroized --jgm */
+X! XPanicIf (cond, s) int cond; char *s;
+X! X {
+X! X 	if (cond)
+X! X 		Panic (s);
+X! X }
+X! #endif
+X  
+X  Panic (s) char *s;
+X   {
+X***************
+X*** 392,397 ****
+X--- 400,416 ----
+X  	return o;
+X   }
+X  
+X+ /* NoAccess by jgm */
+X+ Object NoAccess (o) Object o;
+X+  {
+X+  	if (o.type == Dictionary)
+X+  		o.u.Dictionary->dict_flags &= ~(READABLE | WRITEABLE | EXECUTABLE);
+X+  	else
+X+  		o.flags &= ~(READABLE | WRITEABLE | EXECUTABLE);
+X+  	return o;
+X+  }
+X+ 
+X+ 
+X  Object ExecOnly (o) Object o;
+X   {
+X   	if (o.type == Dictionary)
+X***************
+X*** 398,404 ****
+X   		o.u.Dictionary->dict_flags &= ~(READABLE | WRITEABLE);
+X   	else
+X   		o.flags &= ~(READABLE | WRITEABLE);
+X!  	return ReadOnly (o);
+X   }
+X  
+X  Object ReadOnly (o) Object o;
+X--- 417,423 ----
+X   		o.u.Dictionary->dict_flags &= ~(READABLE | WRITEABLE);
+X   	else
+X   		o.flags &= ~(READABLE | WRITEABLE);
+X!  	return o;   /* Removed redundant call to ReadOnly -- jgm */
+X   }
+X  
+X  Object ReadOnly (o) Object o;
+Xdiff -cr orig/source/main.h ./source/main.h
+X*** orig/source/main.h	Sun Jan  3 14:19:59 1988
+X--- ./source/main.h	Sat Dec 12 00:58:43 1987
+X***************
+X*** 74,79 ****
+X--- 74,80 ----
+X   	Object overflow, underflow, *stack_body;
+X   } *Stack, StackOb;
+X   
+X+ Object NoAccess (); /* jgm */
+X  Object SameFlags (), MakeObject (), Cvx (), Cvlit (), ReadOnly (), WriteOnly (), ExecOnly ();
+X  int OpCheck (), min (), rCheck (), wCheck (), xCheck ();
+X  Object MakeArray (), ParseArray (), getArray (), getIArray (), *BodyArray ();
+X***************
+X*** 164,166 ****
+X--- 165,170 ----
+X  	((getchbuf = getc (BodyFile(file)->f.f_ptr)), \
+X  		((getchbuf != EOF) ? getchbuf : ((BodyFile(file)->available = 0), Close (file), EOF))) \
+X  	: GeneralGetch (file))
+X+ 
+X+ /* Next line --jgm */
+X+ #define PanicIf(flag,s) do { if (flag) Panic(s); } while (0)
+Xdiff -cr orig/source/math.c ./source/math.c
+X*** orig/source/math.c	Sun Jan  3 14:20:43 1988
+X--- ./source/math.c	Fri Dec 11 22:54:46 1987
+X***************
+X*** 108,113 ****
+X--- 108,115 ----
+X   	 {
+X   	 	int olength = length, dval;
+X   	 	
+X+ 		if (length == 0) return MakeReal (sign * (double)ival); /*jgm*/
+X+ 
+X  		fval = ival;
+X   		dval = ParseInteger (&s, &length, 10);
+X   		fval += dval * pow (10.0, (float)(length - olength));
+Xdiff -cr orig/source/makefile ./source/makefile
+X*** orig/source/makefile	Sun Jan  3 14:19:33 1988
+X--- ./source/makefile	Sun Jan  3 15:37:00 1988
+X***************
+X*** 4,16 ****
+X  LIBS=libww.a -lsuntool -lsunwindow -lpixrect -g
+X  GRAPHICS=cache.o colour.o device.o fill.o font.o gsave.o image.o mat.o matrix.o\
+X  	pat.o path.o state.o stroke.o
+X  CFLAGS=-O
+X  
+X  PS:	$(OBJECTS) $(GRAPHICS) hard.o canon.a
+X  	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) hard.o canon.a -lm `libs` -o PS
+X  
+X! sunPS:	$(OBJECTS) $(GRAPHICS) hard.o canon.a pixrect
+X! 	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) hard.o canon.a -lm -lpixrect -o sunPS
+X  
+X  CPS:	$(OBJECTS) $(GRAPHICS) colour-ww.o trapezoid.o canon.o
+X  	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) colour-ww.o canon.o trapezoid.o -lm `libs` -o CPS
+X--- 4,23 ----
+X  LIBS=libww.a -lsuntool -lsunwindow -lpixrect -g
+X  GRAPHICS=cache.o colour.o device.o fill.o font.o gsave.o image.o mat.o matrix.o\
+X  	pat.o path.o state.o stroke.o
+X+ 
+X+ # For SUN with 68881
+X+ #CFLAGS=-O -f68881
+X+ 
+X+ # For others
+X  CFLAGS=-O
+X  
+X+ #default: sunPS
+X+ 
+X  PS:	$(OBJECTS) $(GRAPHICS) hard.o canon.a
+X  	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) hard.o canon.a -lm `libs` -o PS
+X  
+X! sunPS:	$(OBJECTS) $(GRAPHICS) pixrect.o canon.a
+X! 	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) pixrect.o canon.a -lm -lpixrect -o sunPS
+X  
+X  CPS:	$(OBJECTS) $(GRAPHICS) colour-ww.o trapezoid.o canon.o
+X  	cc $(CFLAGS)  $(OBJECTS) $(GRAPHICS) colour-ww.o canon.o trapezoid.o -lm `libs` -o CPS
+X***************
+X*** 31,39 ****
+X  all:	PS postscript viewer
+X  
+X  ww:	ww.o wwlib installww
+X- 
+X- pixrect:	pixrect.o
+X- 	cp pixrect.o hard.o
+X  
+X  sun:	ww wwsun
+X  
+X--- 38,43 ----
+Xdiff -cr orig/source/misc.c ./source/misc.c
+X*** orig/source/misc.c	Sun Jan  3 14:19:36 1988
+X--- ./source/misc.c	Sun Dec 13 22:03:56 1987
+X***************
+X*** 17,27 ****
+X--- 17,29 ----
+X  #endif
+X  
+X  static int PUserTime ();
+X+ static int PGetEnv (); /*jgm*/
+X   	
+X  InitMisc ()
+X   {
+X    	InstallOp ("usertime",	PUserTime,	0, 1, 0, 0);
+X   	InstallOp ("==", 	PolyFirst, 	1, 1, 0, 0, Poly);
+X+ 	InstallOp ("getenv",	PGetEnv,	1, 1, 0, 0, String); /*jgm*/
+X    }
+X  
+X  static int PUserTime ()
+X***************
+X*** 32,34 ****
+X--- 34,49 ----
+X  	times (&tbuf);
+X   	return Push (OpStack, MakeInteger ((int) (tbuf.tms_utime * 1000 / HZ)));
+X   }
+X+ 
+X+ /* PGetEnv by jgm */
+X+ static int PGetEnv(string) Object string;
+X+ {
+X+     char *s, *getenv();
+X+ 
+X+     s = getenv(BodyString(string));
+X+ 
+X+     if (s != NULL) {
+X+ 	VOID Push(OpStack, MakeString(s, strlen(s)));
+X+     }
+X+ 
+X+     return Push(OpStack, MakeBoolean(s != NULL));
+Xdiff -cr orig/source/string.c ./source/string.c
+X*** orig/source/string.c	Sun Jan  3 14:23:16 1988
+X--- ./source/string.c	Sat Dec 12 01:32:44 1987
+X***************
+X*** 22,27 ****
+X--- 22,28 ----
+X  static int Exec (), Token (), PString (), Search (), AnchorSearch (), Copy (), EqEq ();
+X  static int Length (), ForAll (), Get (), Put (), GetInterval (), PutInterval (), Eq (), Lt (), Le (), Gt (), Ge (), PrCheck (), PwCheck ();
+X  static int Cvi (), Cvr (), Cvs (), PReadOnly (), PExecOnly ();
+X+ static int PNoAccess (); /* jgm */
+X  
+X  InitString ()
+X   {
+X***************
+X*** 45,50 ****
+X--- 46,52 ----
+X   	TypeInstallOp (String, "put", 		Put,		3, 0, 0, 0, String, Integer, Integer);
+X   	TypeInstallOp (String, "getinterval", 	GetInterval,	3, 1, 0, 0, String, Integer, Integer);
+X   	TypeInstallOp (String, "putinterval", 	PutInterval,	3, 0, 0, 0, String, Integer, String);
+X+  	TypeInstallOp (String, "noaccess", 	PNoAccess,	1, 1, 0, 0, String); /*jgm*/
+X   	TypeInstallOp (String, "executeonly", 	PExecOnly,	1, 1, 0, 0, String);
+X   	TypeInstallOp (String, "readonly", 	PReadOnly,	1, 1, 0, 0, String);
+X   	TypeInstallOp (String, "rcheck", 	PrCheck,	1, 1, 0, 0, String);
+X***************
+X*** 530,535 ****
+X--- 532,543 ----
+X  	VOID Push (OpStack, False);
+X  	
+X  	return TRUE;
+X+  }
+X+ 
+X+ /* PNoAccess by jgm */
+X+ static int PNoAccess (item) Object item;
+X+  {
+X+  	return Push (OpStack, NoAccess (item));
+X   }
+X  
+X  static int PExecOnly (item) Object item;
+Xdiff -cr orig/source/viewer.c ./source/viewer.c
+X*** orig/source/viewer.c	Sun Jan  3 14:21:58 1988
+X--- ./source/viewer.c	Thu Dec 10 23:12:55 1987
+X***************
+X*** 310,318 ****
+X   	return res;
+X   }
+X  
+X! PanicIf (flag, s) int flag; char *s;
+X   {
+X-  	if (flag)
+X   		fprintf (stderr, "Viewer panic: %s\n", s),
+X   		exit (1);
+X   }
+X--- 310,318 ----
+X   	return res;
+X   }
+X  
+X! /* Removed conditional & changed PanicIf to Panic --jgm */
+X! Panic (s) char *s;
+X   {
+X   		fprintf (stderr, "Viewer panic: %s\n", s),
+X   		exit (1);
+X   }
+X*** /dev/null	Mon Jul 25 01:14:13 1988
+X--- postscript/demos/buildcachefont.ps	Thu Jul 28 12:25:02 1988
+X***************
+X*** 0 ****
+X--- 1,19 -----
+X+ %!
+X+ %% Build the font cache
+X+ %% By John G. Myers
+X+ 
+X+ % fontname pointsize cachefont --
+X+ /cachefont {
+X+ 	exch findfont exch scalefont setfont
+X+ 	5 5 moveto
+X+ 	( !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ) show
+X+ 	([\\]^_`abcdefghijklmnopqrstuvwxyz{|}~) show
+X+ 	(\251\252\256\257\261\267\272\320) show
+X+ 	savecurrentfont
+X+ 	erasepage
+X+ } def
+X+ 
+X+ [  /Times-Roman /Helvetica /Times-Bold /Times-Italic /Helvetica-Oblique ]
+X+ { dup 10 cachefont dup 12 cachefont 14 cachefont }
+X+ forall
+X+ 
+END_OF_ps.diff.v1
+if test 20227 -ne `wc -c <ps.diff.v1`; then
+    echo shar: \"ps.diff.v1\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+if test -f ps.diff.v2 -a "${1}" != "-c" ; then 
+  echo shar: Will not over-write existing file \"ps.diff.v2\"
+else
+echo shar: Extracting \"ps.diff.v2\" \(18523 characters\)
+sed "s/^X//" >ps.diff.v2 <<'END_OF_ps.diff.v2'
+XMake sure you have already applied either 'ps.diff.v1' or my
+Xoriginal posting to comp.sources.bugs.
+X
+XTo apply this, you need the 'patch' program which is available from
+Xthe comp.sources.unix archives.
+X
+XChange directories to the top-level postscript directory (the one with
+Xthe file "MANIFEST" in it) and apply this patch with the command:
+X
+Xpatch -p0 <ps.diff.v2
+X
+X				_.John G. Myers
+X				jm36+@andrew.cmu.edu
+X
+X*** /usr/tmp/ps/CHANGES.JGM	Thu Jul 28 13:53:12 1988
+X--- ./CHANGES.JGM	Thu Jul 28 14:58:10 1988
+X***************
+X*** 1,6 ****
+X! Here is a patch that makes several bug fixes and enhancements to the Postscript
+X  interpreter recently posted.  The changes are:
+X  
+X  
+X  Bugs fixed:
+X  
+X--- 1,7 ----
+X! These patches make several bug fixes and enhancements to the Postscript
+X  interpreter recently posted.  The changes are:
+X  
+X+ 			      Version 1:
+X  
+X  Bugs fixed:
+X  
+X***************
+X*** 41,46 ****
+X--- 42,64 ----
+X  	<string> getenv <false>
+X  if it does not.
+X  
+X+ 			      Version 2:
+X+ 
+X+ Bugs fixed:
+X+ 
+X+ Fixed operators kshow, translate, scale, rotate, reversepath
+X+ 
+X+ Casted NULL to appropriate type when it was passed as a parameter.
+X+ 
+X+ Removed unused variables.
+X+ 
+X+ Enhancements made:
+X+ 
+X+ Each driver must now define the character pointer "DriverType".  The
+X+ value of this variable is placed in the string produced by the
+X+ "version" operator.
+X+ 
+X+ Added operators letter, note, and legal.
+X  
+X  				John G. Myers
+X  				jm36@andrew.cmu.edu
+Xdiff -cr ./doc/hard-interface /cmu/math/jm36/src/ps/doc/hard-interface
+X*** ./doc/hard-interface	Fri Apr  1 22:41:07 1988
+X--- /cmu/math/jm36/src/ps/doc/hard-interface	Mon Mar 28 20:25:28 1988
+X***************
+X*** 15,20 ****
+X--- 15,29 ----
+X   *	may be expected to be NULL.
+X   */
+X  
+X+ /* Begin jgm */
+X+ /*
+X+  *	DriverType contains a pointer to a string naming the device that this
+X+  * 	is a driver for.  The given string will show up in the "version"
+X+  *	operator.
+X+  */
+X+ char *DriverType = "";
+X+ /* End jgm */
+X+ 
+X  /************************* CREATION OF WINDOWS AND BITMAPS *******************/
+X  
+X  struct hardware *InitHardware () {}
+Xdiff -cr ./doc/hard-interface.c /cmu/math/jm36/src/ps/doc/hard-interface.c
+X*** ./doc/hard-interface.c	Fri Apr  1 22:42:05 1988
+X--- /cmu/math/jm36/src/ps/doc/hard-interface.c	Mon Mar 28 20:24:19 1988
+X***************
+X*** 17,22 ****
+X--- 17,31 ----
+X   *	of access that PostScript is interested in. Any Hardware parameter may be expected to be NULL.
+X   */
+X  
+X+ /* Begin jgm */
+X+ /*
+X+  *	DriverType contains a pointer to a string naming the device that this
+X+  * 	is a driver for.  The given string will show up in the "version"
+X+  *	operator.
+X+  */
+X+ char *DriverType = "";
+X+ /* End jgm */
+X+ 
+X  /*********************************** CREATION OF WINDOWS AND BITMAPS *******************/
+X  
+X  struct hardware *InitHardware () {}
+Xdiff -cr ./postscript/psrc /cmu/math/jm36/src/ps/postscript/psrc
+X*** ./postscript/psrc	Fri Apr  1 22:48:12 1988
+X--- /cmu/math/jm36/src/ps/postscript/psrc	Wed Mar 23 23:05:53 1988
+X***************
+X*** 125,130 ****
+X--- 141,148 ----
+X  } def
+X  
+X  /kshow {
+X+ 	exch	% jgm
+X+ 
+X  	showdict begin /p exch def
+X  		dup length 0 ne {
+X  			dup 0 get /last exch def
+X***************
+X*** 132,137 ****
+X--- 150,156 ----
+X  			dup length 1 sub 1 exch getinterval {
+X  				last exch dup /last exch def
+X  				/p load exec
+X+ 				( ) dup 0 last put show  % jgm
+X  			} forall
+X  		} if
+X  	end
+X***************
+X*** 467,472 ****
+X--- 493,526 ----
+X  	[ 0 f f 0 0 0] w h [] framedevice
+X  	end
+X  } def
+X+ 
+X+ % Begin additions --jgm
+X+ 
+X+ /letter {
+X+ 	5 dict begin
+X+ 	/m [1.13889 0 0 -1.13889 0 0] def
+X+ 	/f m 0 get def
+X+ 	/h 11 72 mul f mul cvi def
+X+ 	/w 8.5 72 mul f mul 8 div cvi def
+X+ 	m 5 h put
+X+ 	m w h [] framedevice
+X+ 	end
+X+ } def
+X+ 
+X+ /note { letter } def
+X+ 
+X+ /legal {
+X+ 	5 dict begin
+X+ 	/m [1.13889 0 0 -1.13889 0 0] def
+X+ 	/f m 0 get def
+X+ 	/h 14 72 mul f mul cvi def
+X+ 	/w 8.5 72 mul f mul 8 div cvi def
+X+ 	m 5 h put
+X+ 	m w h [] framedevice
+X+ 	end
+X+ } def
+X+ 
+X+ % End additions --jgm
+X  
+X  /ascii-set ( !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~) def
+X  
+Xdiff -cr ./source/X.c /cmu/math/jm36/src/ps/source/X.c
+X*** ./source/X.c	Fri Apr  1 22:44:35 1988
+X--- /cmu/math/jm36/src/ps/source/X.c	Fri Mar 11 23:39:36 1988
+X***************
+X*** 17,22 ****
+X--- 17,24 ----
+X  #define TRANSFER_SIZE	256
+X  #define XMAX		65535
+X  
+X+ char *DriverType = "X10"; /* jgm */
+X+ 
+X  static int transfer [TRANSFER_SIZE + 1];
+X  
+X  static unsigned char reverse [0x100];
+Xdiff -cr ./source/array.c /cmu/math/jm36/src/ps/source/array.c
+X*** ./source/array.c	Fri Apr  1 22:48:17 1988
+X--- /cmu/math/jm36/src/ps/source/array.c	Sun Mar  6 17:16:25 1988
+X***************
+X*** 85,94 ****
+X--- 85,96 ----
+X   	return res;
+X   }
+X  
+X+ #ifdef notdef /* jgm */
+X  static Object *Body (item) Object item;
+X   {
+X   	return item.u.Array;
+X   }
+X+ #endif /* jgm */
+X  
+X  #define Body(a) ((a).u.Array)
+X  
+Xdiff -cr ./source/config.c /cmu/math/jm36/src/ps/source/config.c
+X*** ./source/config.c	Fri Apr  1 22:48:20 1988
+X--- /cmu/math/jm36/src/ps/source/config.c	Sat Mar 12 00:08:51 1988
+X***************
+X*** 20,30 ****
+X  Type Real, Name, Operator, String, Poly, Float, FontID;
+X  
+X  extern Object Absent, Nil, SysDict;
+X  
+X! char default_library[] = "/usr/ral/lib/postscript";
+X  
+X  Init ()
+X   {	
+X  	Nil 	= MakeObject ((Type) 0);
+X  	Null	  	= Nil.type = MakeType (SizeNull);
+X  	EmptyDict (Null);	/* needed because of this recursion */
+X--- 20,33 ----
+X  Type Real, Name, Operator, String, Poly, Float, FontID;
+X  
+X  extern Object Absent, Nil, SysDict;
+X+ extern char *DriverType;
+X  
+X! char default_library[] = "/usr/ral/lib/postscript";
+X  
+X  Init ()
+X   {	
+X+ 	char versionbuf[1024]; /* --jgm */
+X+ 
+X  	Nil 	= MakeObject ((Type) 0);
+X  	Null	  	= Nil.type = MakeType (SizeNull);
+X  	EmptyDict (Null);	/* needed because of this recursion */
+X***************
+X*** 87,91 ****
+X   	Install ("polytype",		DictFrom (Poly));
+X  	Install ("fonttype",		DictFrom (FontID));
+X  	
+X! 	Install ("version",	StringFrom ("Version 1.4 with mods by jgm")); /* jgm */
+X   }
+X--- 90,98 ----
+X   	Install ("polytype",		DictFrom (Poly));
+X  	Install ("fonttype",		DictFrom (FontID));
+X  	
+X! 	/* Begin jgm */
+X! 	strcpy(versionbuf, DriverType);
+X! 	strcat(versionbuf, " version 1.4 with jgm mods v2");
+X! 	Install ("version",	StringFrom (versionbuf));
+X! 	/* End jgm */
+X   }
+Xdiff -cr ./source/device.c /cmu/math/jm36/src/ps/source/device.c
+X*** ./source/device.c	Fri Apr  1 22:41:29 1988
+X--- /cmu/math/jm36/src/ps/source/device.c	Sun Mar  6 17:29:48 1988
+X***************
+X*** 200,206 ****
+X   		UnlinkDevice (d);
+X   	 }
+X   	else
+X!  		*/BitBlt (NULL, res->dev, NewDevicePoint (0, 0), NewDevicePoint (0, 0), ex, ROP_FALSE);
+X   	
+X   	return res;
+X   }
+X--- 200,206 ----
+X   		UnlinkDevice (d);
+X   	 }
+X   	else
+X!  		*/BitBlt ((struct hardware *)NULL, res->dev, NewDevicePoint (0, 0), NewDevicePoint (0, 0), ex, ROP_FALSE); /* cast NULL --jgm */
+X   	
+X   	return res;
+X   }
+Xdiff -cr ./source/file.c /cmu/math/jm36/src/ps/source/file.c
+X*** ./source/file.c	Fri Apr  1 22:45:31 1988
+X--- /cmu/math/jm36/src/ps/source/file.c	Sun Mar  6 17:16:15 1988
+X***************
+X*** 168,184 ****
+X--- 168,188 ----
+X  
+X  #define Getc(a) getc(a)
+X  
+X+ #ifdef notdef /* jgm */
+X  static int Getchar ()
+X   {
+X   	return Getc (stdin);
+X   }
+X+ #endif /* jgm */
+X  
+X  #define Getchar getchar
+X  
+X+ #ifdef notdef /* jgm */
+X  static int Status (file) Object file;
+X   {
+X   	return Body (file)->available;
+X   }
+X+ #endif /* jgm */
+X  
+X  #define Status(f) (Body(f)->available)
+X  
+X***************
+X*** 306,312 ****
+X   	Cbreak (FALSE);
+X   }
+X  
+X! static cbreak = FALSE, echoing = TRUE;
+X  
+X  /*ARGSUSED*/
+X  Cbreak (cond) int cond;
+X--- 310,316 ----
+X   	Cbreak (FALSE);
+X   }
+X  
+X! static /* cbreak = FALSE, (removed --jgm) */ echoing = TRUE;
+X  
+X  /*ARGSUSED*/
+X  Cbreak (cond) int cond;
+Xdiff -cr ./source/fill.c /cmu/math/jm36/src/ps/source/fill.c
+X*** ./source/fill.c	Fri Apr  1 22:44:44 1988
+X--- /cmu/math/jm36/src/ps/source/fill.c	Sun Mar  6 17:46:45 1988
+X***************
+X*** 149,155 ****
+X   	UnlinkDevice (gstate->clipdevice);
+X    	gstate->clipdevice = NULL;
+X    	
+X!  	SetClipHardware (gstate->device->dev, NULL);
+X  	
+X  	return TRUE;
+X   }
+X--- 149,155 ----
+X   	UnlinkDevice (gstate->clipdevice);
+X    	gstate->clipdevice = NULL;
+X    	
+X!  	SetClipHardware (gstate->device->dev, (struct hardware *)NULL); /* cast NULL --jgm */
+X  	
+X  	return TRUE;
+X   }
+X***************
+X*** 226,232 ****
+X  static int FillIt (path_a, rule_a, path_b, rule_b, emitfn)
+X  	Path path_a, path_b; int (*rule_a)(), (*rule_b)(); void (*emitfn)();
+X   {
+X! 	Path new;
+X  	static int edgecmp ();
+X  	static void Trapezoids (), BuildEdgeList ();
+X  	
+X--- 226,232 ----
+X  static int FillIt (path_a, rule_a, path_b, rule_b, emitfn)
+X  	Path path_a, path_b; int (*rule_a)(), (*rule_b)(); void (*emitfn)();
+X   {
+X! 	/* Path new; (unused --jgm) */
+X  	static int edgecmp ();
+X  	static void Trapezoids (), BuildEdgeList ();
+X  	
+X***************
+X*** 288,298 ****
+X   {
+X  	struct edge *up_edge;
+X  	int i, count_a = 0, count_b = 0;
+X! 	static void RemoveEdges ();
+X  	
+X  	for (i = 0; i < ninteresting; i++)
+X  	 {
+X! 	 	static void Emit ();
+X  	 	int d_a = 0, d_b = 0;
+X  	 	
+X  	 	if (interesting[i]->clip)
+X--- 288,298 ----
+X   {
+X  	struct edge *up_edge;
+X  	int i, count_a = 0, count_b = 0;
+X! 	/* static void RemoveEdges (); (unused --jgm) */
+X  	
+X  	for (i = 0; i < ninteresting; i++)
+X  	 {
+X! 	 	/* static void Emit (); (unused --jgm) */
+X  	 	int d_a = 0, d_b = 0;
+X  	 	
+X  	 	if (interesting[i]->clip)
+Xdiff -cr ./source/font.c /cmu/math/jm36/src/ps/source/font.c
+X*** ./source/font.c	Fri Apr  1 22:45:11 1988
+X--- /cmu/math/jm36/src/ps/source/font.c	Sun Mar  6 17:11:46 1988
+X***************
+X*** 535,541 ****
+X   	for (;;)
+X  	 {
+X  	 	int code = *++s;
+X! 	 	HardPoint offset, cp;
+X  	 	
+X  	 	offset = Adjust (DExtToInt (last_width), code);
+X  		loc.hx += offset.hx;
+X--- 535,541 ----
+X   	for (;;)
+X  	 {
+X  	 	int code = *++s;
+X! 	 	HardPoint offset/* , cp (unused --jgm) */;
+X  	 	
+X  	 	offset = Adjust (DExtToInt (last_width), code);
+X  		loc.hx += offset.hx;
+Xdiff -cr ./source/gsave.c /cmu/math/jm36/src/ps/source/gsave.c
+X*** ./source/gsave.c	Fri Apr  1 22:39:48 1988
+X--- /cmu/math/jm36/src/ps/source/gsave.c	Sun Mar  6 17:34:40 1988
+X***************
+X*** 75,81 ****
+X    			SetScreen (gstate->screen.frequency, gstate->screen.rotation, gstate->screen.thresh);
+X    		if (tflag)
+X    			SetTransfer (gstate->transfer.tran);
+X!   		SetClipHardware (gstate->device->dev, (gstate->clipdevice ? gstate->clipdevice->dev : NULL));
+X  	 }
+X   	
+X   	return TRUE;
+X--- 75,81 ----
+X    			SetScreen (gstate->screen.frequency, gstate->screen.rotation, gstate->screen.thresh);
+X    		if (tflag)
+X    			SetTransfer (gstate->transfer.tran);
+X!   		SetClipHardware (gstate->device->dev, (gstate->clipdevice ? gstate->clipdevice->dev : (struct hardware *)NULL)); /* Cast NULL --jgm */
+X  	 }
+X   	
+X   	return TRUE;
+Xdiff -cr ./source/image.c /cmu/math/jm36/src/ps/source/image.c
+X*** ./source/image.c	Fri Apr  1 22:48:26 1988
+X--- /cmu/math/jm36/src/ps/source/image.c	Sun Mar  6 17:34:36 1988
+X***************
+X*** 250,256 ****
+X   	 	 	 	FillMask (mask, i, dep);
+X  	 	 	 	
+X  	 	 	 	BitBlt (from, mask, NewDevicePoint (0, 0), NewDevicePoint (0, 0), HardwareExtent (from), ROP_NXOR);
+X! 	 	 	 	BitBlt (NULL, temp, NewDevicePoint (0, 0), NewDevicePoint (0, 0), HardwareExtent (temp), ROP_TRUE);
+X   	 	 	 	for (j = 0; j < dep; j++)
+X   	 	 	 		BitBlt (mask, temp, NewDevicePoint (j, 0), NewDevicePoint (0, 0), HardwareExtent (mask), ROP_AND);
+X   	 	 	 	for (j = 0; j < w; j++)
+X--- 250,256 ----
+X   	 	 	 	FillMask (mask, i, dep);
+X  	 	 	 	
+X  	 	 	 	BitBlt (from, mask, NewDevicePoint (0, 0), NewDevicePoint (0, 0), HardwareExtent (from), ROP_NXOR);
+X! 	 	 	 	BitBlt ((struct  hardware *)NULL, temp, NewDevicePoint (0, 0), NewDevicePoint (0, 0), HardwareExtent (temp), ROP_TRUE);  /* cast NULL --jgm */
+X   	 	 	 	for (j = 0; j < dep; j++)
+X   	 	 	 		BitBlt (mask, temp, NewDevicePoint (j, 0), NewDevicePoint (0, 0), HardwareExtent (mask), ROP_AND);
+X   	 	 	 	for (j = 0; j < w; j++)
+Xdiff -cr ./source/matrix.c /cmu/math/jm36/src/ps/source/matrix.c
+X*** ./source/matrix.c	Fri Apr  1 22:43:11 1988
+X--- /cmu/math/jm36/src/ps/source/matrix.c	Wed Mar 23 22:40:28 1988
+X***************
+X*** 126,131 ****
+X--- 126,132 ----
+X  static int PTranslate ()
+X   {
+X   	Object tx, ty, mat;
+X+ 	Matrix m;
+X   	float x, y;
+X   	
+X   	if (!OpCheck (2, 1))
+X***************
+X*** 136,141 ****
+X--- 137,144 ----
+X   		 	return Push (OpStack, mat), Error (PInvAccess);
+X   		else if (lengthArray (mat) != 6)
+X   		 	return Push (OpStack, mat), Error (PRangeCheck);
+X+ 		else if	(!ExtractMatrix	(&m, mat))  /* --jgm */
+X+ 		        return Push (OpStack, mat), Error (PTypeCheck); /* --jgm */
+X   		else
+X   		 {
+X   		 	ty = Pop (OpStack);
+X***************
+X*** 153,159 ****
+X   		 	else
+X    		 		return Push (OpStack, tx), Push (OpStack, ty), Push (OpStack, mat), Error (PTypeCheck);
+X  		 	
+X!  		 	VOID AssignMatrix (mat, NewMatrix (1.0, 0.0, 0.0, 1.0, x, y));
+X   		 	
+X   		 	return Push (OpStack, mat);
+X   		 }
+X--- 156,164 ----
+X   		 	else
+X    		 		return Push (OpStack, tx), Push (OpStack, ty), Push (OpStack, mat), Error (PTypeCheck);
+X  		 	
+X! /* 		 	VOID AssignMatrix (mat, NewMatrix (1.0, 0.0, 0.0, 1.0, x, y)); WRONG --jgm */
+X!  		 	VOID AssignMatrix (mat, Translate(m, x, y)); /* --jgm */
+X! 
+X   		 	
+X   		 	return Push (OpStack, mat);
+X   		 }
+X***************
+X*** 178,184 ****
+X  static int PScale ()
+X   {
+X   	Object tx, ty, mat;
+X!  	float x, y;
+X   	
+X   	if (!OpCheck (2, 1))
+X   		return FALSE;
+X--- 183,190 ----
+X  static int PScale ()
+X   {
+X   	Object tx, ty, mat;
+X! 	Matrix m; /* --jgm */
+X! 	float x, y;
+X   	
+X   	if (!OpCheck (2, 1))
+X   		return FALSE;
+X***************
+X*** 188,193 ****
+X--- 194,201 ----
+X   		 	return Push (OpStack, mat), Error (PInvAccess);
+X   		else if (lengthArray (mat) != 6)
+X   		 	return Push (OpStack, mat), Error (PRangeCheck);
+X+ 		else if	(!ExtractMatrix	(&m, mat))  /* --jgm */
+X+ 		        return Push (OpStack, mat), Error (PTypeCheck); /* --jgm */
+X   		else
+X   		 {
+X  		 	ty = Pop (OpStack);
+X***************
+X*** 205,211 ****
+X   		 	else
+X    		 		return Push (OpStack, tx), Push (OpStack, ty), Push (OpStack, mat), Error (PTypeCheck);
+X  		 	
+X!  		 	VOID AssignMatrix (mat, NewMatrix (x, 0.0, 0.0, y, 0.0, 0.0));
+X   		 	
+X   		 	return Push (OpStack, mat);
+X   		 }
+X--- 213,220 ----
+X   		 	else
+X    		 		return Push (OpStack, tx), Push (OpStack, ty), Push (OpStack, mat), Error (PTypeCheck);
+X  		 	
+X! /* 		 	VOID AssignMatrix (mat, NewMatrix (x, 0.0, 0.0, y, 0.0, 0.0)); WRONG --jgm */
+X!  		 	VOID AssignMatrix (mat, Scale(m, x, y)); /* --jgm */
+X   		 	
+X   		 	return Push (OpStack, mat);
+X   		 }
+X***************
+X*** 249,256 ****
+X   		 		a = BodyReal (ang);
+X   		 	else
+X   		 		return Push (OpStack, ang), Push (OpStack, mat), Error (PTypeCheck);
+X!  		 	
+X!  		 	VOID AssignMatrix (mat, NewMatrix (cos(a), sin(a), -sin(a), -cos(a), 0.0, 0.0));
+X   		 	
+X   		 	return Push (OpStack, mat);
+X   		 }
+X--- 258,265 ----
+X   		 		a = BodyReal (ang);
+X   		 	else
+X   		 		return Push (OpStack, ang), Push (OpStack, mat), Error (PTypeCheck);
+X!  		 	a = Rad(a); /* jgm */
+X!  		 	VOID AssignMatrix (mat, NewMatrix (cos(a), sin(a), -sin(a), cos(a), 0.0, 0.0)); /* last "-cos" changed to "cos" --jgm */
+X   		 	
+X   		 	return Push (OpStack, mat);
+X   		 }
+Xdiff -cr ./source/name.c /cmu/math/jm36/src/ps/source/name.c
+X*** ./source/name.c	Fri Apr  1 22:39:54 1988
+X--- /cmu/math/jm36/src/ps/source/name.c	Sun Mar  6 17:16:20 1988
+X***************
+X*** 107,113 ****
+X  
+X  static int HashName (s, length) unsigned char *s; int length;
+X   {
+X! 	int i, res = 0;
+X  	
+X  	while (length--)
+X  		res += *s++;
+X--- 107,113 ----
+X  
+X  static int HashName (s, length) unsigned char *s; int length;
+X   {
+X! 	int /* i, (unused --jgm) */ res = 0;
+X  	
+X  	while (length--)
+X  		res += *s++;
+Xdiff -cr ./source/operator.c /cmu/math/jm36/src/ps/source/operator.c
+X*** ./source/operator.c	Fri Apr  1 22:41:54 1988
+X--- /cmu/math/jm36/src/ps/source/operator.c	Sun Mar  6 17:16:23 1988
+X***************
+X*** 69,75 ****
+X   {
+X   	Object res;
+X   	struct op_struct *op;
+X!  	int i;
+X   	res = Cvx (MakeObject (Operator));
+X   	res.u.Operator = op = (struct op_struct *) Malloc (sizeof (struct op_struct));
+X  	
+X--- 69,75 ----
+X   {
+X   	Object res;
+X   	struct op_struct *op;
+X!  	/* int i; (unused --jgm) */
+X   	res = Cvx (MakeObject (Operator));
+X   	res.u.Operator = op = (struct op_struct *) Malloc (sizeof (struct op_struct));
+X  	
+X***************
+X*** 130,139 ****
+X--- 130,141 ----
+X   	TypeInstall (type, name, res);
+X   }
+X  
+X+ #ifdef notdef /* jgm */
+X  static struct op_struct *Body (item) Object item;
+X   {
+X   	return item.u.Operator;
+X   }
+X+ #endif /* jgm */
+X  
+X  #define Body(op)	((op).u.Operator)
+X  
+Xdiff -cr ./source/path.c /cmu/math/jm36/src/ps/source/path.c
+X*** ./source/path.c	Fri Apr  1 22:43:14 1988
+X--- /cmu/math/jm36/src/ps/source/path.c	Sat Mar 19 17:00:52 1988
+X***************
+X*** 194,200 ****
+X   	
+X   	if ((res = ReversePath (gstate->path)) == NULL)
+X   		return Error (PLimitCheck);
+X!   	SetPath (&gstate->path, res);
+X   	return TRUE;	
+X   }
+X  
+X--- 194,201 ----
+X   	
+X   	if ((res = ReversePath (gstate->path)) == NULL)
+X   		return Error (PLimitCheck);
+X!   	/* SetPath (&gstate->path, res); --jgm */
+X! 	gstate->path = res; /* Don't free gstate->path twice. --jgm */
+X   	return TRUE;	
+X   }
+X  
+Xdiff -cr ./source/pixrect.c /cmu/math/jm36/src/ps/source/pixrect.c
+X*** ./source/pixrect.c	Fri Apr  1 22:40:34 1988
+X--- /cmu/math/jm36/src/ps/source/pixrect.c	Fri Mar 11 23:35:16 1988
+X***************
+X*** 15,20 ****
+X--- 15,22 ----
+X  #include "canon.h"
+X  #include <pixrect/pixrect_hs.h>
+X  
+X+ char *DriverType = "Sun pixrect"; /* jgm */
+X+ 
+X  int rop_map [] =
+X   {
+X   	PIX_SRC & PIX_NOT (PIX_SRC),
+Xdiff -cr ./source/state.c /cmu/math/jm36/src/ps/source/state.c
+X*** ./source/state.c	Fri Apr  1 22:43:34 1988
+X--- /cmu/math/jm36/src/ps/source/state.c	Sun Mar  6 17:33:19 1988
+X***************
+X*** 114,120 ****
+X  
+X  int ErasePage ()
+X   {
+X! 	Paint (NULL, gstate->device->dev,
+X  		NewDevicePoint (0, 0), NewDevicePoint (0, 0),
+X  		HardwareExtent (gstate->device->dev),
+X  		White);
+X--- 114,120 ----
+X  
+X  int ErasePage ()
+X   {
+X! 	Paint ((struct hardware *)NULL, gstate->device->dev, /* cast NULL --jgm */
+X  		NewDevicePoint (0, 0), NewDevicePoint (0, 0),
+X  		HardwareExtent (gstate->device->dev),
+X  		White);
+Xdiff -cr ./source/ww.c /cmu/math/jm36/src/ps/source/ww.c
+X*** ./source/ww.c	Fri Apr  1 22:41:00 1988
+X--- /cmu/math/jm36/src/ps/source/ww.c	Fri Mar 11 23:39:23 1988
+X***************
+X*** 14,19 ****
+X--- 14,21 ----
+X  #include "canon.h"
+X  #include "wwinfo.h"
+X  
+X+ char *DriverType = "ww"; /* jgm */
+X+ 
+X  static void xxrasterop ();
+X  
+X  static struct hardware *NewHardware ();
+END_OF_ps.diff.v2
+if test 18523 -ne `wc -c <ps.diff.v2`; then
+    echo shar: \"ps.diff.v2\" unpacked with wrong size!
+fi
+# end of overwriting check
+fi
+echo shar: End of shell archive.
+exit 0
+-- 
+_.John G. Myers		Internet: John.Myers@cs.cmu.edu
+			LoseNet:  ...!seismo!inhp4!wiscvm.wisc.edu!give!up
+"The world is full of bozos.  Some of them even have PhD's in Computer Science"
+
+

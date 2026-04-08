@@ -1,0 +1,331 @@
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i050:  A PostScript interpreter, Part01/18
+Message-ID: <2733@uunet.UU.NET>
+Date: 3 Nov 87 00:23:33 GMT
+Article-I.D.: uunet.2733
+Posted: Mon Nov  2 19:23:33 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 2324
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 50
+Archive-name: postscript/part01
+
+This is a virtually complete implementation of PostScript.  Just type
+make and it should produce a version for suns.  Since the only complete
+driver is for suns and since some driver writing will be necessary on
+any other machine, I have not packaged everything up in an idiot-proof
+box.  I am not aware of any Gotchas in building this source.  The X
+driver used to work on X10 - It will need work for X11.  The pixrect
+driver is very new, and should be regarded as didactic, as it scribbles
+straight onto the display.  Persuading suntools to look after the bits
+would have taken too long.
+
+Writing your own driver involves merely hacking pixrect.c until it will
+drive your display.  There are only 11 routines to write, and they're
+all quite short.
+
+Have fun!
+
+- Crispin Goswell
+
+caag@uk.ac.rl.vd	(JANET)
+caag@vd.rl.ac.uk	(Internet)
+...!mcvax!ukc!rlvd!caag	(UUCP)
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i053:  A PostScript interpreter, Part04/18
+Message-ID: <2752@uunet.UU.NET>
+Date: 3 Nov 87 07:14:25 GMT
+Article-I.D.: uunet.2752
+Posted: Tue Nov  3 02:14:25 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 3187
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 53
+Archive-name: postscript/part04
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i054:  A PostScript interpreter, Part05/18
+Message-ID: <2753@uunet.UU.NET>
+Date: 3 Nov 87 07:15:37 GMT
+Article-I.D.: uunet.2753
+Posted: Tue Nov  3 02:15:37 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 5258
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 54
+Archive-name: postscript/part05
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i051:  A PostScript interpreter, Part02/18
+Message-ID: <2750@uunet.UU.NET>
+Date: 3 Nov 87 07:05:02 GMT
+Article-I.D.: uunet.2750
+Posted: Tue Nov  3 02:05:02 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 2065
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 51
+Archive-name: postscript/part02
+
+
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i052:  A PostScript interpreter, Part03/18
+Message-ID: <2751@uunet.UU.NET>
+Date: 3 Nov 87 07:09:31 GMT
+Article-I.D.: uunet.2751
+Posted: Tue Nov  3 02:09:31 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 3571
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 52
+Archive-name: postscript/part03
+
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i058:  A PostScript interpreter, Part09/18
+Message-ID: <2856@uunet.UU.NET>
+Date: 6 Nov 87 19:02:12 GMT
+Article-I.D.: uunet.2856
+Posted: Fri Nov  6 14:02:12 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 3611
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 58
+Archive-name: postscript/part09
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i059:  A PostScript interpreter, Part10/18
+Message-ID: <2857@uunet.UU.NET>
+Date: 6 Nov 87 19:03:00 GMT
+Article-I.D.: uunet.2857
+Posted: Fri Nov  6 14:03:00 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 4184
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 59
+Archive-name: postscript/part10
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i060:  A PostScript interpreter, Part11/18
+Message-ID: <2858@uunet.UU.NET>
+Date: 6 Nov 87 19:03:23 GMT
+Article-I.D.: uunet.2858
+Posted: Fri Nov  6 14:03:23 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 5867
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 60
+Archive-name: postscript/part11
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i060:  A PostScript interpreter, Part11/18
+Message-ID: <2858@uunet.UU.NET>
+Date: 6 Nov 87 19:03:23 GMT
+Article-I.D.: uunet.2858
+Posted: Fri Nov  6 14:03:23 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 5867
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 60
+Archive-name: postscript/part11
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i055:  A PostScript interpreter, Part06/18
+Message-ID: <2853@uunet.UU.NET>
+Date: 6 Nov 87 19:00:21 GMT
+Article-I.D.: uunet.2853
+Posted: Fri Nov  6 14:00:21 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 4540
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 55
+Archive-name: postscript/part06
+
+[  Sorry for the delays; when the net was free, I was  busy.  --r$  ]
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i056:  A PostScript interpreter, Part07/18
+Message-ID: <2854@uunet.UU.NET>
+Date: 6 Nov 87 19:01:09 GMT
+Article-I.D.: uunet.2854
+Posted: Fri Nov  6 14:01:09 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 4989
+Approved: rs@uunet.UU.NET
+
+Submitted-by:          Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 56
+Archive-name: postscript/part07
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i057:  A PostScript interpreter, Part08/18
+Message-ID: <2855@uunet.UU.NET>
+Date: 6 Nov 87 19:01:44 GMT
+Article-I.D.: uunet.2855
+Posted: Fri Nov  6 14:01:44 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 3704
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 57
+Archive-name: postscript/part08
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i061:  A PostScript interpreter, Part12/18
+Message-ID: <2879@uunet.UU.NET>
+Date: 8 Nov 87 21:22:08 GMT
+Article-I.D.: uunet.2879
+Posted: Sun Nov  8 16:22:08 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 1793
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 61
+Archive-name: postscript/part12
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i062:  A PostScript interpreter, Part13/18
+Message-ID: <2880@uunet.UU.NET>
+Date: 8 Nov 87 21:22:49 GMT
+Article-I.D.: uunet.2880
+Posted: Sun Nov  8 16:22:49 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 6706
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 62
+Archive-name: postscript/part13
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i063:  A PostScript interpreter, Part14/18
+Message-ID: <2881@uunet.UU.NET>
+Date: 8 Nov 87 21:23:28 GMT
+Article-I.D.: uunet.2881
+Posted: Sun Nov  8 16:23:28 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 4430
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 63
+Archive-name: postscript/part14
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i064:  A PostScript interpreter, Part15/18
+Message-ID: <2883@uunet.UU.NET>
+Date: 8 Nov 87 21:23:57 GMT
+Article-I.D.: uunet.2883
+Posted: Sun Nov  8 16:23:57 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 7507
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 64
+Archive-name: postscript/part15
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i065:  A PostScript interpreter, Part16/18
+Message-ID: <2884@uunet.UU.NET>
+Date: 8 Nov 87 21:24:35 GMT
+Article-I.D.: uunet.2884
+Posted: Sun Nov  8 16:24:35 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 8323
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 65
+Archive-name: postscript/part16
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i066:  A PostScript interpreter, Part17/18
+Message-ID: <2885@uunet.UU.NET>
+Date: 8 Nov 87 21:25:00 GMT
+Article-I.D.: uunet.2885
+Posted: Sun Nov  8 16:25:00 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 4234
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 66
+Archive-name: postscript/part17
+
+Path: utegc!utcsri!utgpu!utzoo!mnetor!uunet!rsalz
+From: rsalz@uunet.UU.NET (Rich Salz)
+Newsgroups: comp.sources.unix
+Subject: v12i067:  A PostScript interpreter, Part18/18
+Message-ID: <2886@uunet.UU.NET>
+Date: 8 Nov 87 21:25:35 GMT
+Article-I.D.: uunet.2886
+Posted: Sun Nov  8 16:25:35 1987
+Organization: UUNET Communications Services, Arlington, VA
+Lines: 735
+Approved: rs@uunet.UU.NET
+
+Submitted-by: Crispin Goswell <caag@vd.rl.ac.uk>
+Posting-number: Volume 12, Issue 67
+Archive-name: postscript/part18
+

@@ -18,26 +18,20 @@
 #define FILL_DOUBLE		2
 #define FILL_DOUBLE_STROKE	3
 
-#ifdef MACINTOSH
-#define MAXPATHELEMENTS 3000
-#else
-#define MAXPATHELEMENTS 3000
-#endif
-
 typedef struct hard_point { float hx, hy; } HardPoint;
 
 enum pelem_type { EHeader, EMove, ELine, EArc, ECurve, EClose };
 
 struct path_element
-{
-  enum pelem_type ptype;
-  union {
-    HardPoint point;
-    struct arc { int dir; HardPoint centre; float radius, from, to; } arc;
-    struct bezier { HardPoint x0, x1, x2; } curve;
-  } pe;
-  struct path_element *next, *last;
-};
+ {
+ 	enum pelem_type ptype;
+ 	union {
+  		HardPoint point;
+		struct arc { int dir; HardPoint centre; float radius, from, to; } arc;
+ 		struct bezier { HardPoint x0, x1, x2; } curve;
+ 	} pe;
+ 	struct path_element *next, *last;
+ };
 
 typedef struct path_element *Path;
 
